@@ -22,7 +22,7 @@
         <!-- End Page Header -->
         <div class="card">
             <div class="card-body">
-                <form action="{{route('admin.category.store')}}" method="post">
+                <form action="{{route('admin.category.store')}}" method="post" enctype="multipart/form-data">
                 @csrf
                     <div class="row">
                     @if($language)
@@ -49,23 +49,44 @@
                                 data-original-title="{{ translate('messages.Required.')}}"> *
                                 </span>
                             </label>
-                            <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  >
+                            <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  required >
                         </div>
                         <input type="hidden" name="lang[]" value="default">
                         @foreach($language as $lang)
                             <div class="form-group d-none lang_form col-sm-6" id="{{$lang}}-form">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('messages.name')}} ({{strtoupper($lang)}})</label>
-                                <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  >
+                                <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  required >
                             </div>
                             <input type="hidden" name="lang[]" value="{{$lang}}">
                         @endforeach
                     @else
                         <div class="form-group col-sm-6">
                             <label class="input-label" for="exampleFormControlInput1">{{translate('messages.name')}}</label>
-                            <input type="text" name="name" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" value="{{old('name')}}" maxlength="191">
+                            <input type="text" name="name"  class="form-control" placeholder="{{translate('messages.new_sub_category')}}" value="{{old('name')}}" maxlength="191"  required>
                         </div>
                         <input type="hidden" name="lang[]" value="default">
                     @endif
+                      <div class="col-md-6">
+                            <div class="h-100 d-flex align-items-center flex-column">
+                                <label class="mb-3 text-center">{{translate('messages.image')}} <small class="text-danger">* ( {{translate('messages.ratio')}} 1:1)</small></label>
+                                <label class="text-center my-auto position-relative d-inline-block">
+                                    <img class="img--176 border" id="viewer"
+                                        @if(isset($category))
+                                        src="{{asset('storage/app/public/category')}}/{{$category['image']}}"
+                                        @else
+                                        src="{{asset('public/assets/admin/img/upload-img.png')}}"
+                                        @endif
+                                        alt="image"/>
+                                    <div class="icon-file-group">
+                                        <div class="icon-file">
+                                            <input type="file" name="image" id="customFileEg2" class="custom-file-input read-url"
+                                                accept=".webp, .jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" >
+                                                <i class="tio-edit"></i>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                         <div class="form-group col-sm-6">
                             <label class="input-label"
                                 for="exampleFormControlSelect1">{{translate('messages.main_category')}}
@@ -78,6 +99,7 @@
                             </select>
                         </div>
                         <input name="position" value="1" hidden>
+                        
 
                         <div class="col-sm-12">
                             <div class="btn--container justify-content-end">
@@ -249,7 +271,19 @@
                 nurl.searchParams.delete('search');
                 location.href = nurl;
             });
-
+            function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#viewer').attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+  $("#customFileEg2").change(function() {
+            readURL(this);
+            $('#viewer').show(1000)
+        });
             $('#reset_btn').click(function(){
             $('#exampleFormControlSelect1').val(null).trigger('change');
             })
