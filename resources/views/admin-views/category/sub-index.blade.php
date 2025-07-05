@@ -49,20 +49,20 @@
                                 data-original-title="{{ translate('messages.Required.')}}"> *
                                 </span>
                             </label>
-                            <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  >
+                            <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  required >
                         </div>
                         <input type="hidden" name="lang[]" value="default">
                         @foreach($language as $lang)
                             <div class="form-group d-none lang_form col-sm-6" id="{{$lang}}-form">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('messages.name')}} ({{strtoupper($lang)}})</label>
-                                <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"   >
+                                <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  required >
                             </div>
                             <input type="hidden" name="lang[]" value="{{$lang}}">
                         @endforeach
                     @else
                         <div class="form-group col-sm-6">
                             <label class="input-label" for="exampleFormControlInput1">{{translate('messages.name')}}</label>
-                            <input type="text" name="name"  class="form-control" placeholder="{{translate('messages.new_sub_category')}}" value="{{old('name')}}" maxlength="191"  >
+                            <input type="text" name="name"  class="form-control" placeholder="{{translate('messages.new_sub_category')}}" value="{{old('name')}}" maxlength="191"  required>
                         </div>
                         <input type="hidden" name="lang[]" value="default">
                     @endif
@@ -287,8 +287,5 @@
             $('#reset_btn').click(function(){
             $('#exampleFormControlSelect1').val(null).trigger('change');
             })
-
-
-            
             </script>
 @endpush

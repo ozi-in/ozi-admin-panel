@@ -89,7 +89,7 @@ active
 
                         </div>
                         <div class="col-md-6">
-               
+                            @if ($category->position == 0)
                             <div class="h-100 d-flex align-items-center flex-column">
                                 <label class="mb-4">{{translate('messages.image')}}
                                     <small class="text-danger">* ( {{translate('messages.ratio')}} 1:1 )</small>
@@ -108,7 +108,7 @@ active
                                     </div>
                                 </label>
                             </div>
-                         
+                            @endif
                         </div>
                     </div>
                     <div class="btn--container justify-content-end mt-3">
