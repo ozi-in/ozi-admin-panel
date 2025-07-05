@@ -25,12 +25,12 @@
                     <ul class="nav nav-tabs border-0 nav--tabs nav--pills">
                         <li class="nav-item">
                             <a class="nav-link {{ $storage == 'local' ? 'active' : '' }}"
-                               href="{{ route('admin.business-settings.file-manager.index', ['folder_path'=>'cHJvZHVjdA==', 'storage'=>'local']) }}">{{translate('local_storage')}}</a>
+                               href="{{ route('admin.business-settings.file-manager.index', ['folder_path'=>'cHVibGlj', 'storage'=>'local']) }}">{{translate('local_storage')}}</a>
                         </li>
                         @if(\App\CentralLogics\Helpers::getDisk() == 's3')
                         <li class="nav-item">
                             <a class="nav-link {{ $storage == 's3' ? 'active' : '' }}"
-                               href="{{ route('admin.business-settings.file-manager.index', ['folder_path'=>'cHJvZHVjdA==', 'storage'=>'s3']) }}">{{translate('S3_bucket')}}</a>
+                               href="{{ route('admin.business-settings.file-manager.index', ['folder_path'=>'cHVibGlj', 'storage'=>'s3']) }}">{{translate('S3_bucket')}}</a>
                         </li>
                         @endif
                     </ul>
