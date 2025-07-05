@@ -1982,36 +1982,22 @@ class Helpers
         return isset($config)?($config==0?'s3':'public'):'public';
     }
 
-public static function upload(string $dir, string $format, $image = null)
-{
-    try {
-        if ($image != null) {
-            $imageName = \Carbon\Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
-            $disk = self::getDisk();
-
-            // Only make directory for local storage, NOT for s3
-            if ($disk !== 's3' && !Storage::disk($disk)->exists($dir)) {
-                Storage::disk($disk)->makeDirectory($dir);
-            }
-
-            $uploaded = Storage::disk('s3')->putFileAs($dir, $image, $imageName);
-
-            if ($uploaded) {
-                return $uploaded;
+    public static function upload(string $dir, string $format, $image = null)
+    {
+        try {
+            if ($image != null) {
+                $imageName = \Carbon\Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
+                if (!Storage::disk(self::getDisk())->exists($dir)) {
+                    Storage::disk(self::getDisk())->makeDirectory($dir);
+                }
+                Storage::disk(self::getDisk())->putFileAs($dir, $image, $imageName);
             } else {
-                throw new \Exception('File upload failed: unable to write to storage.');
+                $imageName = 'def.png';
             }
-        } else {
-            return 'def.png';
+        } catch (\Exception $e) {
         }
-    } catch (\Exception $e) {
-        \Log::error('Upload failed: ' . $e->getMessage());
-        return null;
+        return $imageName;
     }
-}
-
-
-
 
     public static function update(string $dir, $old_image, string $format, $image = null)
     {
