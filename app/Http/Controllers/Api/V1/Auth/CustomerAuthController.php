@@ -234,10 +234,10 @@ class CustomerAuthController extends Controller
                         'phone' => $request['phone'],
                         'token' => $request['otp'],
                     ])->delete();
-                    $is_personal_info = 0;
-                    if($user->f_name){
-                        $is_personal_info = 1;
-                    }
+                    $is_personal_info = 1;
+                    // if($user->f_name){
+                    //     $is_personal_info = 1;
+                    // }
                     $user_email = null;
                     if($user->email){
                         $user_email = $user->email;
