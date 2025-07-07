@@ -219,4 +219,32 @@ class CartController extends Controller
 		});
         return response()->json($carts, 200);
     }
+
+    // Make cart Item as Gift
+public function updateGiftStatus(Request $request, $id)
+{
+     $validator = Validator::make($request->all(), [
+        'is_gift' => 'required|boolean'
+
+    ]);
+    if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+  $user_id = $request->user ? $request->user->id : $request['guest_id'];
+    $cartItem = Cart::where('id', $id)
+        ->where('user_id', $user_id) // Ensure it's the current user's cart
+        ->first();
+
+    if (!$cartItem) {
+        return response()->json(['message' => 'Cart item not found.'], 40);
+    }
+
+    $cartItem->is_gift = $request->is_gift;
+    $cartItem->save();
+
+    return response()->json([
+        'message' => 'Gift status updated.',
+        'data' => $cartItem
+    ]);
+}
 }
