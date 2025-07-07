@@ -3,6 +3,7 @@
 use App\WebSockets\Handler\DMLocationSocketHandler;
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
+use App\Http\Controllers\TATController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,7 @@ use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 */
 
 Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function () {
+    Route::get('/tat', [TATController::class, 'getDeliveryTAT']);
     Route::group(['prefix' => 'configurations'], function () {
         Route::get('/', 'ExternalConfigurationController@getConfiguration');
         Route::get('/get-external', 'ExternalConfigurationController@getExternalConfiguration');
