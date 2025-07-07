@@ -26,7 +26,7 @@
                 @csrf
                     <div class="row">
                     @if($language)
-                        @php($defaultLang = $language[0])
+                        @php($defaultLang = $language[0]) @endphp
                         <div class="col-sm-12">
                             <ul class="nav nav-tabs mb-4">
                                 <li class="nav-item">
@@ -52,12 +52,15 @@
                             <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  required >
                         </div>
                         <input type="hidden" name="lang[]" value="default">
+                         @php $defaultLang = $language[0]; @endphp
                         @foreach($language as $lang)
+                           @if($lang != $defaultLang)
                             <div class="form-group d-none lang_form col-sm-6" id="{{$lang}}-form">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('messages.name')}} ({{strtoupper($lang)}})</label>
                                 <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_sub_category')}}" maxlength="191"  required >
                             </div>
                             <input type="hidden" name="lang[]" value="{{$lang}}">
+                            @endif
                         @endforeach
                     @else
                         <div class="form-group col-sm-6">
