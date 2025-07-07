@@ -236,7 +236,7 @@ public function updateGiftStatus(Request $request, $id)
         ->first();
 
     if (!$cartItem) {
-        return response()->json(['message' => 'Cart item not found.'], 40);
+        return response()->json(['message' => 'Cart item not found.'], 404);
     }
 
     $cartItem->is_gift = $request->is_gift;
