@@ -36,20 +36,17 @@ class TATController extends Controller
             return response()->json(['error' => 'Route not found'], 404);
         }
 
-        $duration = $element['duration']['text'];
         $distance = $element['distance']['text'];
-      
+        $duration = $element['duration']['text'];
+        $distanceKm = $element['distance']['value'] / 1000; // meters to km
 
-        $distanceKm = preg_replace('/[^\d]/', '', $distance);
-
-        if ($distanceKm < 7) {
-            $tat = 'Instant Delivery';
-        } elseif ($distanceKm < 20 ) {
-            $tat = 'Same Day Delivery';
-        } elseif ($distanceKm < 50 ) {
-            $tat = 'Next Day Delivery';
-        } else {
-            $tat = "Estimated delivery time: $duration";
+        // Get delivery TAT based on config
+        $tat = 'Unknown';
+        foreach (config('tat.levels') as $level) {
+            if ($distanceKm < $level['max_km']) {
+                $tat = $level['label'];
+                break;
+            }
         }
 
         return response()->json([
@@ -59,4 +56,3 @@ class TATController extends Controller
         ]);
     }
 }
-
