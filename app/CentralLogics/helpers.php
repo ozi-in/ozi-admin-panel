@@ -317,11 +317,9 @@ class Helpers
                 $item['nutritions_name']= $item?->nutritions ? Nutrition::whereIn('id',$item?->nutritions->pluck('id') )->pluck('nutrition') : null;
                 $item['allergies_name']= $item?->allergies ?Allergy::whereIn('id',$item?->allergies->pluck('id') )->pluck('allergy') : null;
                 $item['generic_name']= $item?->generic ? GenericName::whereIn('id',$item?->generic->pluck('id') )->pluck('generic_name'): null ;
-                $item['tag_names'] = $item?->tags && $item->tags->count() > 0
-                ? $item->tags->map(function ($tag) {
-                    return $tag->tag;
-                })
-                : [];
+               $item['tag_names'] = $item?->tags && $item->tags->count() > 0
+    ? $item->tags->pluck('tag')->implode(', ')
+    : '';
                  $sale_price = $item->price;            
             // Apply discount
             if ($item->discount_type == 'percent') {
