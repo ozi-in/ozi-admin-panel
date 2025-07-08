@@ -3526,7 +3526,6 @@ class Helpers
                                                                 ];
                                                                 
                                                                 try {
-                                                                    
                                                                     if ($data && $type == 's3' && Storage::disk('s3')->exists($path .'/'. $data)) {
                                                                         return Storage::disk('s3')->url($path .'/'. $data);
                                                                         //                $awsUrl = config('filesystems.disks.s3.url');
