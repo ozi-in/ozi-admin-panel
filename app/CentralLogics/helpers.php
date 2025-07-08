@@ -3526,6 +3526,7 @@ class Helpers
                                                                 ];
                                                                 
                                                                 try {
+                                                                    
                                                                     if ($data && $type == 's3' && Storage::disk('s3')->exists($path .'/'. $data)) {
                                                                         return Storage::disk('s3')->url($path .'/'. $data);
                                                                         //                $awsUrl = config('filesystems.disks.s3.url');
@@ -3539,9 +3540,9 @@ class Helpers
                                                                     return asset('storage/app/public') . '/' . $path . '/' . $data;
                                                                 }
                                                                 
-                                                                // if (request()->is('api/*')) {
-                                                                //     return null;
-                                                                // }
+                                                                if (request()->is('api/*')) {
+                                                                    return null;
+                                                                }
                                                                 
                                                                 if(isset($placeholder) && array_key_exists($placeholder, $place_holders)){
                                                                     return $place_holders[$placeholder];
