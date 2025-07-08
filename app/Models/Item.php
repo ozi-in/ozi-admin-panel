@@ -271,10 +271,10 @@ class Item extends Model
         });
     }
 
-    public function tags()
-    {
-        return $this->belongsToMany(Tag::class);
-    }
+  public function tags()
+{
+    return $this->belongsToMany(Tag::class, 'item_tag', 'item_id', 'tag_id');
+}
     public function allergies()
     {
         return $this->belongsToMany(Allergy::class);
