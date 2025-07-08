@@ -70,8 +70,6 @@ class CategoryController extends BaseController
 
     public function add(CategoryAddRequest $request): RedirectResponse
     {
-
-
         $parentCategory = $this->categoryRepo->getFirstWhere(params: ['id' => $request['parent_id']]);
         $category = $this->categoryRepo->add(
             data: $this->categoryService->getAddData(
