@@ -257,6 +257,7 @@ class CustomerAuthController extends Controller
                     return response()->json(['token' => isset($token)?$token:$temporaryToken, 'is_phone_verified'=>1, 'is_email_verified'=>1, 'is_personal_info' => $is_personal_info, 'is_exist_user' =>null, 'login_type' => $request->login_type, 'email' => $user_email], 200);
                 }
                 else{
+                 
                     $user = new User();
                     $user->phone = $request['phone'];
                     $user->password = bcrypt($request['phone']);
@@ -266,12 +267,17 @@ class CustomerAuthController extends Controller
 
                     $this->refer_code_check($user);
 
-                    $is_personal_info = 0;
+                    $is_personal_info = 1;
                     $user_email = null;
                     if($user->email){
                         $user_email = $user->email;
                     }
 
+                     $temporaryToken = $user->createToken('RestaurantCustomerAuth')->accessToken;
+                        if(isset($request['guest_id'])){
+                            $this->check_guest_cart($user, $request['guest_id']);
+                        }
+                    
                     return response()->json(['token' => $temporaryToken, 'is_phone_verified'=>1, 'is_email_verified'=>1, 'is_personal_info' => $is_personal_info, 'is_exist_user' => null, 'login_type' => 'otp', 'email' => $user_email], 200);
                 }
             }else{
