@@ -235,6 +235,7 @@ class CustomerAuthController extends Controller
                     }
                     return response()->json(['token' => $temporaryToken, 'is_phone_verified'=>1, 'is_email_verified'=>1, 'is_personal_info' => 1, 'is_exist_user' =>$is_exist_user, 'login_type' => 'otp', 'email' => $user_email], 200);
                 }elseif (($user && $user->is_phone_verified == 1) || ($user && $user->is_phone_verified == 0 && $user->is_from_pos == 1)){
+             
                     DB::table('phone_verifications')->where([
                         'phone' => $request['phone'],
                         'token' => $request['otp'],
@@ -248,7 +249,7 @@ class CustomerAuthController extends Controller
                         $user_email = $user->email;
                     }
                     if ($is_personal_info == 1 && auth()->loginUsingId($user->id)) {
-                        $token = auth()->user()->createToken('RestaurantCustomerAuth')->accessToken;
+                        $token = $user->createToken('RestaurantCustomerAuth')->accessToken;
                         if(isset($request['guest_id'])){
                             $this->check_guest_cart($user, $request['guest_id']);
                         }
