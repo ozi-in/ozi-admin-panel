@@ -140,6 +140,7 @@ class CustomerAuthController extends Controller
                 // if($user->f_name){
                 //     $is_personal_info = 1;
                 // }
+                
                 $user_email = null;
                 if($user->email){
                     $user_email = $user->email;
