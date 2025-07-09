@@ -27,25 +27,26 @@ class FileManagerController extends Controller
     public function index($folder_path = "cHVibGlj", $storage = 'local')
     {
 
-        if ($storage == 's3' && Helpers::getDisk()=='s3'){
-            try {
-                Storage::disk('s3')->exists($folder_path);
-            } catch (\Exception $e){
-                Toastr::error(translate('messages.something_went_wrong'));
-                return back();
-            }
+       if ($storage === 's3' && Helpers::getDisk() === 's3') {
+    try {
+        Storage::disk('s3')->exists($folder_path);
+    } catch (\Exception $e) {
+        Toastr::error(translate('messages.something_went_wrong'));
+        return back();
+    }
 
-            $folder_path = $folder_path == "cHVibGlj"? "":$folder_path;
-            $directory = base64_decode($folder_path).'/';
-            $s3 = Storage::disk('s3');
-            $file = $directory == '/'?[]:$s3->allFiles($directory);
-            $directories = $s3->allDirectories($directory);
-        }else{
-            $storage = 'local';
-            $file = Storage::files(base64_decode($folder_path));
-            $directories = Storage::directories(base64_decode($folder_path));
+    $decodedPath = base64_decode($folder_path);
+    $directory = $decodedPath === 'public' ? '' : rtrim($decodedPath, '/') . '/';
 
-        }
+    $s3 = Storage::disk('s3');
+    $file = $s3->allFiles($directory);
+    $directories = $s3->allDirectories($directory);
+} else {
+    $storage = 'local';
+    $decodedPath = base64_decode($folder_path);
+    $file = Storage::files($decodedPath);
+    $directories = Storage::directories($decodedPath);
+}
         $folders = FileManagerLogic::format_file_and_folders($directories, 'folder');
         $files = FileManagerLogic::format_file_and_folders($file, 'file');
 
