@@ -170,6 +170,24 @@
                         </div>
                     </div>
                 </div>
+                <div class="flex-grow-1 mx-auto">
+    <label class="text-dark d-block mb-4 mb-xl-5">
+        {{ translate('messages.item_video') }}
+        <small class="text-info">(Supported formats: mp4, webm, ogg | Max: 8MB)</small>
+    </label>
+    <label class="d-inline-block m-0 position-relative">
+        <video id="videoPreview" width="176" height="176" controls style="display: none; border: 1px solid #ddd;"></video>
+        <img id="videoPlaceholder" class="img--176 border" src="{{ asset('public/assets/admin/img/video-placeholder.png') }}" alt="Video Placeholder" />
+        <div class="icon-file-group">
+            <div class="icon-file">
+                <input type="file" name="video" id="customVideoFile" class="custom-file-input d-none"
+                accept="video/mp4, video/webm, video/ogg">
+                <i class="tio-edit"></i>
+            </div>
+        </div>
+    </label>
+</div>
+
                 <div class="col-md-12">
                     <div class="card shadow--card-2 border-0">
                         <div class="card-header">
@@ -1201,7 +1219,18 @@
 
 
 
+document.getElementById('customVideoFile').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (file) {
+        const videoURL = URL.createObjectURL(file);
+        const videoPreview = document.getElementById('videoPreview');
+        const placeholder = document.getElementById('videoPlaceholder');
 
+        videoPreview.src = videoURL;
+        videoPreview.style.display = 'block';
+        placeholder.style.display = 'none';
+    }
+});
 
     </script>
 @endpush
