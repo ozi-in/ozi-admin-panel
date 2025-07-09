@@ -45,7 +45,7 @@ class Item extends Model
         'is_halal'=>'integer',
     ];
 
-    protected $appends = ['unit_type','image_full_url','images_full_url'];
+    protected $appends = ['unit_type','image_full_url','images_full_url','video_full_url'];
 
     public function scopeRecommended($query)
     {
@@ -183,6 +183,22 @@ class Item extends Model
 
         return Helpers::get_full_url('product',$value,'public');
     }
+
+
+    public function getVideoFullUrlAttribute()
+{
+    $value = $this->video;
+
+    if (count($this->storage) > 0) {
+        foreach ($this->storage as $storage) {
+            if ($storage['key'] == 'video') {
+                return Helpers::get_full_url('product', $value, $storage['value']);
+            }
+        }
+    }
+
+    return Helpers::get_full_url('product', $value, 'public');
+}
     public function getImagesFullUrlAttribute(){
         $images = [];
         $value = is_array($this->images)
@@ -306,6 +322,20 @@ class Item extends Model
                     'data_type' => get_class($model),
                     'data_id' => $model->id,
                     'key' => 'image',
+                ], [
+                    'value' => $value,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+             if($model->isDirty('video')){
+                $value = Helpers::getDisk();
+
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => 'video',
                 ], [
                     'value' => $value,
                     'created_at' => now(),

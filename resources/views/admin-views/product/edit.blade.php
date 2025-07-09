@@ -203,6 +203,35 @@
                                         </div>
                                     </label>
                                 </div>
+
+                                <div class="flex-grow-1 mx-auto">
+    <label class="text-dark d-block mb-4 mb-xl-5">
+        {{ translate('messages.item_video') }}
+        <small class="text-info">(Supported formats: mp4, webm, ogg | Max: 8MB)</small>
+    </label>
+    <label class="d-inline-block m-0 position-relative">
+        {{-- If video exists, show video, else show placeholder --}}
+        @if (!empty($product['video_full_url']))
+            <video id="videoPreview" width="300" height="176" controls class="border">
+                <source src="{{ $product['video_full_url'] }}" type="video/mp4">
+                {{ translate('messages.video_not_supported') }}
+            </video>
+            <img id="videoPlaceholder" class="img--176 border" src="{{ asset('public/assets/admin/img/video-placeholder.png') }}" alt="Video Placeholder" style="display: none;" />
+        @else
+            <video id="videoPreview" width="300" height="176" controls class="border" style="display: none;"></video>
+            <img id="videoPlaceholder" class="img--176 border" src="{{ asset('public/assets/admin/img/video-placeholder.png') }}" alt="Video Placeholder" />
+        @endif
+
+        <div class="icon-file-group">
+            <div class="icon-file">
+                <input type="file" name="video" id="customVideoFile" class="custom-file-input d-none"
+                       accept="video/mp4,video/webm,video/ogg">
+                <i class="tio-edit"></i>
+            </div>
+        </div>
+    </label>
+</div>
+
                             </div>
                         </div>
                     </div>
@@ -1422,7 +1451,7 @@
             maxCount: 6,
             // rowHeight: '100px !important',
             groupClassName: 'spartan_item_wrapper min-w-176px max-w-176px',
-            maxFileSize: '',
+            maxFileSize: "{{ config('media.max_image_size_kb') }}",
             placeholderImage: {
                 image: "{{ asset('public/assets/admin/img/upload-img.png') }}",
                 width: '176px'
@@ -1471,7 +1500,7 @@
             maxCount: 6,
             rowHeight: '176px !important',
             groupClassName: 'spartan_item_wrapper min-w-176px max-w-176px',
-            maxFileSize: '',
+            maxFileSize: "{{ config('media.max_image_size_kb') }}",
             placeholderImage: {
                 image: "{{ asset('public/assets/admin/img/upload-img.png') }}",
                 width: '100%'
@@ -1504,5 +1533,19 @@
 
 
 
+</script>
+<script>
+    document.getElementById('customVideoFile').addEventListener('change', function (event) {
+        const videoFile = event.target.files[0];
+        const videoPreview = document.getElementById('videoPreview');
+        const placeholder = document.getElementById('videoPlaceholder');
+
+        if (videoFile) {
+            const url = URL.createObjectURL(videoFile);
+            videoPreview.src = url;
+            videoPreview.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+    });
 </script>
 @endpush

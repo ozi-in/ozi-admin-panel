@@ -38,7 +38,7 @@ use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Log;
 class ItemController extends Controller
 {
     public function index(Request $request)
@@ -57,8 +57,11 @@ class ItemController extends Controller
             'image' => [
                 Rule::requiredIf(function ()use ($request) {
                     return (Config::get('module.current_module_type') != 'food' && $request?->product_gellary == null )  ;
-                })
+                }),
+                 'image',                    // ensures it's an image file
+        'max:' . config('media.max_item_image_size_kb'),
             ],
+                'video' => 'nullable|file|mimes:mp4,m4v,webm,ogg|max:' . config('media.max_item_video_size_kb'), // 1 MB in KB
             'price' => 'required|numeric|between:.01,999999999999.99',
             'discount' => 'required|numeric|min:0',
             'store_id' => 'required',
@@ -72,6 +75,9 @@ class ItemController extends Controller
             'image.required' => translate('messages.thumbnail image is required'),
             'name.0.required' => translate('default_name_is_required'),
             'description.0.required' => translate('default_description_is_required'),
+            'image.max' => translate('messages.image_size_exceeds_15kb'), // custom message
+            'video.max' => translate('messages.Video_Size_Max_1MB'),  // custom message
+            'video.mimes' => translate('messages.video_not_supported'),
         ]);
         if ($request['discount_type'] == 'percent') {
             $dis = ($request['price'] / 100) * $request['discount'];
@@ -90,7 +96,7 @@ class ItemController extends Controller
         $images = [];
         
         if($request->item_id && $request?->product_gellary == 1 ){
-            $item_data= Item::withoutGlobalScope(StoreScope::class)->select(['image','images'])->findOrfail($request->item_id);
+            $item_data= Item::withoutGlobalScope(StoreScope::class)->select(['image','images','video'])->findOrfail($request->item_id);
             if(!$request->has('image')){
                 
                 $oldDisk = 'public';
@@ -118,8 +124,45 @@ class ItemController extends Controller
                 } catch (\Exception $e) {
                 }
             }
-            
-            foreach($item_data->images as$key=> $value){
+            // Handle video similarly
+if (!$request->has('video')) {
+    $oldDisk = 'public';
+
+    if ($item_data->storage && count($item_data->storage) > 0) {
+        foreach ($item_data->storage as $value) {
+            if ($value['key'] == 'video') {
+                $oldDisk = $value['value'];
+            }
+        }
+    }
+
+    $oldVideoPath = "product/{$item_data->video}";
+    $newVideoName = Carbon::now()->toDateString() . "-" . uniqid() . ".mp4";
+    $newVideoPath = "product/{$newVideoName}";
+    $dir = 'product/';
+    $newDisk = Helpers::getDisk();
+
+try {
+    if (Storage::disk($oldDisk)->exists($oldVideoPath)) {
+        Log::info("Old video found at: {$oldVideoPath} on disk: {$oldDisk}");
+
+        if (!Storage::disk($newDisk)->exists($dir)) {
+            Storage::disk($newDisk)->makeDirectory($dir);
+            Log::info("Created directory '{$dir}' on disk: {$newDisk}");
+        }
+
+        $videoContents = Storage::disk($oldDisk)->get($oldVideoPath);
+        Storage::disk($newDisk)->put($newVideoPath, $videoContents);
+
+        Log::info("Video copied to: {$newVideoPath} on disk: {$newDisk}");
+    } else {
+        Log::warning("Old video not found at: {$oldVideoPath} on disk: {$oldDisk}");
+    }
+} catch (\Exception $e) {
+    Log::error("Error copying video from '{$oldDisk}:{$oldVideoPath}' to '{$newDisk}:{$newVideoPath}' - " . $e->getMessage());
+}
+}
+            foreach($item_data->images as $key=> $value){
                 if( !in_array( is_array($value) ?   $value['img'] : $value ,explode(",", $request->removedImageKeys))) {
                     $value = is_array($value)?$value:['img' => $value, 'storage' => 'public'];
                     $oldDisk = $value['storage'];
@@ -410,6 +453,7 @@ class ItemController extends Controller
     
     public function update(Request $request, $id)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'array',
             'name.0' => 'required',
@@ -422,11 +466,19 @@ class ItemController extends Controller
             'discount' => 'required|numeric|min:0',
             'name.0' => 'required',
             'description.0' => 'required',
+               'image' => 'nullable|image|max:' . config('media.max_item_image_size_kb'),
+  'video' => 'nullable|file|mimetypes:video/mp4,video/webm,video/ogg,video/x-m4v|max:' . config('media.max_item_video_size_kb'),
         ], [
             'description.*.max' => translate('messages.description_length_warning'),
             'category_id.required' => translate('messages.category_required'),
             'name.0.required' => translate('default_name_is_required'),
             'description.0.required' => translate('default_description_is_required'),
+              // Image error messages
+   
+    'image.max' => translate('messages.image_size_exceeds_15kb'), // "Image must be under 15KB"
+            // ✅ Optional: Custom error messages for video
+    'video.mimetypes' => translate('messages.video_not_supported'), // customize this
+    'video.max' => translate('messages.Video_Size_Max_1MB'), // customize this
         ]);
         
         if ($request['discount_type'] == 'percent') {
@@ -631,7 +683,12 @@ class ItemController extends Controller
         $item->image = $request->has('image') ? Helpers::update('product/', $item->image, 'png', $request->file('image')) : $item->image;
         $item->available_time_starts = $request->available_time_starts ?? '00:00:00';
         $item->available_time_ends = $request->available_time_ends ?? '23:59:59';
-        
+        if ($request->hasFile('video')) {
+            $videoFile = $request->file('video');
+            $extension = $videoFile->getClientOriginalExtension(); // e.g., 'mp4', 'mov'
+            
+            $item->video = Helpers::upload('product/', $extension, $videoFile);
+        }
         $item->discount =  $request->discount;
         $item->discount_type = $request->discount_type;
         $item->unit_id = $request->unit;
