@@ -32,6 +32,8 @@ class CustomerAuthController extends Controller
 {
     public function verify_phone_or_email(Request $request)
     {
+
+
         $validator = Validator::make($request->all(), [
             'otp'=>'required',
             'verification_type' => 'required|in:phone,email',
@@ -115,7 +117,6 @@ class CustomerAuthController extends Controller
                 ])->first();
             }
 
-
             if($data)
             {
                 if($request->verification_type == 'email'){
@@ -126,10 +127,10 @@ class CustomerAuthController extends Controller
 
                     $user->is_email_verified = 1;
                 }elseif ($request->verification_type == 'phone'){
-                    DB::table('phone_verifications')->where([
-                        'phone' => $request['phone'],
-                        'token' => $request['otp'],
-                    ])->delete();
+                    // DB::table('phone_verifications')->where([
+                    //     'phone' => $request['phone'],
+                    //     'token' => $request['otp'],
+                    // ])->delete();
 
                     $user->is_phone_verified = 1;
                 }
@@ -140,11 +141,12 @@ class CustomerAuthController extends Controller
                 // if($user->f_name){
                 //     $is_personal_info = 1;
                 // }
-                
+
                 $user_email = null;
                 if($user->email){
                     $user_email = $user->email;
                 }
+                echo $is_personal_info ;die;
                 if ($is_personal_info == 1 && auth()->loginUsingId($user->id)) {
                     $token = auth()->user()->createToken('RestaurantCustomerAuth')->accessToken;
                     if(isset($request['guest_id'])){
@@ -217,6 +219,7 @@ class CustomerAuthController extends Controller
             }
         }
         if($request->login_type== 'otp'){
+          
             $data = DB::table('phone_verifications')->where([
                 'phone' => $request['phone'],
                 'token' => $request['otp'],
@@ -224,6 +227,7 @@ class CustomerAuthController extends Controller
 
             if($data){
                 if($user && $user->is_phone_verified == 0 && $user->is_from_pos == 0){
+                 $temporaryToken = $user->createToken('RestaurantCustomerAuth')->accessToken;
                     $is_exist_user = $this->exist_user($user);
                     $user_email = null;
                     if($user->email){
