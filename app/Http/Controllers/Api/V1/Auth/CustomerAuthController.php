@@ -81,9 +81,9 @@ class CustomerAuthController extends Controller
                     $user->save();
                     $is_personal_info = 0;
 
-                    if($user->f_name){
-                        $is_personal_info = 1;
-                    }
+                    // if($user->f_name){
+                    //     $is_personal_info = 1;
+                    // }
 
                     $user_email = null;
                     if($user->email){
@@ -135,11 +135,12 @@ class CustomerAuthController extends Controller
                 }
 
                 $user->save();
-                $is_personal_info = 0;
+                $is_personal_info = 1;
 
-                if($user->f_name){
-                    $is_personal_info = 1;
-                }
+                // if($user->f_name){
+                //     $is_personal_info = 1;
+                // }
+                
                 $user_email = null;
                 if($user->email){
                     $user_email = $user->email;

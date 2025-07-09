@@ -822,6 +822,7 @@
   'short_description' => 'Short description',
   'Item Image' => 'Item Image',
   'item_image' => 'Item image',
+    'item_video' => 'Item Video',
   'Item Details' => 'Item Details',
   'select_module' => 'Select module',
   'total_stock' => 'Total stock',
