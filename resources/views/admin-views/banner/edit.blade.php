@@ -140,6 +140,21 @@
                                         </div>
                                     </div>
                                 </div>
+                                    <div class="col-lg-6">
+                                    <div class="form-group">
+                                    <label class="input-label" for="section">{{ translate('messages.select_section') }}</label>
+                                    <select name="section_id" id="section" class="form-control">
+                                    <option value="" disabled selected>---{{ translate('messages.select_section') }}---</option>
+                                    @foreach (config('banner.sections') as $key => $value)
+                                    @if($banner->section_id==$key) 
+                                    <option value="{{ $key }}" selected>{{ translate('messages.' . $value) }}</option>
+                                    @else
+                                    <option value="{{ $key }}">{{ translate('messages.' . $value) }}</option>
+                                    @endif
+                                    @endforeach
+                                    </select>
+                                    </div>
+                                    </div>
                                 <div class="col-12 mt-4">
                                     <div class="btn--container justify-content-end">
                                         <button type="reset" id="reset_btn" class="btn btn--reset">{{translate('messages.reset')}}</button>
