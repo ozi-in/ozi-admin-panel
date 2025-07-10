@@ -7561,4 +7561,7 @@ Smartly or Earn. ',
   'section_2' => 'Section 2',
   'section_1' => 'Section 1',
   'select_section' => 'Select section',
+  'dsdsd' => 'Dsdsd',
+  'Store is required when banner type is store wise' => 'Store is required when banner type is store wise',
+  'Select a zone' => 'Select a zone',
 );
