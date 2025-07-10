@@ -16,7 +16,8 @@ class BannerLogic
         $moduleId = isset($moduleData['id']) ? $moduleData['id'] : 'default';
         $cacheKey = 'banners_' . md5($zone_id . '_' . ($featured ? 'featured' : 'non_featured') . '_' . $moduleId);
 
-        $banners = Cache::remember($cacheKey, now()->addMinutes(20), function() use ($zone_id, $featured) {
+       // $banners = Cache::remember($cacheKey, now()->addMinutes(0), function() use ($zone_id, $featured) {
+       $banners = (function() use ($zone_id, $featured) {
             $banners = Banner::active()
                 ->when($featured, function($query){
                     $query->featured();
@@ -49,7 +50,7 @@ class BannerLogic
                 })
                 ->where('created_by', 'admin')
                 ->get();
-        });
+        })();;
 
         $data = [];
         foreach($banners as $banner)
