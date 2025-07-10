@@ -140,8 +140,7 @@ accept=".webp, .jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" required>
 <div class="col-lg-6">
 <div class="form-group">
 <label class="input-label" for="section">{{ translate('messages.select_section') }}</label>
-<select name="section_id" id="section" class="form-control">
-<option value="" disabled selected>---{{ translate('messages.select_section') }}---</option>
+<select name="section_id[]" id="section" class="form-control js-select2-custom" multiple data-placeholder="Select Section">
 @foreach (config('banner.sections') as $key => $value)
 <option value="{{ $key }}">{{ translate('messages.' . $value) }}</option>
 @endforeach
@@ -271,7 +270,16 @@ class="toggle-switch-input  dynamic-checkbox" id="statusCheckbox{{$banner->id}}"
 </div>
 
 </td>
-<td class="border-0 text-center">{{ $banner->section_id ? translate('messages.section') :'-'}} {{$banner->section_id}}</td>
+<td class="border-0 text-center">
+    @if($banner->section_id && is_array($banner->section_id))
+
+        {{ implode(', ', collect($banner->section_id)->map(function($id) {
+            return translate('messages.' . config('banner.sections')[$id] ?? $id);
+        })->toArray()) }}
+    @else
+        -
+    @endif
+</td>
 <form action="{{route('admin.banner.status',[$banner['id'],$banner->status?0:1])}}"
 method="get" id="statusCheckbox{{$banner->id}}_form">
 </form>

@@ -17,16 +17,16 @@ class BannerLogic
         $moduleId = isset($moduleData['id']) ? $moduleData['id'] : 'default';
        $cacheKey = 'banners_' . md5($zone_id . '_' . ($featured ? 'featured' : 'non_featured') . '_' . $moduleId);
        // $banners = Cache::remember($cacheKey, now()->addMinutes(0), function() use ($zone_id, $featured,$section_id) {
-     $banners = (function() use ($zone_id, $featured,$section_id ){
+         $banners = (function() use ($zone_id, $featured,$section_id ){
             $banners = Banner::active()
             ->when($featured, function($query){
                 $query->featured();
                
             })
 
-             ->when($section_id, function ($query) use ($section_id) {
-                    $query->where('section_id', $section_id);
-                });
+           ->when($section_id, function ($query) use ($section_id) {
+    $query->whereJsonContains('section_id', (string) $section_id);
+});
             
             if(config('module.current_module_data')) {
                 $banners = $banners->whereHas('zone.modules', function($query){

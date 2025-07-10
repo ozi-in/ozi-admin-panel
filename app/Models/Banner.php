@@ -60,6 +60,7 @@ class Banner extends Model
         'zone_id' => 'integer',
         'module_id' => 'integer',
         'featured' => 'boolean',
+            'section_id' => 'array',
     ];
 
     protected $appends = ['image_full_url'];
