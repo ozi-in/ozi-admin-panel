@@ -14,6 +14,7 @@ class BannerService
         return [
             'title' => $request->title[array_search('default', $request->lang)],
             'type' => $request->banner_type,
+            'section_id' => $request->section_id,
             'zone_id' => $request->zone_id,
             'image' => $this->upload('banner/', 'png', $request->file('image')),
             'data' => ($request->banner_type == 'store_wise')?$request->store_id:(($request->banner_type == 'item_wise')?$request->item_id:''),
@@ -27,6 +28,7 @@ class BannerService
             'title' => $request->title[array_search('default', $request->lang)],
             'type' => $request->banner_type,
             'zone_id' => $request->zone_id,
+            'section_id' => $request->section_id,
             'image' => $request->has('image') ? $this->updateAndUpload('banner/', $banner->image, 'png', $request->file('image')) : $banner->image,
             'data' => ($request->banner_type == 'store_wise')?$request->store_id:(($request->banner_type == 'item_wise')?$request->item_id:''),
             'module_id' => Config::get('module.current_module_id'),
