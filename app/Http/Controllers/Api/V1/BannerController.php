@@ -15,6 +15,7 @@ class BannerController extends Controller
 {
     public function get_banners(Request $request)
     {
+       
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
             array_push($errors, ['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]);
@@ -23,7 +24,9 @@ class BannerController extends Controller
             ], 403);
         }
         $zone_id= $request->header('zoneId');
-        $banners = BannerLogic::get_banners($zone_id, $request->query('featured'));
+         $section_id = $request->query('section_id') ?? 1;
+        $banners = BannerLogic::get_banners($zone_id, $request->query('featured'), $section_id);
+      
         $campaigns = [];
         if(!$request->featured)
         {

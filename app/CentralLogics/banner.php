@@ -10,48 +10,53 @@ use Illuminate\Support\Facades\Cache;
 
 class BannerLogic
 {
-    public static function get_banners($zone_id, $featured = false)
+    public static function get_banners($zone_id, $featured = false,$section_id=1)
     {
+     
         $moduleData = config('module.current_module_data');
         $moduleId = isset($moduleData['id']) ? $moduleData['id'] : 'default';
-        $cacheKey = 'banners_' . md5($zone_id . '_' . ($featured ? 'featured' : 'non_featured') . '_' . $moduleId);
-
-       // $banners = Cache::remember($cacheKey, now()->addMinutes(0), function() use ($zone_id, $featured) {
-       $banners = (function() use ($zone_id, $featured) {
+       $cacheKey = 'banners_' . md5($zone_id . '_' . ($featured ? 'featured' : 'non_featured') . '_' . $moduleId);
+       // $banners = Cache::remember($cacheKey, now()->addMinutes(0), function() use ($zone_id, $featured,$section_id) {
+     $banners = (function() use ($zone_id, $featured,$section_id ){
             $banners = Banner::active()
-                ->when($featured, function($query){
-                    $query->featured();
-                });
+            ->when($featured, function($query){
+                $query->featured();
+               
+            })
 
+             ->when($section_id, function ($query) use ($section_id) {
+                    $query->where('section_id', $section_id);
+                });
+            
             if(config('module.current_module_data')) {
                 $banners = $banners->whereHas('zone.modules', function($query){
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 })
-                    ->module(config('module.current_module_data')['id'])
-                    ->when(!config('module.current_module_data')['all_zone_service'], function($query) use ($zone_id){
+                ->module(config('module.current_module_data')['id'])
+                ->when(!config('module.current_module_data')['all_zone_service'], function($query) use ($zone_id){
+                    $query->where(function($query) use($zone_id){
                         $query->where(function($query) use($zone_id){
-                            $query->where(function($query) use($zone_id){
-                                $query->where('type','store_wise')
-                                ->whereIn('zone_id', json_decode($zone_id, true));
-                            })->orWhere('type', 'default');
-                        });
-
+                            $query->where('type','store_wise')
+                            ->whereIn('zone_id', json_decode($zone_id, true));
+                        })->orWhere('type', 'default');
                     });
+                    
+                });
             }
-
+            
             return $banners->where(function($query) use($zone_id){
                 $query->where(function($query) use($zone_id){
                     $query->where('type','store_wise')
                     ->whereIn('zone_id', json_decode($zone_id, true));
                 })->orWhere('type', 'default');
             })
-                ->whereHas('module', function($query){
-                    $query->active();
-                })
-                ->where('created_by', 'admin')
-                ->get();
-        })();;
-
+            ->whereHas('module', function($query){
+                $query->active();
+            })
+            ->where('created_by', 'admin')
+            ->get();
+        })();
+        
         $data = [];
         foreach($banners as $banner)
         {
