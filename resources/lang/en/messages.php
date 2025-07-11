@@ -7581,4 +7581,6 @@ Smartly or Earn. ',
   'x,y,z' => 'X,y,z',
   'comma_seperated_values' => 'Comma seperated values',
   'foreg._diapers,bag' => 'Foreg. diapers,bag',
+  'The Item field is required when Banner type is Item wise.' => 'The Item field is required when Banner type is Item wise.',
+  'The banner keywords field is required when banner type is keyword.' => 'The banner keywords field is required when banner type is keyword.',
 );

@@ -49,6 +49,7 @@ class BannerAddRequest extends FormRequest
             'zone_id' => 'required',
             'store_id' => 'required_if:banner_type,store_wise',
             'item_id' => 'required_if:banner_type,item_wise',
+              'banner_keywords' => 'required_if:banner_type,keyword',
             'title.0' => 'required',
         ];
     }
