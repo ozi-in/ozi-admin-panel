@@ -1117,6 +1117,12 @@ class ProductLogic
 
     public static function update_stock($item, $quantity, $variant=null)
     {
+         // Re-fetch the item with locking to prevent race conditions
+    $item = Item::where('id', $item->id)->lockForUpdate()->first();
+
+    if (!$item || $item->stock < $quantity) {
+        throw new \Exception('Insufficient stock');
+    }
         if(isset($variant))
         {
             $variations = is_array($item['variations'])?$item['variations']: json_decode($item['variations'], true);
