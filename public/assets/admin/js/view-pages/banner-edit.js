@@ -46,6 +46,7 @@ function banner_type_change(order_type) {
         $("#item_wise").hide();
         $("#store_wise").hide();
         $("#default").hide();
+         $("#keyword").hide();
     }
 }
 
