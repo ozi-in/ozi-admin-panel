@@ -15,6 +15,7 @@ class BannerService
         'title' => $request->title[array_search('default', $request->lang)],
         'type' => $request->banner_type,
    'section_id' =>$request->section_id,
+      'banner_keywords' =>$request->banner_keywords,
         'zone_id' => $request->zone_id,
         'image' => $this->upload('banner/', 'png', $request->file('image')),
         'data' => ($request->banner_type == 'store_wise') ? $request->store_id : (($request->banner_type == 'item_wise') ? $request->item_id : ''),
@@ -32,7 +33,8 @@ class BannerService
         'image' => $request->has('image') ? $this->updateAndUpload('banner/', $banner->image, 'png', $request->file('image')) : $banner->image,
         'data' => ($request->banner_type == 'store_wise') ? $request->store_id : (($request->banner_type == 'item_wise') ? $request->item_id : ''),
         'module_id' => Config::get('module.current_module_id'),
-        'default_link' => $request->default_link
+        'default_link' => $request->default_link,
+             'banner_keywords' =>$request->banner_keywords,
     ];
 }
 

@@ -49,6 +49,7 @@ class Banner extends Model
         'featured',
         'default_link',
         'created_by',
+        'banner_keywords'
     ];
 
     /**

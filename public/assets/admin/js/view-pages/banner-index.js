@@ -37,7 +37,7 @@ $(document).on('ready', function () {
     });
 });
 
-$('#item_wise').hide();
+$('#item_wise,#keyword').hide();
 $('#default').hide();
 $('#banner_type').on('change', function () {
     let order_type = $(this).val();
@@ -53,9 +53,15 @@ $('#banner_type').on('change', function () {
         $('#default').removeClass('d-none').show();
         $('#store_wise').hide();
         $('#item_wise').hide();
-    } else {
+    } else if (order_type == 'keyword') {
+        $('#keyword').removeClass('d-none').show();
+        $('#store_wise').hide();
+        $('#item_wise').hide();
+        $('#default').hide();
+    }else {
         $('#item_wise').hide();
         $('#store_wise').hide();
         $('#default').hide();
+        
     }
 })

@@ -12,7 +12,7 @@ class BannerLogic
 {
     public static function get_banners($zone_id, $featured = false,$section_id=1)
     {
-     
+       $section_id = (string) $section_id; // force to string for JSON match
         $moduleData = config('module.current_module_data');
         $moduleId = isset($moduleData['id']) ? $moduleData['id'] : 'default';
        $cacheKey = 'banners_' . md5($zone_id . '_' . ($featured ? 'featured' : 'non_featured') . '_' . $moduleId);
@@ -25,7 +25,7 @@ class BannerLogic
             })
 
            ->when($section_id, function ($query) use ($section_id) {
-    $query->whereJsonContains('section_id', (string) $section_id);
+ $query->whereJsonContains('section_id', $section_id);
 });
             
             if(config('module.current_module_data')) {
@@ -38,7 +38,7 @@ class BannerLogic
                         $query->where(function($query) use($zone_id){
                             $query->where('type','store_wise')
                             ->whereIn('zone_id', json_decode($zone_id, true));
-                        })->orWhere('type', 'default');
+                        })->orWhereIn('type', ['default', 'keyword']);
                     });
                     
                 });
@@ -48,7 +48,7 @@ class BannerLogic
                 $query->where(function($query) use($zone_id){
                     $query->where('type','store_wise')
                     ->whereIn('zone_id', json_decode($zone_id, true));
-                })->orWhere('type', 'default');
+                })->orWhereIn('type', ['default', 'keyword']);
             })
             ->whereHas('module', function($query){
                 $query->active();
@@ -58,6 +58,7 @@ class BannerLogic
         })();
         
         $data = [];
+
         foreach($banners as $banner)
         {
             if($banner->type=='store_wise')
@@ -110,6 +111,21 @@ class BannerLogic
                     'type'=>$banner->type,
                     'image'=>$banner->image,
                     'link'=>$banner->default_link,
+                    'store'=> null,
+                    'item'=> null,
+                    'image_full_url' => $banner->image_full_url
+                ];
+            }
+
+
+              if($banner->type=='keyword')
+            {
+                $data[]=[
+                    'id'=>$banner->id,
+                    'title'=>$banner->title,
+                    'type'=>$banner->type,
+                    'image'=>$banner->image,
+                    'banner_keywords'=>$banner->banner_keywords ? str_replace(","," ",$banner->banner_keywords):'',
                     'store'=> null,
                     'item'=> null,
                     'image_full_url' => $banner->image_full_url
