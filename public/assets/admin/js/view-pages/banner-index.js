@@ -44,15 +44,18 @@ $('#banner_type').on('change', function () {
     if (order_type == 'item_wise') {
         $('#store_wise').hide();
         $('#item_wise').show();
+                 $("#keyword").hide();
         $('#default').hide();
     } else if (order_type == 'store_wise') {
         $('#store_wise').show();
+                 $("#keyword").hide();
         $('#item_wise').hide();
         $('#default').hide();
     } else if (order_type == 'default') {
         $('#default').removeClass('d-none').show();
         $('#store_wise').hide();
         $('#item_wise').hide();
+                 $("#keyword").hide();
     } else if (order_type == 'keyword') {
         $('#keyword').removeClass('d-none').show();
         $('#store_wise').hide();
@@ -62,6 +65,7 @@ $('#banner_type').on('change', function () {
         $('#item_wise').hide();
         $('#store_wise').hide();
         $('#default').hide();
+                 $("#keyword").hide();
         
     }
 })
