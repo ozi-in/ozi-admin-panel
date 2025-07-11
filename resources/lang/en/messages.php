@@ -7572,4 +7572,5 @@ Smartly or Earn. ',
   'The email or phone field is required.' => 'The email or phone field is required.',
   'You_can_not_place_empty_orders' => 'You can not place empty orders',
   'Please_select_items_from_the_same_store' => 'Please select items from the same store',
+  'product_out_of_stock_warning' => 'Product out of stock warning',
 );
