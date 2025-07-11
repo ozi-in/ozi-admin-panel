@@ -37,6 +37,11 @@ function banner_type_change(order_type) {
         $("#default").removeClass("d-none").show();
         $("#store_wise").hide();
         $("#item_wise").hide();
+    } else if (order_type == 'keyword') {
+        $('#keyword').removeClass('d-none').show();
+        $('#store_wise').hide();
+        $('#item_wise').hide();
+        $('#default').hide();
     } else {
         $("#item_wise").hide();
         $("#store_wise").hide();

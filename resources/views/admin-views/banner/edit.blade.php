@@ -98,6 +98,7 @@
                                             <option value="store_wise" {{$banner->type == 'store_wise'? 'selected':'' }}>{{translate('messages.store_wise')}}</option>
                                             <option value="item_wise" {{$banner->type == 'item_wise'? 'selected':'' }}>{{translate('messages.item_wise')}}</option>
                                             <option value="default" {{$banner->type == 'default'? 'selected':'' }}>{{translate('messages.default')}}</option>
+                                             <option value="keyword" {{$banner->type == 'keyword'? 'selected':'' }}>{{translate('messages.keyword')}}</option>
                                         </select>
                                     </div>
                                     <div class="form-group mb-0" id="store_wise">
@@ -121,6 +122,10 @@
                                     <div class="form-group mb-0" id="default">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('messages.default_link')}}</label>
                                         <input type="text" name="default_link" class="form-control" value="{{ $banner->default_link }}" placeholder="{{translate('messages.default_link')}}">
+                                    </div>
+                                     <div class="form-group mb-0" id="keyword">
+                                        <label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}</label>
+                                        <input type="text" name="banner_keywords" class="form-control" value="{{ $banner->banner_keywords }}" placeholder="{{translate('messages.foreg._diapers,bag')}}">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">

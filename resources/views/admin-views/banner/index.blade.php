@@ -103,6 +103,7 @@ placeholder="{{ translate('messages.new_banner') }}">
 <option value="store_wise">{{translate('messages.store_wise')}}</option>
 <option value="item_wise">{{translate('messages.item_wise')}}</option>
 <option value="default">{{translate('messages.default')}}</option>
+<option value="keyword">{{translate('messages.keyword')}}</option>
 </select>
 </div>
 <div class="form-group mb-0" id="store_wise">
@@ -121,6 +122,10 @@ class="input-label-secondary"></span></label>
 <div class="form-group mb-0" id="default">
 <label class="input-label" for="exampleFormControlInput1">{{translate('messages.default_link')}}({{ translate('messages.optional') }})</label>
 <input type="text" name="default_link" class="form-control" placeholder="{{translate('messages.default_link')}}">
+</div>
+<div class="form-group mb-0 d-none" id="keyword">
+<label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}({{ translate('messages.comma_seperated_values') }})</label>
+<input type="text" name="banner_keywords" class="form-control" placeholder="{{translate('messages.foreg._diapers,bag')}}">
 </div>
 </div>
 <div class="col-lg-6">
