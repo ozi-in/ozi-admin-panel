@@ -500,10 +500,8 @@ class OrderController extends Controller
 
         $order_details = [];
         $order = new Order();
-        $order->id = 100000 + Order::count() + 1;
-        if (Order::find($order->id)) {
-            $order->id = Order::orderBy('id', 'desc')->first()->id + 1;
-        }
+        
+        $order->id = OrderLogic::generateUniqueOrderId(); 
 
 
         $order_status ='pending';
