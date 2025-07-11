@@ -123,7 +123,7 @@
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('messages.default_link')}}</label>
                                         <input type="text" name="default_link" class="form-control" value="{{ $banner->default_link }}" placeholder="{{translate('messages.default_link')}}">
                                     </div>
-                                     <div class="form-group mb-0" id="keyword">
+                                     <div class="form-group mb-0 d-none" id="keyword">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}</label>
                                         <input type="text" name="banner_keywords" class="form-control" value="{{ $banner->banner_keywords }}" placeholder="{{translate('messages.foreg._diapers,bag')}}">
                                     </div>
