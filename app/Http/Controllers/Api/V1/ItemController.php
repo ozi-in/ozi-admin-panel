@@ -352,7 +352,7 @@ class ItemController extends Controller
         $type = $request->query('type', 'all');
 
         $zone_id= $request->header('zoneId');
-        $items = ProductLogic::popular_products($zone_id, $request['limit'], $request['offset'], $type);
+        $items = ProductLogic::popular_products($zone_id, $request['limit']?? 10, $request['offset'], $type);
         $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale());
         return response()->json($items, 200);
     }
