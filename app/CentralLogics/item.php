@@ -438,7 +438,7 @@ class ProductLogic
     }
 
 
-    public static function popular_products($zone_id, $limit = null, $offset = null, $type = 'all')
+    public static function popular_products($zone_id, $limit = 10, $offset = 1, $type = 'all')
     {
         $popular_item_default_status = \App\Models\BusinessSetting::where('key', 'popular_item_default_status')->first();
         $popular_item_default_status = $popular_item_default_status ? $popular_item_default_status->value : 1;
@@ -471,7 +471,9 @@ class ProductLogic
             ->active()->type($type);
 
             if ($popular_item_default_status == '1'){
+             $query=  $query->where('order_count', '>', 0); 
                 $query = $query->popular();
+                
             } else {
 
                 if(config('module.current_module_data')['module_type']  !== 'food'){
@@ -534,6 +536,7 @@ class ProductLogic
             ->active()->type($type);
 
         if ($popular_item_default_status == '1'){
+         $query=  $query->where('order_count', '>', 0); 
             $query = $query->popular();
         } else {
             if(config('module.current_module_data')['module_type']  !== 'food'){
@@ -567,7 +570,7 @@ class ProductLogic
             }
         }
 
-        $paginator = $query->limit(50)->get();
+        $paginator = $query->limit($limit)->get();
 
         return [
             'total_size' => $paginator->count(),
