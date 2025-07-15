@@ -307,7 +307,7 @@ class CustomerController extends Controller
         
         // If item IDs are provided, get the related category_ids
         if (!empty($itemIds)) {
-           $itemIds=explode(",",$itemIds);
+            $itemIds=explode(",",$itemIds);
             $categoryIds = Item::whereIn('id', $itemIds)
             ->pluck('category_ids') // assuming 'category_ids' is stored as JSON array
             ->flatMap(function ($value) {
@@ -856,5 +856,6 @@ class CustomerController extends Controller
                 
                 
             }
-        }
-        
+           
+            }
+            

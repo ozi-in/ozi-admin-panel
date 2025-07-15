@@ -75,10 +75,13 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
 
             //ajax request
             Route::get('get-categories', 'ItemController@get_categories')->name('get-categories');
+           Route::get('get-trending-categories', 'ItemController@get_trending_categories')->name('get_trending_categories');
             Route::get('get-items', 'ItemController@get_items')->name('getitems');
             Route::get('get-items-flashsale', 'ItemController@get_items_flashsale')->name('getitems-flashsale');
             Route::post('food-variation-generate', 'ItemController@food_variation_generator')->name('food-variation-generate');
             Route::post('variation-generate', 'ItemController@variation_generator')->name('variation-generate');
+
+               Route::get('get-trending-items', 'ItemController@get_trending_items')->name('get_trending_items');
 
 
             Route::get('export', 'ItemController@export')->name('export');

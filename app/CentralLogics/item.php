@@ -471,7 +471,7 @@ class ProductLogic
             ->active()->type($type);
 
             if ($popular_item_default_status == '1'){
-             $query=  $query->where('order_count', '>', 0); 
+            // $query=  $query->where('order_count', '>', 0); 
                 $query = $query->popular();
                 
             } else {
@@ -536,7 +536,7 @@ class ProductLogic
             ->active()->type($type);
 
         if ($popular_item_default_status == '1'){
-         $query=  $query->where('order_count', '>', 0); 
+        // $query=  $query->where('order_count', '>', 0); 
             $query = $query->popular();
         } else {
             if(config('module.current_module_data')['module_type']  !== 'food'){
@@ -1314,4 +1314,59 @@ class ProductLogic
             'categories'=>$categories
         ];
     }
+
+    public static function trending_products($zone_id, $limit = 10, $offset = null, $type = 'all')
+{
+    $zone_ids = is_array($zone_id) ? $zone_id : json_decode($zone_id, true);
+
+    // 1. Get trending product IDs from business settings
+    $setting = BusinessSetting::where('key', 'trending_product_ids')->first();
+    $trending_ids = $setting ? json_decode($setting->value, true) : [];
+
+    if (empty($trending_ids)) {
+        return [
+            'total_size' => 0,
+            'limit' => $limit,
+            'offset' => $offset,
+            'products' => [],
+        ];
+    }
+
+    // 2. Filter items by IDs and zone/module
+    $query = Item::active()
+        ->whereIn('id', $trending_ids)
+        ->whereHas('module.zones', function ($query) use ($zone_ids) {
+            $query->whereIn('zones.id', $zone_ids);
+        })
+        ->whereHas('store', function ($query) use ($zone_ids) {
+            $query->when(config('module.current_module_data'), function ($query) {
+                $query->where('module_id', config('module.current_module_data')['id'])
+                      ->whereHas('zone.modules', function ($query) {
+                          $query->where('modules.id', config('module.current_module_data')['id']);
+                      });
+            })->whereIn('zone_id', $zone_ids);
+        })
+        ->select(['items.*'])
+        ->selectSub(function ($subQuery) {
+            $subQuery->selectRaw('active as temp_available')
+                ->from('stores')
+                ->whereColumn('stores.id', 'items.store_id');
+        }, 'temp_available')
+        ->type($type);
+
+    $total_size = $query->count();
+
+    // 3. Paginate and return
+    $products = $query
+        ->limit($limit)
+        ->offset($offset)
+        ->get();
+
+    return [
+        'total_size' => $total_size,
+        'limit' => $limit,
+        'offset' => $offset,
+        'products' => $products,
+    ];
+}
 }

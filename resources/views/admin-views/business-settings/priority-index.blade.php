@@ -2894,6 +2894,51 @@
                         </div>
                     </div>
                     <br>
+                     <br> <br> <br>
+<div class="row" id="main-parent">
+    <!-- Category selection -->
+    <div class="col-md-6">
+        <h4>Add Trending Products</h4>
+        <label>Parent Category</label>
+       <select id="mainCategory" class="form-control mb-2 js-select2-custom">
+                    <option value="">Select Category</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+
+        <label class="mt-3">Subcategory</label>
+        <div class="subcatparent">
+        <select id="subCategory" class="form-control"></select>
+                </div>
+
+    <label class="mt-3">Products</label>
+<div id="productListContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc;">
+    <ul id="productList" class="list-group mb-0"></ul>
+</div>
+    </div>
+
+   <div class="col-md-6">
+                <div class="card p-3" style="min-height: 200px">
+                    <strong>Selected Trending Products:</strong>
+                    <ul id="selectedProducts" class="list-group mt-2">
+ @foreach($selectedProducts as $product)
+        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ $product->id }}">
+            {{ $product->name }} ({{ $product->store->name ?? 'No Store' }})
+         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTrendingProduct({{ $product->id }})">Remove</button>
+
+               <input type="hidden" name="trending_product_ids[]" value="{{ $product->id }}">
+        </li>  
+    @endforeach
+
+
+
+
+
+                    </ul>
+                </div>
+            </div>
+</div>
 
 
 
@@ -2907,6 +2952,13 @@
             </form>
         </div>
     </div>
+    <style>
+
+        .select2-results__options {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+}
+</style>
 @endsection
 
 @push('script_2')
@@ -2937,4 +2989,181 @@
             });
         })
     </script>
+
+    <script>
+let selectedItems = [];
+
+let currentCategoryId = null;
+
+
+$(document).on('change', '#mainCategory', function () {
+    currentCategoryId = $(this).val();
+    $('#subCategory').val(null).trigger('change'); // reset
+    $('#productList').html('');
+    initializeSubCategoryDropdown(currentCategoryId);
+
+});
+
+function initializeSubCategoryDropdown(parentId) {
+    $('#subCategory').val(null).trigger('change'); // reset selection
+ //   $('#subCategory').off().select2('destroy'); // remove old instance
+
+    $('#subCategory').select2({
+        placeholder: 'Select & Search Subcategory',
+        ajax: {
+            url: "{{ url('/') }}/admin/item/get-trending-categories",
+            data: function (params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1,
+                    module_id: "{{ Config::get('module.current_module_id') }}",
+                    parent_id: parentId,
+                    sub_category: true
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination?.more
+                    }
+                };
+            },
+            delay: 250,
+            cache: true
+        },
+        minimumInputLength: 0 // only fetch after typing
+    });
+}
+
+$(document).on('change', '#subCategory', function () {
+    const subCategoryId = $(this).val();
+        currentCategoryId = subCategoryId; // <-- Set again for subcategory
+    if (subCategoryId) {
+        loadProductsByCategory(subCategoryId);
+    }
+});
+
+// Shared function to load products
+let currentPage = 1;
+let hasMorePages = true;
+let isLoading = false;
+function loadProductsByCategory(categoryId, append = false) {
+    if (isLoading) return;
+
+    if (!append) {
+        $('#productList').html('<li class="list-group-item">Loading products...</li>');
+        currentPage = 1;
+        currentCategoryId = categoryId;
+    }
+
+    isLoading = true;
+
+    $.get(`{{ url('/') }}/admin/item/get-trending-items`, {
+        category_id: categoryId,
+        page: currentPage
+    }, function (res) {
+        let html = '';
+
+        if (!res.results || res.results.length === 0) {
+            html = '<li class="list-group-item">No products found.</li>';
+            if (!append) $('#productList').html(html);
+            isLoading = false;
+            return;
+        }
+
+        res.results.forEach(item => {
+            const isAlreadySelected = selectedProductIds.has(parseInt(item.id));
+            html += `<li class="list-group-item d-flex justify-content-between align-items-center" data-id="${item.id}">
+    ${item.text}
+    ${!isAlreadySelected
+        ? `<button type="button" class="btn btn-sm btn-outline-primary"
+            onclick="addTrendingProduct(${item.id}, '${item.text.replace(/'/g, "\\'")}')">Add</button>`
+        : `<span class="badge bg-success">Added</span>`
+    }
+</li>`;
+        });
+
+        if (append) {
+            $('#productList').append(html);
+        } else {
+            $('#productList').html(html);
+        }
+
+        hasMorePages = res.pagination?.more;
+        isLoading = false;
+    }).fail(function () {
+        if (!append) {
+            $('#productList').html('<li class="list-group-item text-danger">Failed to load products.</li>');
+        }
+        isLoading = false;
+    });
+}
+// Infinite scroll handler
+$('#productListContainer').on('scroll', function () {
+    const container = $(this);
+    if (
+        hasMorePages &&
+        !isLoading &&
+        container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 10
+    ) {
+        currentPage++;
+        loadProductsByCategory(currentCategoryId, true);
+    }
+});
+
+
+
+    let selectedProductIds = new Set({!! json_encode($selectedProducts->pluck('id')) !!});
+
+
+function addTrendingProduct(id, name) {
+    id = parseInt(id);
+
+    if (selectedProductIds.has(id)) {
+        console.log("Already added, skipping:", id);
+        return;
+    }
+
+    selectedProductIds.add(id);
+
+    const listItem = `<li class="list-group-item d-flex justify-content-between align-items-center" data-id="${id}">
+        ${name}
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTrendingProduct(${id})">Remove</button>
+        <input type="hidden" name="trending_product_ids[]" value="${id}">
+    </li>`;
+
+    $('#selectedProducts').append(listItem);
+
+    const leftItem = $(`#productList li[data-id='${id}']`);
+    if (leftItem.length) {
+        leftItem.find('button').replaceWith(`<span class="badge bg-success">Added</span>`);
+    }
+
+    updateFallbackInput(); // if you're using it
+}
+function updateFallbackInput() {
+    if (selectedProductIds.size === 0) {
+        $('#emptyTrendingFallback').prop('disabled', false);
+    } else {
+        $('#emptyTrendingFallback').prop('disabled', true);
+    }
+}
+function removeTrendingProduct(id) {
+   
+    selectedProductIds.delete(parseInt(id));
+    $(`#selectedProducts li[data-id='${id}']`).remove();
+
+    // Update left-side list button if still present
+    const leftItem = $(`#productList li[data-id='${id}']`);
+    if (leftItem.length) {
+        // Replace badge with button
+        const name = leftItem.contents().get(0).nodeValue.trim(); // Get item name
+        leftItem.find('.badge').replaceWith(`
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addTrendingProduct(${id}, '${name.replace(/'/g, "\\'")}')">Add</button>
+        `);
+    }
+}
+
+</script>
 @endpush
