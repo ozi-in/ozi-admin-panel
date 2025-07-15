@@ -1355,7 +1355,8 @@ class ProductLogic
         ->type($type);
 
     $total_size = $query->count();
-
+\Log::info('Raw SQL: ' . $query->toSql());
+\Log::info('Bindings: ', $query->getBindings());
     // 3. Paginate and return
     $products = $query
         ->limit($limit)
@@ -1367,7 +1368,7 @@ class ProductLogic
         'limit' => $limit,
         'offset' => $offset,
         'products' => $products,
-        'module_id'=>config('module.current_module_data')
+       // 'module_id'=>config('module.current_module_data')
     ];
 }
 }
