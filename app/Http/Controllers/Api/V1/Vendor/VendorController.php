@@ -281,6 +281,9 @@ class VendorController extends Controller
 
         ->orderBy('schedule_at', 'desc')
         ->get();
+        \DB::enableQueryLog();
+// your query here
+\Log::info(DB::getQueryLog());
         $orders= Helpers::order_data_formatting($orders, true);
         return response()->json($orders, 200);
     }
