@@ -83,7 +83,7 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
 
                Route::get('get-trending-items', 'ItemController@get_trending_items')->name('get_trending_items');
 
-
+                 Route::get('get-select-categories', 'ItemController@getMainCategories')->name('get-select-categories');
             Route::get('export', 'ItemController@export')->name('export');
 
             //Mainul

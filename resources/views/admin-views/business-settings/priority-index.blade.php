@@ -2900,12 +2900,11 @@
     <div class="col-md-6">
         <h4>Add Trending Products</h4>
         <label>Parent Category</label>
+                <div class="mainparent">
        <select id="mainCategory" class="form-control mb-2 js-select2-custom">
-                    <option value="">Select Category</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                    @endforeach
+                  
                 </select>
+                </div>
 
         <label class="mt-3">Subcategory</label>
         <div class="subcatparent">
@@ -2991,11 +2990,37 @@
     </script>
 
     <script>
+        $(document).ready(function () {
 let selectedItems = [];
 
 let currentCategoryId = null;
 
-
+$('#mainCategory').select2({
+    placeholder: 'Select & Search Main Category',
+    minimumInputLength: 0,
+      dropdownParent: $('.mainparent'), // or the nearest visible container
+    ajax: {
+        url: "{{ url('/') }}/admin/item/get-select-categories",
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+            return {
+                q: params.term || '',
+                page: params.page || 1
+            };
+        },
+        processResults: function (data) {
+            return {
+                results: data.results,
+                pagination: {
+                    more: data.pagination?.more // 👈 enables scroll-based fetching
+                }
+            };
+        },
+        cache: true
+    }
+});
+        });
 $(document).on('change', '#mainCategory', function () {
   
     currentCategoryId = $(this).val();
