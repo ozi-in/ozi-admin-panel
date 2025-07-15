@@ -2920,7 +2920,8 @@
    <div class="col-md-6">
                 <div class="card p-3" style="min-height: 200px">
                     <strong>Selected Trending Products:</strong>
-                    <ul id="selectedProducts" class="list-group mt-2">
+            <ul id="selectedProducts" class="list-group mt-2" style="max-height: 300px; overflow-y: auto;">
+
  @foreach($selectedProducts as $product)
         <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ $product->id }}">
             {{ $product->name }} ({{ $product->store->name ?? 'No Store' }})
