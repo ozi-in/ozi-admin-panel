@@ -236,58 +236,110 @@ class VendorController extends Controller
 
         return response()->json(['message' => translate('messages.profile_updated_successfully')], 200);
     }
+public function get_current_orders(Request $request)
+{
+    $vendor = $request['vendor'];
+    $cutoffTime = \Carbon\Carbon::now()->addMinutes(30);
 
-    public function get_current_orders(Request $request)
-    {
-                \DB::enableQueryLog();
-        $vendor = $request['vendor'];
-
-        $orders = Order::whereHas('store.vendor', function($query) use($vendor){
+    $orders = Order::with(['customer'])
+        ->whereHas('store.vendor', function ($query) use ($vendor) {
             $query->where('id', $vendor->id);
         })
-        ->with('customer')
+        ->where(function ($query) use ($vendor) {
+            $isStoreConfirmation = config('order_confirmation_model') === 'store';
+            $isSelfDelivery = $vendor->stores[0]->sub_self_delivery ?? false;
 
-        ->where(function($query)use($vendor){
-            if(config('order_confirmation_model') == 'store' || $vendor->stores[0]->sub_self_delivery)
-            {
-                $query->whereIn('order_status', ['accepted','pending','confirmed', 'processing', 'handover','picked_up']);
-            }
-            else
-            {
-                $query->whereIn('order_status', ['confirmed', 'processing', 'handover','picked_up'])
-                ->orWhere(function($query){
-                    $query->whereNotNull('confirmed')->where('order_status', 'accepted');
-                })
-                ->orWhere(function($query){
-                    $query->where('payment_status','paid')->where('order_status', 'accepted');
-                })
-                ->orWhere(function($query){
-                    $query->where('order_status','pending')->where('order_type', 'take_away');
+            if ($isStoreConfirmation || $isSelfDelivery) {
+                $query->whereIn('order_status', [
+                    'accepted', 'pending', 'confirmed', 'processing', 'handover', 'picked_up'
+                ]);
+            } else {
+                $query->where(function ($q) {
+                    $q->whereIn('order_status', ['confirmed', 'processing', 'handover', 'picked_up'])
+                        ->orWhere(function ($q2) {
+                            $q2->whereNotNull('confirmed')->where('order_status', 'accepted');
+                        })
+                        ->orWhere(function ($q2) {
+                            $q2->where('payment_status', 'paid')->where('order_status', 'accepted');
+                        })
+                        ->orWhere(function ($q2) {
+                            $q2->where('order_status', 'pending')->where('order_type', 'take_away');
+                        });
                 });
             }
         })
-        
-       ->where(function ($query) {
-    $query->where('order_status', '<>', 'pending')
-          ->orWhere(function ($subQuery) {
-              $subQuery->where('order_status', 'pending')
-                       ->where(function ($q) {
-                           $q->whereNull('schedule_at')
-                              ->orWhere('schedule_at', '<=', \Carbon\Carbon::now()->addMinutes(30));
-                       });
-          });
-})
+        // Only include:
+        // 1. non-pending orders
+        // 2. or pending orders with schedule_at <= now + 30 mins or null
+        ->where(function ($query) use ($cutoffTime) {
+            $query->where('order_status', '<>', 'pending')
+                  ->orWhere(function ($subQuery) use ($cutoffTime) {
+                      $subQuery->where('order_status', 'pending')
+                          ->where(function ($q) use ($cutoffTime) {
+                              $q->whereNull('schedule_at')
+                                ->orWhere('schedule_at', '<=', $cutoffTime);
+                          });
+                  });
+        })
         ->Notpos()
         ->NotDigitalOrder()
-
         ->orderBy('schedule_at', 'desc')
         ->get();
 
-// your query here
-\Log::info(DB::getQueryLog());
-        $orders= Helpers::order_data_formatting($orders, true);
-        return response()->json($orders, 200);
-    }
+    $orders = Helpers::order_data_formatting($orders, true);
+    return response()->json($orders, 200);
+}
+
+//     public function get_current_orders(Request $request)
+//     {
+            
+//         $vendor = $request['vendor'];
+
+//         $orders = Order::whereHas('store.vendor', function($query) use($vendor){
+//             $query->where('id', $vendor->id);
+//         })
+//         ->with('customer')
+
+//         ->where(function($query)use($vendor){
+//             if(config('order_confirmation_model') == 'store' || $vendor->stores[0]->sub_self_delivery)
+//             {
+//                 $query->whereIn('order_status', ['accepted','pending','confirmed', 'processing', 'handover','picked_up']);
+//             }
+//             else
+//             {
+//                 $query->whereIn('order_status', ['confirmed', 'processing', 'handover','picked_up'])
+//                 ->orWhere(function($query){
+//                     $query->whereNotNull('confirmed')->where('order_status', 'accepted');
+//                 })
+//                 ->orWhere(function($query){
+//                     $query->where('payment_status','paid')->where('order_status', 'accepted');
+//                 })
+//                 ->orWhere(function($query){
+//                     $query->where('order_status','pending')->where('order_type', 'take_away');
+//                 });
+//             }
+//         })
+        
+//        ->where(function ($query) {
+//     $query->where('order_status', '<>', 'pending')
+//           ->orWhere(function ($subQuery) {
+//               $subQuery->where('order_status', 'pending')
+//                        ->where(function ($q) {
+//                            $q->whereNull('schedule_at')
+//                               ->orWhere('schedule_at', '<=', \Carbon\Carbon::now()->addMinutes(30));
+//                        });
+//           });
+// })
+//         ->Notpos()
+//         ->NotDigitalOrder()
+
+//         ->orderBy('schedule_at', 'desc')
+//         ->get();
+
+
+//         $orders= Helpers::order_data_formatting($orders, true);
+//         return response()->json($orders, 200);
+//     }
 public function get_scheduled_orders(Request $request)
 {
     $vendor = $request['vendor']; // Assume vendor is injected from middleware or token
