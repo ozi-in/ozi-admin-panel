@@ -922,6 +922,26 @@ class ItemController extends Controller
         $names= Nutrition::select(['nutrition'])->pluck('nutrition');
         return response()->json($names, 200);
     }
-
+ // Trending Products API
+            public function get_trending_products(Request $request)
+            {
+                if (!$request->hasHeader('zoneId')) {
+                    return response()->json([
+                        'errors' => [
+                            ['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]
+                            ]
+                        ], 403);
+                    }
+                    
+                    $type = $request->query('type', 'all');
+                    $zone_id = $request->header('zoneId');
+                    
+                    // 🔥 Your new trending logic
+                    $items = ProductLogic::trending_products($zone_id, $request['limit'] ?? 10, $request['offset'], $type);
+                    
+                    $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale());
+                    
+                    return response()->json($items, 200);
+                }
 
 }
