@@ -156,6 +156,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
         Route::put('update-profile', 'VendorController@update_profile');
         Route::put('update-announcment', 'VendorController@update_announcment');
         Route::get('current-orders', 'VendorController@get_current_orders');
+        Route::get('schedule-orders', 'VendorController@get_scheduled_orders');
         Route::get('completed-orders', 'VendorController@get_completed_orders');
         Route::get('canceled-orders', 'VendorController@get_canceled_orders');
         Route::get('all-orders', 'VendorController@get_all_orders');

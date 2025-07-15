@@ -265,6 +265,17 @@ class VendorController extends Controller
                 });
             }
         })
+        
+       ->where(function ($query) {
+    $query->where('order_status', '<>', 'pending')
+          ->orWhere(function ($subQuery) {
+              $subQuery->where('order_status', 'pending')
+                       ->where(function ($q) {
+                           $q->whereNull('schedule_at')
+                             ->orWhere('schedule_at', '<=', now()->addMinutes(30));
+                       });
+          });
+})
         ->Notpos()
         ->NotDigitalOrder()
 
@@ -273,6 +284,27 @@ class VendorController extends Controller
         $orders= Helpers::order_data_formatting($orders, true);
         return response()->json($orders, 200);
     }
+public function get_scheduled_orders(Request $request)
+{
+    $vendor = $request['vendor']; // Assume vendor is injected from middleware or token
+
+    $cutoffTime = now()->addMinutes(30); // Schedule window
+
+    $orders = Order::whereHas('store.vendor', function ($query) use ($vendor) {
+            $query->where('id', $vendor->id);
+        })
+        ->with('customer')
+        ->where('order_status', 'pending')
+        ->where('schedule_at', '>', $cutoffTime)
+        ->Notpos()
+        ->NotDigitalOrder()
+        ->orderBy('schedule_at', 'asc')
+        ->get();
+
+    $orders = Helpers::order_data_formatting($orders, true);
+
+    return response()->json($orders, 200);
+}
 
     public function get_completed_orders(Request $request)
     {
