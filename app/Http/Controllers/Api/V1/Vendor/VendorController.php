@@ -239,6 +239,7 @@ class VendorController extends Controller
 
     public function get_current_orders(Request $request)
     {
+                \DB::enableQueryLog();
         $vendor = $request['vendor'];
 
         $orders = Order::whereHas('store.vendor', function($query) use($vendor){
@@ -281,7 +282,7 @@ class VendorController extends Controller
 
         ->orderBy('schedule_at', 'desc')
         ->get();
-        \DB::enableQueryLog();
+
 // your query here
 \Log::info(DB::getQueryLog());
         $orders= Helpers::order_data_formatting($orders, true);
