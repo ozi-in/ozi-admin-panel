@@ -272,7 +272,7 @@ class VendorController extends Controller
               $subQuery->where('order_status', 'pending')
                        ->where(function ($q) {
                            $q->whereNull('schedule_at')
-                             ->orWhere('schedule_at', '<=', now()->addMinutes(30));
+                              ->orWhere('schedule_at', '<=', \Carbon\Carbon::now()->addMinutes(30));
                        });
           });
 })
