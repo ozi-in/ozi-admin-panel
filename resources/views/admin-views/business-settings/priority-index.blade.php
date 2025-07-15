@@ -2997,14 +2997,17 @@ let currentCategoryId = null;
 
 
 $(document).on('change', '#mainCategory', function () {
+  
     currentCategoryId = $(this).val();
+ 
     $('#subCategory').val(null).trigger('change'); // reset
     $('#productList').html('');
-    initializeSubCategoryDropdown(currentCategoryId);
+    initializeSubCategoryDropdown($(this).val());
 
 });
 
 function initializeSubCategoryDropdown(parentId) {
+
     $('#subCategory').val(null).trigger('change'); // reset selection
  //   $('#subCategory').off().select2('destroy'); // remove old instance
 
