@@ -342,26 +342,42 @@ public function get_current_orders(Request $request)
 //     }
 public function get_scheduled_orders(Request $request)
 {
-    $vendor = $request['vendor']; // Assume vendor is injected from middleware or token
+    $validator = Validator::make($request->all(), [
+        'limit' => 'required|integer',
+        'offset' => 'required|integer',
+    ]);
 
+    if ($validator->fails()) {
+        return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+    }
+
+    $vendor = $request['vendor'];
     $cutoffTime = now()->addMinutes(30); // Schedule window
 
-    $orders = Order::whereHas('store.vendor', function ($query) use ($vendor) {
+    $paginator = Order::whereHas('store.vendor', function ($query) use ($vendor) {
             $query->where('id', $vendor->id);
         })
         ->with('customer')
         ->where('order_status', 'pending')
-          ->where('scheduled', '1')
+        ->where('scheduled', '1')
         ->where('schedule_at', '>', $cutoffTime)
         ->Notpos()
         ->NotDigitalOrder()
         ->orderBy('schedule_at', 'asc')
-        ->get();
+        ->paginate($request['limit'], ['*'], 'page', $request['offset']);
 
-    $orders = Helpers::order_data_formatting($orders, true);
+    $orders = Helpers::order_data_formatting($paginator->items(), true);
 
-    return response()->json($orders, 200);
+    $data = [
+        'total_size' => $paginator->total(),
+        'limit' => $request['limit'],
+        'offset' => $request['offset'],
+        'orders' => $orders
+    ];
+
+    return response()->json($data, 200);
 }
+
 
     public function get_completed_orders(Request $request)
     {
