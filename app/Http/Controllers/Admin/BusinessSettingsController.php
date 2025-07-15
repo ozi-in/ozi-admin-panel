@@ -93,7 +93,11 @@ class BusinessSettingsController extends Controller
         } else if ($tab == 'priority') {
             $categories=Category::where('parent_id',0)->get();
             $trending_product_ids_Record = BusinessSetting::where(['key' => 'trending_product_ids'])->first();
+            if(!empty( $trending_product_ids_Record)){
             $trending_product_ids = json_decode($trending_product_ids_Record->value, true);
+            }else{
+                $trending_product_ids =[];
+            }
             $selectedProducts = \App\Models\Item::whereIn('id', $trending_product_ids)->get();
             return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts'));
         } else if ($tab == 'automated-message') {
