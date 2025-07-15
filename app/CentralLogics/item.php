@@ -1355,8 +1355,7 @@ class ProductLogic
         ->type($type);
 
     $total_size = $query->count();
-\Log::info('Raw SQL: ' . $query->toSql());
-\Log::info('Bindings: ', $query->getBindings());
+
     // 3. Paginate and return
     $products = $query
         ->limit($limit)
