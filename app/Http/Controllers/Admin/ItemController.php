@@ -2177,7 +2177,30 @@ class ItemController extends Controller
                         'pagination' => ['more' => $items->hasMorePages()]
                     ]);
                 }
-                
+                public function getMainCategories(Request $request)
+{
+    $perPage = 20;
+    $query = Category::query()
+        ->where('parent_id',0)
+        ->when($request->q, function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->q . '%');
+        });
+
+    $categories = $query->paginate($perPage);
+
+    return response()->json([
+        'results' => $categories->map(function ($cat) {
+            return [
+                'id' => $cat->id,
+                'text' => $cat->name
+            ];
+        }),
+        'pagination' => [
+            'more' => $categories->hasMorePages() // 👈 tells Select2 if more data exists
+        ]
+    ]);
+}
+
                 
             }
             
