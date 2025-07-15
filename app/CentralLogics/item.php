@@ -1367,6 +1367,7 @@ class ProductLogic
         'limit' => $limit,
         'offset' => $offset,
         'products' => $products,
+        'module_id'=>config('module.current_module_data')
     ];
 }
 }
