@@ -20,7 +20,7 @@ class TATController extends Controller
         $destLat = $request->dest_lat;
         $destLng = $request->dest_lng;
 
-        $apiKey = env('GOOGLE_MAPS_API_KEY');
+        $apiKey = \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value;
         $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&key=$apiKey";
 
         $response = file_get_contents($url);
