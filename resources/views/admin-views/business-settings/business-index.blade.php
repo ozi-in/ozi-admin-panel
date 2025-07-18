@@ -1358,6 +1358,18 @@
                                                     required>
                                             </div>
                                         </div>
+
+                                          <div class="col-sm-6 col-lg-4">
+                                            @php($delivery_tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first())
+                                            <div class="form-group mb-0">
+                                                <label class="form-label text-capitalize"
+                                                    for="delivery_tat">{{ translate('messages.delivery_tat') }}  {{ translate('messages.minutes') }}</label>
+                                                <input type="number" name="delivery_tat" class="form-control"
+                                                    id="delivery_tat" min="0" step=".01"  placeholder="{{ translate('messages.Ex:_5') }}"
+                                                    value="{{ $delivery_tat ? $delivery_tat->value : 0 }}"
+                                                    required>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

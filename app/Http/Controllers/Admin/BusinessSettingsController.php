@@ -593,7 +593,9 @@ class BusinessSettingsController extends Controller
         Helpers::businessUpdateOrInsert(['key' => 'per_km_shipping_charge'], [
             'value' => $request['per_km_shipping_charge']
         ]);
-        
+          Helpers::businessUpdateOrInsert(['key' => 'delivery_tat'], [
+            'value' => $request['delivery_tat']
+        ]);
         Helpers::businessUpdateOrInsert(['key' => 'currency_symbol_position'], [
             'value' => $request['currency_symbol_position']
         ]);
