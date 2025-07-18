@@ -36,7 +36,7 @@ class CustomerController extends Controller
     {
         $limit = $request['limit'] ?? 10;
         $offset = $request['offset'] ?? 1;
-        
+
         $addresses = CustomerAddress::where('user_id', $request->user()->id)->latest()->paginate($limit, ['*'], 'page', $offset);
         
         $data = [
@@ -346,6 +346,7 @@ class CustomerController extends Controller
                 });
             })->whereIn('zone_id', $zone_id);
         })
+           ->whereNotIn('id', $itemIds ?? [])
         ->when(empty($categoryIds), function ($q) {
             return $q->popular(); // Fallback if no categories available
         })
