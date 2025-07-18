@@ -41,7 +41,7 @@ class TATController extends Controller
     $distanceKm = $element['distance']['value'] / 1000; // meters to km
 
     // ✅ Serviceability Check
-    $maxDistance = 250; // Max allowed km
+    $maxDistance = 35; // Max allowed km
     if ($distanceKm > $maxDistance) {
         return response()->json([
            // 'message' => 'Your area is unserviceable',
