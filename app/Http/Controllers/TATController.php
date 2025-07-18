@@ -44,9 +44,9 @@ class TATController extends Controller
     $maxDistance = 250; // Max allowed km
     if ($distanceKm > $maxDistance) {
         return response()->json([
-            'message' => 'Your area is unserviceable',
+           // 'message' => 'Your area is unserviceable',
             'distance' => $distance,
-            'duration' => $duration,
+            'duration' => "Your area is unserviceable",
         ], 400);
     }
 
