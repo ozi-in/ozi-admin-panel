@@ -30,7 +30,7 @@
                     </h5>
                     <label class="toggle-switch toggle-switch-sm">
                         <input type="checkbox" class="status toggle-switch-input maintenance-mode"
-                            {{ isset($config) && $config ? 'checked' : '' }}>
+                {{ isset($config) && $config == 1 ? 'checked' : '' }}>
                         <span class="toggle-switch-label text mb-0">
                             <span class="toggle-switch-indicator"></span>
                         </span>
@@ -1363,7 +1363,7 @@
                                             @php($delivery_tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first())
                                             <div class="form-group mb-0">
                                                 <label class="form-label text-capitalize"
-                                                    for="delivery_tat">{{ translate('messages.delivery_tat') }}  {{ translate('messages.minutes') }}</label>
+                                                    for="delivery_tat">{{ translate('messages.delivery_tat') }}  ({{ translate('messages.in_mins') }})</label>
                                                 <input type="number" name="delivery_tat" class="form-control"
                                                     id="delivery_tat" min="0" step=".01"  placeholder="{{ translate('messages.Ex:_5') }}"
                                                     value="{{ $delivery_tat ? $delivery_tat->value : 0 }}"
