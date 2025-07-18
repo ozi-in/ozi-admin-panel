@@ -93,27 +93,33 @@ class SystemController extends Controller
         return back();
     }
 
-    public function maintenance_mode()
-    {
-        $maintenance_mode = BusinessSetting::where('key', 'maintenance_mode')->first();
-        if (isset($maintenance_mode) == false) {
-            Helpers::businessInsert([
-                'key' => 'maintenance_mode',
-                'value' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        } else {
-            Helpers::businessUpdateOrInsert(['key' => 'maintenance_mode'], [
-                'value' => $maintenance_mode->value == 1 ? 0 : 1
-            ]);
-        }
+ public function maintenance_mode()
+{
+    $maintenance_mode = BusinessSetting::where('key', 'maintenance_mode')->first();
 
-        if (isset($maintenance_mode) && $maintenance_mode->value) {
-            return response()->json(['message' => translate('Maintenance is off.')]);
-        }
-        return response()->json(['message' => translate('Maintenance is on.')]);
+    if (!$maintenance_mode) {
+        Helpers::businessInsert([
+            'key' => 'maintenance_mode',
+            'value' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    } else {
+        Helpers::businessUpdateOrInsert(['key' => 'maintenance_mode'], [
+            'value' => $maintenance_mode->value == 1 ? 0 : 1
+        ]);
     }
+
+    // Fetch the updated value
+    $current_value = BusinessSetting::where('key', 'maintenance_mode')->value('value');
+
+    return response()->json([
+        'message' => $current_value == 1
+            ? translate('Maintenance is on.')
+            : translate('Maintenance is off.')
+    ]);
+}
+
 
     public function landing_page()
     {
