@@ -39,6 +39,8 @@ $(document).on('ready', function () {
 
 $('#item_wise,#keyword').hide();
 $('#default').hide();
+
+
 $('#banner_type').on('change', function () {
     let order_type = $(this).val();
     if (order_type == 'item_wise') {
