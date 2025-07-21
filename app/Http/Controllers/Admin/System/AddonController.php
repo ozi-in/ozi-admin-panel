@@ -90,48 +90,70 @@ class AddonController extends Controller
         ]);
     }
 
-    public function activation(Request $request): Redirector|RedirectResponse|Application
-    {
-        if (env('APP_MODE') == 'demo') {
-            Toastr::info(translate('messages.update_option_is_disable_for_demo'));
-            return back();
-        }
-        $remove = ["http://", "https://", "www."];
-        $url = str_replace($remove, "", url('/'));
-        $full_data = include($request['path'] . '/Addon/info.php');
+    // public function activation(Request $request): Redirector|RedirectResponse|Application
+    // {
+    //     if (env('APP_MODE') == 'demo') {
+    //         Toastr::info(translate('messages.update_option_is_disable_for_demo'));
+    //         return back();
+    //     }
+    //     $remove = ["http://", "https://", "www."];
+    //     $url = str_replace($remove, "", url('/'));
+    //     $full_data = include($request['path'] . '/Addon/info.php');
 
-        $post = [
-            base64_decode('dXNlcm5hbWU=') => $request['username'],
-            base64_decode('cHVyY2hhc2Vfa2V5') => $request['purchase_code'],
-            base64_decode('c29mdHdhcmVfaWQ=') => $full_data['software_id'],
-            base64_decode('ZG9tYWlu') => $url,
-        ];
+    //     $post = [
+    //         base64_decode('dXNlcm5hbWU=') => $request['username'],
+    //         base64_decode('cHVyY2hhc2Vfa2V5') => $request['purchase_code'],
+    //         base64_decode('c29mdHdhcmVfaWQ=') => $full_data['software_id'],
+    //         base64_decode('ZG9tYWlu') => $url,
+    //     ];
 
-        $response = Http::post(base64_decode('aHR0cHM6Ly9jaGVjay42YW10ZWNoLmNvbS9hcGkvdjEvYWN0aXZhdGlvbi1jaGVjaw=='), $post)->json();
-        $status = $response['active'] ?? base64_encode(1);
+    //     $response = Http::post(base64_decode('aHR0cHM6Ly9jaGVjay42YW10ZWNoLmNvbS9hcGkvdjEvYWN0aXZhdGlvbi1jaGVjaw=='), $post)->json();
+    //     $status = $response['active'] ?? base64_encode(1);
 
-        if ((int)base64_decode($status)) {
-            // $full_data['is_published'] = $full_data['is_published'] ? 0 : 1;
+    //     if ((int)base64_decode($status)) {
+    //         // $full_data['is_published'] = $full_data['is_published'] ? 0 : 1;
 
-            $full_data['is_published'] = 1;
-            $full_data['username'] = $request['username'];
-            $full_data['purchase_code'] = $request['purchase_code'];
-            $str = "<?php return " . var_export($full_data, true) . ";";
-            file_put_contents(base_path($request['path'] . '/Addon/info.php'), $str);
-            $this->rentalPublish($full_data['is_published']);
+    //         $full_data['is_published'] = 1;
+    //         $full_data['username'] = $request['username'];
+    //         $full_data['purchase_code'] = $request['purchase_code'];
+    //         $str = "<?php return " . var_export($full_data, true) . ";";
+    //         file_put_contents(base_path($request['path'] . '/Addon/info.php'), $str);
+    //         $this->rentalPublish($full_data['is_published']);
 
-            Toastr::success(translate('activated_successfully'));
-            return back();
-        }
+    //         Toastr::success(translate('activated_successfully'));
+    //         return back();
+    //     }
 
-        $activation_url = base64_decode('aHR0cHM6Ly9hY3RpdmF0aW9uLjZhbXRlY2guY29t');
-        $activation_url .= '?username=' . $request['username'];
-        $activation_url .= '&purchase_code=' . $request['purchase_code'];
-        $activation_url .= '&domain=' . url('/') . '&';
+    //     $activation_url = base64_decode('aHR0cHM6Ly9hY3RpdmF0aW9uLjZhbXRlY2guY29t');
+    //     $activation_url .= '?username=' . $request['username'];
+    //     $activation_url .= '&purchase_code=' . $request['purchase_code'];
+    //     $activation_url .= '&domain=' . url('/') . '&';
 
-        return redirect($activation_url);
+    //     return redirect($activation_url);
+    // }
+public function activation(Request $request): Redirector|RedirectResponse|Application
+{
+    if (env('APP_MODE') == 'demo') {
+        Toastr::info(translate('messages.update_option_is_disable_for_demo'));
+        return back();
     }
 
+    $full_data = include($request['path'] . '/Addon/info.php');
+
+    // Directly set data without verification
+    $full_data['is_published'] = 1;
+    $full_data['username'] = $request['username'];
+    $full_data['purchase_code'] = $request['purchase_code'];
+
+    $str = "<?php return " . var_export($full_data, true) . ";";
+    file_put_contents(base_path($request['path'] . '/Addon/info.php'), $str);
+
+    // Trigger publish if needed
+    $this->rentalPublish($full_data['is_published']);
+
+    Toastr::success(translate('activated_successfully'));
+    return back();
+}
     public function upload(Request $request)
     {
         $validator = Validator::make($request->all(), [
