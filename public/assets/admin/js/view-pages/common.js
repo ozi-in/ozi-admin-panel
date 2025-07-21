@@ -659,3 +659,79 @@ $(document).ready(function () {
         }, 2000);
     });
 });
+$(document).ready(function () {
+
+    const categryurl = $('#category_banner').data('url');
+$('#category_banner').select2({
+    placeholder: 'Select & Search Main Category',
+    minimumInputLength: 0,
+    allowClear:true,
+    dropdownParent: $('.mainparent'), // or adjust to the banner form wrapper
+    ajax: {
+        url: categryurl+"/admin/item/get-select-categories",
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+            return {
+                q: params.term || '',
+                page: params.page || 1
+            };
+        },
+        processResults: function (data) {
+            return {
+                results: data.results,
+                pagination: {
+                    more: data.pagination?.more
+                }
+            };
+        },
+        cache: true
+    }
+});
+
+$(document).on('change', '#category_banner', function () { 
+    $('#subCategory_banner').val(null).trigger('change'); // reset
+     $('#subcategory_wrapper').removeClass('d-none').show();
+    initializeSubCategoryBannerDropdown($(this).val());
+         $('#subcategory_wrapper').removeClass('d-none');
+
+});
+      
+function initializeSubCategoryBannerDropdown(parentId) {
+
+    $('#subCategory_banner').val(null).trigger('change'); // reset selection
+    $('#subCategory_banner').select2({
+        placeholder: 'Select & Search Subcategory',
+          allowClear: true,
+        ajax: {
+            url:categryurl+"/admin/item/get-trending-categories",
+            data: function (params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1,
+                  //  module_id: "{{ Config::get('module.current_module_id') }}",
+                    parent_id: parentId,
+                    sub_category: true
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination?.more
+                    }
+                };
+            },
+            delay: 250,
+            cache: true
+        },
+        minimumInputLength: 0 // only fetch after typing
+    });
+}
+
+    const hasSubcategory = $('#subCategory_banner option:selected').length > 0;
+    if (hasSubcategory) {
+        $('#subcategory_wrapper').removeClass('d-none');
+    }
+
+});

@@ -99,6 +99,7 @@
                                             <option value="item_wise" {{$banner->type == 'item_wise'? 'selected':'' }}>{{translate('messages.item_wise')}}</option>
                                             <option value="default" {{$banner->type == 'default'? 'selected':'' }}>{{translate('messages.default')}}</option>
                                              <option value="keyword" {{$banner->type == 'keyword'? 'selected':'' }}>{{translate('messages.keyword')}}</option>
+                                               <option value="category_wise" {{$banner->type == 'category_wise'? 'selected':'' }}>{{translate('messages.category_wise')}}</option>
                                         </select>
                                     </div>
                                     <div class="form-group mb-0" id="store_wise">
@@ -106,13 +107,45 @@
                                                 class="input-label-secondary"></span></label>
                                         <select name="store_id" id="store_id" class="js-data-example-ajax" id="resturant_ids"  title="Select Restaurant">
                                         @if($banner->type=='store_wise')
-                                        @php($store = \App\Models\Store::where('id', $banner->data)->first())
+                                        @php($store = \App\Models\Store::where('id', $banner->data)->first()) @endphp
                                             @if($store)
                                             <option value="{{$store->id}}" selected>{{$store->name}}</option>
                                             @endif
                                         @endif
                                         </select>
                                     </div>
+@php
+    $selectedCategory = \App\Models\Category::find($banner->data);
+    $isSubCategory = $selectedCategory && $selectedCategory->parent_id != 0;
+    $parentCategory = $isSubCategory ? \App\Models\Category::find($selectedCategory->parent_id) : null;
+@endphp
+
+{{-- Main Category --}}
+<div class="form-group mb-0 mainparent {{ $selectedCategory ? '' : 'd-none' }}" id="category_wise_wrapper">
+    <label class="input-label">{{ translate('messages.category') }}</label>
+    <select name="category_id" id="category_banner" class="form-control js-category-select"
+            data-placeholder="Select Category" data-url="{{ url('/') }}">
+        @if(!$isSubCategory && $selectedCategory)
+            <option value="{{ $selectedCategory->id }}" selected>{{ $selectedCategory->name }}</option>
+        @endif
+
+        @if($isSubCategory && $parentCategory)
+            <option value="{{ $parentCategory->id }}" selected>{{ $parentCategory->name }}</option>
+        @endif
+    </select>
+</div>
+
+{{-- Subcategory --}}
+<div class="form-group mb-0 {{ $isSubCategory ? '' : 'd-none' }}" id="subcategory_wrapper">
+    <label class="input-label">{{ translate('messages.subcategory') }}</label>
+    <select name="subcategory_id" id="subCategory_banner" class="form-control js-subcategory-select"
+            data-placeholder="Select Subcategory">
+        @if($isSubCategory && $selectedCategory)
+            <option value="{{ $selectedCategory->id }}" selected>{{ $selectedCategory->name }}</option>
+        @endif
+    </select>
+</div>
+                                    
                                     <div class="form-group mb-0" id="item_wise">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('messages.select_item')}}</label>
                                         <select name="item_id" id="choice_item" class="form-control js-select2-custom" placeholder="{{translate('messages.select_item')}}">

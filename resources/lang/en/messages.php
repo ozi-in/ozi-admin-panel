@@ -7657,4 +7657,7 @@ Smartly or Earn. ',
   'Ex:_5_MIn' => 'Ex: 5 MIn',
   'Maintenance is on.' => 'Maintenance is on.',
   'Maintenance is off.' => 'Maintenance is off.',
+  'in_mins' => 'In mins',
+  'subcategory' => 'Subcategory',
+  'category_wise' => 'Category wise',
 );
