@@ -698,37 +698,62 @@ $(document).on('change', '#category_banner', function () {
 });
       
 
-function initializeSubCategoryBannerDropdown(parentId) {
+ // Subcategory loader function with optional preselection
+    function initializeSubCategoryBannerDropdown(parentId, selectedSubcategoryId = null) {
+        $('#subCategory_banner').select2({
+            placeholder: 'Select & Search Subcategory',
+            allowClear: true,
+            ajax: {
+                url: categryurl + "/admin/item/get-trending-categories",
+                data: function (params) {
+                    return {
+                        q: params.term,
+                        page: params.page || 1,
+                        parent_id: parentId,
+                        sub_category: true
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.results,
+                        pagination: {
+                            more: data.pagination?.more
+                        }
+                    };
+                },
+                delay: 250,
+                cache: true
+            },
+            minimumInputLength: 0
+        });
 
-    $('#subCategory_banner').val(null).trigger('change'); // reset selection
-    $('#subCategory_banner').select2({
-        placeholder: 'Select & Search Subcategory',
-          allowClear: true,
-        ajax: {
-            url:categryurl+"/admin/item/get-trending-categories",
-            data: function (params) {
-                return {
-                    q: params.term,
-                    page: params.page || 1,
-                  //  module_id: "{{ Config::get('module.current_module_id') }}",
+        // Pre-select subcategory if provided
+        if (selectedSubcategoryId) {
+            $.ajax({
+                url: categryurl + "/admin/item/get-trending-categories",
+                data: {
                     parent_id: parentId,
                     sub_category: true
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: data.results,
-                    pagination: {
-                        more: data.pagination?.more
+                },
+                success: function (response) {
+                    const match = response.results.find(opt => opt.id == selectedSubcategoryId);
+                    if (match) {
+                        const option = new Option(match.text, match.id, true, true);
+                        $('#subCategory_banner').append(option).trigger('change');
                     }
-                };
-            },
-            delay: 250,
-            cache: true
-        },
-        minimumInputLength: 0 // only fetch after typing
-    });
-}
+                }
+            });
+        }
+    }
+
+    // ✅ On page load in edit mode
+    const preselectedCategory = $('#category_banner').val();
+    const preselectedSubcategory = $('#subCategory_banner').val();
+console.log(preselectedCategory,preselectedSubcategory)
+    if (preselectedCategory && preselectedSubcategory) {
+        $('#subcategory_wrapper').removeClass('d-none').show();
+        initializeSubCategoryBannerDropdown(preselectedCategory, preselectedSubcategory);
+    }
 
     const hasSubcategory = $('#subCategory_banner option:selected').length > 0;
     if (hasSubcategory) {
