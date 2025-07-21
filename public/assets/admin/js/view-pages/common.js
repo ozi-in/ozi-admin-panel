@@ -697,6 +697,7 @@ $(document).on('change', '#category_banner', function () {
 
 });
       
+
 function initializeSubCategoryBannerDropdown(parentId) {
 
     $('#subCategory_banner').val(null).trigger('change'); // reset selection
