@@ -143,87 +143,85 @@ trait  SmsGateway
         return $response;
     }
 
-    // public static function two_factor($receiver, $otp): string
-    // {
-    //     $config = self::get_settings('2factor');
-    //     $response = 'error';
-    //     if (isset($config) && $config['status'] == 1) {
-    //         $api_key = $config['api_key'];
-    //         $curl = curl_init();
-    //         curl_setopt_array($curl, array(
-    //             CURLOPT_URL => "https://2factor.in/API/V1/" . $api_key . "/SMS/" . $receiver . "/" . $otp . "",
-    //             CURLOPT_RETURNTRANSFER => true,
-    //             CURLOPT_ENCODING => "",
-    //             CURLOPT_MAXREDIRS => 10,
-    //             CURLOPT_TIMEOUT => 30,
-    //             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    //             CURLOPT_CUSTOMREQUEST => "GET",
-    //         ));
-    //         $response = curl_exec($curl);
-    //         $err = curl_error($curl);
-    //         curl_close($curl);
+    public static function two_factor($receiver, $otp): string
+    {
+        $config = self::get_settings('2factor');
+        $response = 'error';
+        if (isset($config) && $config['status'] == 1) {
+            $api_key = $config['api_key'];
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://2factor.in/API/V1/" . $api_key . "/SMS/" . $receiver . "/" . $otp . "",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
 
-    //         if (!$err) {
-    //             $response = 'success';
-    //         } else {
-    //             $response = 'error';
-    //         }
-    //     }
-    //     return $response;
-    // }
-public static function two_factor($receiver, $otp): string
-{
-    $config = [
-        'status' => 1,
-        'userid' => '2000231339',
-        'password' => 'Hs!*N!cn',
-    ];
-
-    $response = 'error';
-
-    if (isset($config) && $config['status'] == 1) {
-        $userid = $config['userid'];
-        $password = $config['password']; // No urlencode here
-        $message = "We have received your order request for Quotation ID : $otp. Our team will be in touch with you shortly. Thank you !\nZoplar";
-
-        $url = "https://enterprise.smsgupshup.com/GatewayAPI/rest?" . http_build_query([
-            'method'       => 'SendMessage',
-            'send_to'      => '91'.substr($receiver, -10),
-            'msg'          => $message, // No manual urlencode
-            'msg_type'     => 'TEXT',
-            'userid'       => $userid,
-            'auth_scheme'  => 'plain',
-            'password'     => $password,
-            'v'            => '1.1',
-            'format'       => 'text',
-        ]);
-
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-        ]);
-
-        $result = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-
-        // Debug output (remove in production)
-      //  print_r($result); // ✅ See actual output
-        // die; // comment this if you want the function to return value
-
-        if (!$err && stripos($result, 'success') !== false) {
-            $response = 'success';
-        } else {
-            $response = 'error';
+            if (!$err) {
+                $response = 'success';
+            } else {
+                $response = 'error';
+            }
         }
+        return $response;
     }
+// public static function two_factor($receiver, $otp): string
+// {
+//     $config = [
+//         'status' => 1,
+//         'userid' => '2000231339',
+//         'password' => 'Hs!*N!cn',
+//     ];
 
-    return $response;
-}
+//     $response = 'error';
+
+//     if (isset($config) && $config['status'] == 1) {
+//         $userid = $config['userid'];
+//         $password = $config['password']; // No urlencode here
+//         $message = "We have received your order request for Quotation ID : $otp. Our team will be in touch with you shortly. Thank you !\nZoplar";
+
+//         $url = "https://enterprise.smsgupshup.com/GatewayAPI/rest?" . http_build_query([
+//             'method'       => 'SendMessage',
+//             'send_to'      => '91'.substr($receiver, -10),
+//             'msg'          => $message, // No manual urlencode
+//             'msg_type'     => 'TEXT',
+//             'userid'       => $userid,
+//             'auth_scheme'  => 'plain',
+//             'password'     => $password,
+//             'v'            => '1.1',
+//             'format'       => 'text',
+//         ]);
+
+//         $curl = curl_init();
+//         curl_setopt_array($curl, [
+//             CURLOPT_URL => $url,
+//             CURLOPT_RETURNTRANSFER => true,
+//             CURLOPT_TIMEOUT => 30,
+//             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//             CURLOPT_CUSTOMREQUEST => "GET",
+//         ]);
+
+//         $result = curl_exec($curl);
+//         $err = curl_error($curl);
+//         curl_close($curl);
+
+ 
+
+//         if (!$err && stripos($result, 'success') !== false) {
+//             $response = 'success';
+//         } else {
+//             $response = 'error';
+//         }
+//     }
+
+//     return $response;
+// }
     public static function msg_91($receiver, $otp): string
     {
         $config = self::get_settings('msg91');
