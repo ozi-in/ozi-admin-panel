@@ -104,6 +104,7 @@ placeholder="{{ translate('messages.new_banner') }}">
 <option value="item_wise">{{translate('messages.item_wise')}}</option>
 <option value="default">{{translate('messages.default')}}</option>
 <option value="keyword">{{translate('messages.keyword')}}</option>
+<option value="category_wise">{{ translate('messages.category_wise') }}</option>
 </select>
 </div>
 <div class="form-group mb-0" id="store_wise">
@@ -126,6 +127,16 @@ class="input-label-secondary"></span></label>
 <div class="form-group mb-0 d-none" id="keyword">
 <label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}({{ translate('messages.comma_seperated_values') }})</label>
 <input type="text" name="banner_keywords" class="form-control" placeholder="{{translate('messages.foreg._diapers,bag')}}">
+</div>
+
+<div class="form-group mb-0 mainparent d-none" id="category_wise_wrapper">
+    <label class="input-label">{{ translate('messages.category') }}</label>
+    <select name="category_id" id="category_banner" class="form-control js-category-select" data-placeholder="Select Category" data-url="{{ url('/') }}"></select>
+</div>
+
+<div class="form-group mb-0 d-none" id="subcategory_wrapper">
+    <label class="input-label">{{ translate('messages.subcategory') }}</label>
+    <select name="subcategory_id" id="subCategory_banner" class="form-control js-subcategory-select" data-placeholder="Select Subcategory"></select>
 </div>
 </div>
 <div class="col-lg-6">

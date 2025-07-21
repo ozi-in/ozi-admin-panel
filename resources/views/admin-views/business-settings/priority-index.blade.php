@@ -2901,14 +2901,14 @@
         <h4>Add Trending Products</h4>
         <label>Parent Category</label>
                 <div class="mainparent">
-       <select id="mainCategory" class="form-control mb-2 js-select2-custom">
+       <select id="mainCategory" class="form-control mb-2 js-select2-custom" data-url="{{url('/')}}">
                   
                 </select>
                 </div>
 
         <label class="mt-3">Subcategory</label>
         <div class="subcatparent">
-        <select id="subCategory" class="form-control"></select>
+        <select id="subCategory" class="form-control js-select2-custom"></select>
                 </div>
 
     <label class="mt-3">Products</label>
@@ -2991,7 +2991,7 @@
     </script>
 
     <script>
-        $(document).ready(function () {
+      $(document).ready(function () {
 let selectedItems = [];
 
 let currentCategoryId = null;
@@ -3021,7 +3021,10 @@ $('#mainCategory').select2({
         cache: true
     }
 });
-        });
+      });
+
+
+
 $(document).on('change', '#mainCategory', function () {
   
     currentCategoryId = $(this).val();
@@ -3031,21 +3034,34 @@ $(document).on('change', '#mainCategory', function () {
     initializeSubCategoryDropdown($(this).val());
 
 });
-
+      
 function initializeSubCategoryDropdown(parentId) {
 
     $('#subCategory').val(null).trigger('change'); // reset selection
  //   $('#subCategory').off().select2('destroy'); // remove old instance
+ $.ajax({
+        url: "{{ url('/') }}/admin/item/get-trending-categories",
+        data: {
+            parent_id: parentId,
+            sub_category: true,
+            q: '',
+            page: 1
+        },
+        type: 'GET',
+        success: function (data) {
+            const subcategories = data.results;
 
+            if (subcategories && subcategories.length > 0) {
     $('#subCategory').select2({
         placeholder: 'Select & Search Subcategory',
+          allowClear: true,
         ajax: {
-            url: "{{ url('/') }}/admin/item/get-trending-categories",
+            url:"{{url('/')}}/admin/item/get-trending-categories",
             data: function (params) {
                 return {
                     q: params.term,
                     page: params.page || 1,
-                    module_id: "{{ Config::get('module.current_module_id') }}",
+                  //  module_id: "{{ Config::get('module.current_module_id') }}",
                     parent_id: parentId,
                     sub_category: true
                 };
@@ -3063,8 +3079,18 @@ function initializeSubCategoryDropdown(parentId) {
         },
         minimumInputLength: 0 // only fetch after typing
     });
-}
+            }else{
+                 toastr.warning('Could not load subcategories. Showing products of main category.');
+                loadProductsByCategory(parentId);
+            }
+},
+        error: function () {
+           // $('#productList').html('<li class="list-group-item text-danger">Failed to load subcategories.</li>');
+        }
 
+
+});
+}
 $(document).on('change', '#subCategory', function () {
     const subCategoryId = $(this).val();
         currentCategoryId = subCategoryId; // <-- Set again for subcategory

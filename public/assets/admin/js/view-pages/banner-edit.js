@@ -29,23 +29,33 @@ function banner_type_change(order_type) {
         $("#store_wise").hide();
         $("#item_wise").show();
         $("#default").hide();
-         $("#keyword").hide();
+         $("#keyword,#category_wise_wrapper,#subcategory_wrapper").hide();
     } else if (order_type == "store_wise") {
         $("#store_wise").removeClass("d-none").show();
         $("#item_wise").hide();
         $("#default").hide();
-                 $("#keyword").hide();
+                      $("#keyword,#category_wise_wrapper,#subcategory_wrapper").hide();
     } else if (order_type == "default") {
         $("#default").removeClass("d-none").show();
         $("#store_wise").hide();
         $("#item_wise").hide();
-                 $("#keyword").hide();
+                $("#keyword,#category_wise_wrapper,#subcategory_wrapper").hide();
     } else if (order_type == 'keyword') {
         $('#keyword').removeClass('d-none').show();
         $('#store_wise').hide();
         $('#item_wise').hide();
         $('#default').hide();
-    } else {
+                 $("#category_wise_wrapper,#subcategory_wrapper").hide();
+    }  else if (order_type === 'category_wise') {
+        $('#category_wise_wrapper').removeClass('d-none').show();
+          $('#item_wise').hide();
+        $('#store_wise').hide();
+        $('#default').hide();
+        $("#keyword").hide();
+    }
+    
+    
+    else {
         $("#item_wise").hide();
         $("#store_wise").hide();
         $("#default").hide();
