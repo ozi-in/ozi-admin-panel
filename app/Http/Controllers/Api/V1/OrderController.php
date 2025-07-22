@@ -597,7 +597,7 @@ class OrderController extends Controller
         ->get()->map(function ($data) {
             $data->add_on_ids = json_decode($data->add_on_ids,true);
             $data->add_on_qtys = json_decode($data->add_on_qtys,true);
-            $data->variation =$data->variation;
+            $data->variation = json_decode($data->variation,true);
 			return $data;
 		});
 
