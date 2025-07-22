@@ -149,9 +149,13 @@ trait  SmsGateway
         $response = 'error';
         if (isset($config) && $config['status'] == 1) {
             $api_key = $config['api_key'];
+             $otp_template = $config['otp_template'];
+             if(empty($otp_template)){
+                $otp_template ="OTP3";
+             }
             $curl = curl_init();
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://2factor.in/API/V1/" . $api_key . "/SMS/" . $receiver . "/" . $otp . "",
+                CURLOPT_URL => "https://2factor.in/API/V1/" . $api_key . "/SMS/" . $receiver . "/" . $otp . "/".$otp_template,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
