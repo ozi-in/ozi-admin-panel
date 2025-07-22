@@ -67,7 +67,7 @@ class SMSModuleController extends Controller
             $additional_data = [
                 'status' => $request['status'],
                 'api_key' => $request['api_key'],
-                'otp_template' => $request['otp_template'] ?? 'Your OTP is: #OTP#',
+                'otp_template' => $request['otp_template'] ?? '',
             ];
         } elseif ($module == 'msg91') {
             $additional_data = [
