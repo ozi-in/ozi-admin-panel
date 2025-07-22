@@ -81,9 +81,10 @@ class CartController extends Controller
         if ($typeKey !== null) {
             
             $cartQuery =$cartQuery->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(variation, '$[0].type')) = ?", [$typeKey]);
-        }else{
-            $cart=  $cartQuery->first();
         }
+
+
+              $cart=  $cartQuery->first();
         
         if ($cart) {
             $new_quantity = $cart->quantity + $request->quantity;
