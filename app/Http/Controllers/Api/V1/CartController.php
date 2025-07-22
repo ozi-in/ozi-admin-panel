@@ -27,7 +27,7 @@ class CartController extends Controller
         ->map(function ($data) {
             $data->add_on_ids = json_decode($data->add_on_ids,true);
             $data->add_on_qtys = json_decode($data->add_on_qtys,true);
-            $data->variation = json_decode($data->variation,true);
+            $data->variation = $data->variation;
 			$data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
             $data->add_on_qtys, false, app()->getLocale());
 			return $data;
@@ -99,7 +99,7 @@ class CartController extends Controller
         $cart->item_type = $request->model;
         $cart->price = $request->price;
         $cart->quantity = $request->quantity;
-        $cart->variation = isset($request->variation) ? json_encode($request->variation) : json_encode([]);
+        $cart->variation = isset($request->variation) ? $request->variation: [];
         $cart->save();
 
         $item->carts()->save($cart);
@@ -114,7 +114,7 @@ class CartController extends Controller
         ->map(function ($data) {
             $data->add_on_ids = json_decode($data->add_on_ids, true);
             $data->add_on_qtys = json_decode($data->add_on_qtys, true);
-            $data->variation = json_decode($data->variation, true);
+            $data->variation = $data->variation;
             $data->item = Helpers::cart_product_data_formatting(
                 $data->item,
                 $data->variation,
