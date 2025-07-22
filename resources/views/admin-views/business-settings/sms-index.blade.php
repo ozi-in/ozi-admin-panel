@@ -76,11 +76,24 @@
                                 @foreach($data_values->where('key_name',$gateway->key_name)->first()->live_values as $key=>$value)
                                     @if(!in_array($key,$skip))
                                         <div class="form-floating mb-30 mt-30 text-capitalize">
+
+                                       @if($key=="otp_template" && $gateway->key_name=="2factor")
+
+ <label for="{{$key}}" class="form-label">{{translate("Enter your approved 2Factor Template ID*")}} </label>
+
+ <input id="{{$key}}" type="text" class="form-control"
+                                                   name="{{$key}}"
+                                                   placeholder="{{translate('Enter your approved 2Factor Template ID')}}"
+                                                   value="{{env('APP_ENV')=='demo'?'':$value}}">
+
+                                       @else
+
                                             <label for="{{$key}}" class="form-label">{{translate($key)}}  {{ $gateway->key_name == 'alphanet_sms' &&  $key == 'sender_id'? '('. translate('messages.Optional') .')' : '*'}}  </label>
                                             <input id="{{$key}}" type="text" class="form-control"
                                                    name="{{$key}}"
                                                    placeholder=" {{ $key == 'otp_template' ?  translate('Your_Security_Pin_is'). ' #OTP#' : translate($key) .' *'   }}    "
                                                    value="{{env('APP_ENV')=='demo'?'':$value}}">
+                                                   @endif
                                         </div>
                                     @endif
                                 @endforeach
