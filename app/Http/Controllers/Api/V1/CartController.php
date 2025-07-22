@@ -162,7 +162,7 @@ class CartController extends Controller
         $cart->add_on_qtys = isset($request->add_on_qtys)?json_encode($request->add_on_qtys):$cart->add_on_qtys;
         $cart->price = $request->price;
         $cart->quantity = $request->quantity;
-        $cart->variation = isset($request->variation)?json_encode($request->variation):$cart->variation;
+        $cart->variation = isset($request->variation)? $request->variation:$cart->variation;
         $cart->save();
 
         $carts = Cart::where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->get()
