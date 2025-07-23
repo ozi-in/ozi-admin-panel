@@ -9,7 +9,7 @@ use App\CentralLogics\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\ItemCampaign;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Log;
 class CartController extends Controller
 {
     public function get_carts(Request $request)
@@ -104,7 +104,12 @@ class CartController extends Controller
 
         $item->carts()->save($cart);
     }
-
+Log::info([
+    'item' => $item,
+    'variation' => $variation,
+    'add_on_ids' => $add_on_ids,
+    'add_on_qtys' => $add_on_qtys,
+]);
     // ✅ Return updated cart list
     $carts = Cart::where('user_id', $user_id)
         ->where('is_guest', $is_guest)
