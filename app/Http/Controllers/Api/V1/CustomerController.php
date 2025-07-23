@@ -314,7 +314,19 @@ class CustomerController extends Controller
         // }
         
      //   item name, id, image, rating, avgrating, discount, price, saleprice,tags & if something related to wishlist so that is
-        $products = Item::active()
+        $products =  Item::active()
+    // ->select([
+    //     'id',
+    //     'name',
+    //     'image',
+    //     'rating',
+    //     'avg_rating',
+    //     'discount',
+    //     'price',
+    //     'variations',
+    //     'category_ids',
+      
+    // ])
         ->whereIn('id', $suggested_ids)
         ->whereHas('store', function ($query) use ($zone_id) {
             $query->whereIn('zone_id', $zone_id);
