@@ -2944,7 +2944,16 @@
     <div class="col-md-12">
       <h4>Select Suggested Products</h4>
         <div class="mainsuggestedParent">
-        <select id="suggestedProductSelect" multiple  name="suggested_products[]" class="form-control js-select2-custom" style="width: 100%" data-url="{{url('/')}}"></select>
+        <select id="suggestedProductSelect" multiple  name="suggested_products[]" class="form-control js-select2-custom" style="width: 100%" data-url="{{url('/')}}">
+@if(!empty($suggestedProducts))
+    @foreach($suggestedProducts as $product)
+        <option value="{{ $product->id }}" selected>{{ $product->name }}</option>
+    @endforeach
+@endif
+
+
+
+        </select>
                 </div>
     </div>
     <div class="col-md-6 d-none">
