@@ -3058,7 +3058,7 @@ function initializeSubCategoryDropdown(parentId) {
     $('#subCategory').select2({
         placeholder: 'Select & Search Subcategory',
           allowClear: true,
-            dropdownParent: $('.subcatparent'), // or the nearest visible container
+        dropdownParent: $('#subCategory').parent(),
         ajax: {
             url:"{{url('/')}}/admin/item/get-trending-categories",
             data: function (params) {
