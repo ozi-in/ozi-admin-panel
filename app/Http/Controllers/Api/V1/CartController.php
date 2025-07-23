@@ -105,11 +105,13 @@ class CartController extends Controller
         $item->carts()->save($cart);
     }
 Log::info([
-    'moduleId' => $request->header('moduleId'),
+    '$user_id' => $user_id,
+    'is_guest'=>$is_guest
   //  'variation' => $variation,
   //  'add_on_ids' => $add_on_ids,
    // 'add_on_qtys' => $add_on_qtys,
 ]);
+\Log::info('Headers', $request->headers->all());
     // ✅ Return updated cart list
     $carts = Cart::where('user_id', $user_id)
         ->where('is_guest', $is_guest)
@@ -117,6 +119,7 @@ Log::info([
         ->with('item')
         ->get()
         ->map(function ($data) {
+            
             $data->add_on_ids = json_decode($data->add_on_ids, true);
             $data->add_on_qtys = json_decode($data->add_on_qtys, true);
             $data->variation = $data->variation;
