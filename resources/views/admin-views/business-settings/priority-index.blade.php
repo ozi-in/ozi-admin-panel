@@ -3038,7 +3038,10 @@ $(document).on('change', '#mainCategory', function () {
 function initializeSubCategoryDropdown(parentId) {
 
     $('#subCategory').val(null).trigger('change'); // reset selection
- //   $('#subCategory').off().select2('destroy'); // remove old instance
+    // Destroy previous select2 instance safely
+    if ($.fn.select2 && $('#subCategory').hasClass("select2-hidden-accessible")) {
+        $('#subCategory').select2('destroy');
+    }
  $.ajax({
         url: "{{ url('/') }}/admin/item/get-trending-categories",
         data: {
