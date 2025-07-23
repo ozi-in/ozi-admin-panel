@@ -66,7 +66,6 @@ use Modules\Rental\Emails\ProviderSubscriptionRenewOrShift;
 use Laravelpkg\Laravelchk\Http\Controllers\LaravelchkController;
 use Modules\Rental\Entities\Vehicle;
 use Aws\S3\S3Client;
-use Illuminate\Support\Facades\Log;
 class Helpers
 {
     use PaymentGatewayTrait , NotificationDataSetUpTrait;
@@ -125,21 +124,7 @@ class Helpers
     {
         $variations = [];
         $categories = [];
-     //   $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
-   //   $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
-Log::info([
-    'item' => $data,
-  //  'variation' => $variation,
-  //  'add_on_ids' => $add_on_ids,
-   // 'add_on_qtys' => $add_on_qtys,
-]);
-     $category_ids = is_array($data['category_ids'])
-    ? $data['category_ids']
-    : json_decode($data['category_ids'], true);
-
-if (!is_array($category_ids)) {
-    $category_ids = []; // fallback if decode fails
-}
+        $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
         foreach ($category_ids as $value) {
             $category_name = Category::where('id',$value['id'])->pluck('name');
             $categories[] = ['id' => (string)$value['id'], 'position' => $value['position'], 'name'=>data_get($category_name,'0','NA')];
@@ -1168,7 +1153,8 @@ if (!is_array($category_ids)) {
         }
         return $currency_symbol ;
     }
-
+    
+    
     
     public static function format_currency($value)
     {
@@ -1182,14 +1168,7 @@ if (!is_array($category_ids)) {
         
         return $currency_symbol_position == 'right' ? number_format($value, config('round_up_to_digit')) . ' ' . self::currency_symbol() : self::currency_symbol() . ' ' . number_format($value, config('round_up_to_digit'));
     }
-        
-//       apiKey: "AIzaSyChwHgUgOG7oAN_KixqpPt5VbTacPa-4Us",
-//   authDomain: "ozi-technologies-99593.firebaseapp.com",
-//   projectId: "ozi-technologies-99593",
-//   storageBucket: "ozi-technologies-99593.firebasestorage.app",
-//   messagingSenderId: "436594923301",
-//   appId: "1:436594923301:web:c816aaa8f66366df962ccc",
-//   measurementId: "G-4NSPLT0604"
+    
     public static function sendNotificationToHttp(array|null $data)
     {
         $config = self::get_business_settings('push_notification_service_file_content');

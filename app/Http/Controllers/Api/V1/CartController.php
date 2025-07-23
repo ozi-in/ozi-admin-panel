@@ -51,8 +51,8 @@ class CartController extends Controller
 
     $user_id = $request->user ? $request->user->id : $request['guest_id'];
     $is_guest = $request->user ? 0 : 1;
-    $model = $request->model == 'Item' ? 'App\Models\Item' : 'App\Models\ItemCampaign';
-    $item = $request->model == 'Item' ? Item::find($request->item_id) : ItemCampaign::find($request->item_id);
+    $model = $request->model === 'Item' ? 'App\Models\Item' : 'App\Models\ItemCampaign';
+    $item = $request->model === 'Item' ? Item::find($request->item_id) : ItemCampaign::find($request->item_id);
 
     $variationArray = $request->variation ?? [];
     $typeKey = is_array($variationArray) && isset($variationArray[0]['type']) ? $variationArray[0]['type'] : null;
@@ -112,11 +112,6 @@ class CartController extends Controller
         ->with('item')
         ->get()
         ->map(function ($data) {
-
-              \Log::info("Mapping cart ID {$data->id}", [
-        'item' => $data->item,
-        'item_type' => $data->item_type,
-    ]);
             $data->add_on_ids = json_decode($data->add_on_ids, true);
             $data->add_on_qtys = json_decode($data->add_on_qtys, true);
             $data->variation = $data->variation;
