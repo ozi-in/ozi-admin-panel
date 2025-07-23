@@ -2160,7 +2160,7 @@ class ItemController extends Controller
                 {
                     $items = Item::with('store')
                     ->when($request->category_id, fn($q) =>
-                    $q->whereJsonContains('category_ids', ['id' => (string)$request->category_id])
+                    $q->where('category_ids', ['id' => $request->category_id])
                     )
                     ->when($request->q, fn($q) =>
                     $q->where('name', 'like', "%{$request->q}%")
