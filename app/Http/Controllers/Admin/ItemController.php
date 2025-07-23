@@ -1044,7 +1044,7 @@ class ItemController extends Controller
                         $q->where('module_id', $request->module_id);
                     })
                     ->when($request->category_id, function ($q) use ($request) {
-                        $q->whereJsonContains('category_ids', ['id' => (string) $request->category_id]);
+                        $q->whereJsonContains('category_ids', ['id' => (int)$request->category_id])->orWhereJsonContains('category_ids', ['id' => (string)$request->category_id]);
                     })
                     ->get();
                     $res = '';
@@ -1063,7 +1063,25 @@ class ItemController extends Controller
                         'options' => $res,
                     ]);
                 }
-                
+                public function getSuggestedItems(Request $request)
+                {
+                    $query = Item::query()->select(['id', 'name']);
+                    
+                    if ($search = $request->q) {
+                        $query->where('name', 'like', '%' . $search . '%');
+                    }
+                    
+                    $limit = 10;
+                    $items = $query->paginate($limit);
+                    
+                    return response()->json([
+                        'results' => $items->map(fn($item) => [
+                            'id' => $item->id,
+                            'text' => $item->name
+                        ]),
+                        'pagination' => ['more' => $items->hasMorePages()]
+                    ]);
+                }
                 public function get_items_flashsale(Request $request)
                 {
                     $items = Item::withoutGlobalScope(StoreScope::class)->with('store')->active()
@@ -2158,51 +2176,51 @@ class ItemController extends Controller
                 }
                 public function get_trending_items(Request $request)
                 {
-                     DB::enableQueryLog(); // 🔍 Enable query logging
+                    DB::enableQueryLog(); // 🔍 Enable query logging
                     $itemsQuery = Item::with('store')
                     ->when($request->category_id, fn($q) =>
-                    $q->whereJsonContains('category_ids', ['id' => (int)$request->category_id])
+                    $q->whereJsonContains('category_ids', ['id' => (int)$request->category_id])->orWhereJsonContains('category_ids', ['id' => (string)$request->category_id])
                     )
                     ->when($request->q, fn($q) =>
                     $q->where('name', 'like', "%{$request->q}%")
                 );
-   
-                  $items=  $itemsQuery->paginate(10); // Use per-page limit
-                     \Log::info('Executed Queries:', DB::getQueryLog());
-                    $results = $items->map(fn($item) => [
-                        'id' => $item->id,
-                        'text' => $item->name . ' (' . optional($item->store)->name . ')'
-                    ]);
-                    
-                    return response()->json([
-                        'results' => $results,
-                        'pagination' => ['more' => $items->hasMorePages()]
+                
+                $items=  $itemsQuery->paginate(10); // Use per-page limit
+                \Log::info('Executed Queries:', DB::getQueryLog());
+                $results = $items->map(fn($item) => [
+                    'id' => $item->id,
+                    'text' => $item->name . ' (' . optional($item->store)->name . ')'
+                ]);
+                
+                return response()->json([
+                    'results' => $results,
+                    'pagination' => ['more' => $items->hasMorePages()]
+                ]);
+            }
+            public function getMainCategories(Request $request)
+            {
+                $perPage = 20;
+                $query = Category::query()
+                ->where('parent_id',0)
+                ->when($request->q, function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->q . '%');
+                });
+                
+                $categories = $query->paginate($perPage);
+                
+                return response()->json([
+                    'results' => $categories->map(function ($cat) {
+                        return [
+                            'id' => $cat->id,
+                            'text' => $cat->name
+                        ];
+                    }),
+                    'pagination' => [
+                        'more' => $categories->hasMorePages() // 👈 tells Select2 if more data exists
+                        ]
                     ]);
                 }
-                public function getMainCategories(Request $request)
-{
-    $perPage = 20;
-    $query = Category::query()
-        ->where('parent_id',0)
-        ->when($request->q, function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->q . '%');
-        });
-
-    $categories = $query->paginate($perPage);
-
-    return response()->json([
-        'results' => $categories->map(function ($cat) {
-            return [
-                'id' => $cat->id,
-                'text' => $cat->name
-            ];
-        }),
-        'pagination' => [
-            'more' => $categories->hasMorePages() // 👈 tells Select2 if more data exists
-        ]
-    ]);
-}
-
+                
                 
             }
             

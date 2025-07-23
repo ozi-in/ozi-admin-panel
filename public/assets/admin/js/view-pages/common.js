@@ -659,6 +659,8 @@ $(document).ready(function () {
         }, 2000);
     });
 });
+let suggestedProductMap = new Map();
+let selectedSuggestedProductIds = new Set();
 $(document).ready(function () {
 
     const categryurl = $('#category_banner').data('url');
@@ -760,4 +762,63 @@ console.log(preselectedCategory,preselectedSubcategory)
         $('#subcategory_wrapper').removeClass('d-none');
     }
 
+    const suggestedProductSelecturl = $('#suggestedProductSelect').data('url');
+// Initialize Select2 for Suggested Products
+$('#suggestedProductSelect').select2({
+    placeholder: 'Search Suggested Products',
+    allowClear: true,
+    multiple:true,
+    minimumInputLength: 0,
+        dropdownParent: $('.mainsuggestedParent'), // or adjust to the banner form wrapper
+    ajax: {
+        url: suggestedProductSelecturl+"/admin/item/get-suggested-items",
+        data: function (params) {
+            return {
+                q: params.term || '',      // search query
+                page: params.page || 1     // pagination
+            };
+        },
+        processResults: function (data) {
+            return {
+                results: data.results,
+                pagination: {
+                    more: data.pagination?.more
+                }
+            };
+        },
+        cache: true,
+        delay: 250
+    }
 });
+
+// On select, add to right side
+$('#suggestedProductSelect').on('select2:select', function (e) {
+    const data = e.params.data;
+    const id = parseInt(data.id);
+
+    if (!selectedSuggestedProductIds.has(id)) {
+        selectedSuggestedProductIds.add(id);
+        suggestedProductMap.set(id, data);
+
+        const listItem = `
+            <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${id}">
+                ${data.text}
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSuggestedProduct(${id})">Remove</button>
+                <input type="hidden" name="suggested_product_ids[]" value="${id}">
+            </li>
+        `;
+
+        $('#selectedSuggestedList').append(listItem);
+    }
+
+    // Clear select box so user can search again
+ $('#suggestedProductSelect').val(null).trigger('change');
+});
+
+});
+// Remove from right side
+function removeSuggestedProduct(id) {
+    selectedSuggestedProductIds.delete(id);
+    suggestedProductMap.delete(id);
+    $(`#selectedSuggestedList li[data-id='${id}']`).remove();
+}

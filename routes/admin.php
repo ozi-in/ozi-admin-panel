@@ -80,6 +80,7 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::get('get-items-flashsale', 'ItemController@get_items_flashsale')->name('getitems-flashsale');
             Route::post('food-variation-generate', 'ItemController@food_variation_generator')->name('food-variation-generate');
             Route::post('variation-generate', 'ItemController@variation_generator')->name('variation-generate');
+                Route::get('get-suggested-items', 'ItemController@getSuggestedItems')->name('getSuggestedItems');
 
                Route::get('get-trending-items', 'ItemController@get_trending_items')->name('get_trending_items');
 
