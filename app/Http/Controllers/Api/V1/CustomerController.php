@@ -291,72 +291,56 @@ class CustomerController extends Controller
         $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
         return response()->json($products, 200);
     }
-    public function get_suggested_item(Request $request)
-    {
-        if (!$request->hasHeader('zoneId')) {
-            return response()->json([
-                'errors' => [['code' => 'zoneId', 'message' => 'Zone id is required!']]
-            ], 403);
-        }
-        
-        $zone_id = $request->header('zoneId');
-        $zone_id = json_decode($zone_id, true);
-        
-        $itemIds = $request->input('item_ids'); // Accept item_ids from input
-        $categoryIds = [];
-        
-        // If item IDs are provided, get the related category_ids
-        if (!empty($itemIds)) {
-            $itemIds=explode(",",$itemIds);
-            $categoryIds = Item::whereIn('id', $itemIds)
-            ->pluck('category_ids') // assuming 'category_ids' is stored as JSON array
-            ->flatMap(function ($value) {
-                return collect(json_decode($value))->pluck('id');
-            })
+  public function get_suggested_item(Request $request)
+{
+    if (!$request->hasHeader('zoneId')) {
+        return response()->json([
+            'errors' => [['code' => 'zoneId', 'message' => 'Zone id is required!']]
+        ], 403);
+    }
+
+    $zone_id = json_decode($request->header('zoneId'), true);
+    $itemIds = array_filter(explode(',', $request->input('item_ids', '')));
+    $categoryIds = [];
+
+    // Get category IDs from items (using category_id column)
+    if (!empty($itemIds)) {
+        $categoryIds = Item::whereIn('id', $itemIds)
+            ->pluck('category_id')
             ->unique()
-            ->values()
             ->toArray();
-        }
-        //print_r($categoryIds);die;
-        // Fallback to user's interest if categoryIds are still empty
-        if (empty($categoryIds)) {
-            $interest = $request->user()->interest;
-            $categoryIds = isset($interest) ? json_decode($interest) : [];
-        }
-        
-        $products = Item::active()
-        ->whereHas('store', function ($q) use ($zone_id) {
-            $q->whereIn('zone_id', $zone_id);
-        })
-        ->when(!empty($categoryIds), function ($q) use ($categoryIds) {
-            $q->where(function ($query) use ($categoryIds) {
-                foreach ($categoryIds as $id) {
-                    $query->orWhereJsonContains('category_ids', ['id' => (string)$id]);
-                }
-            });
-        })
-        ->whereHas('module.zones', function ($query) use ($zone_id) {
-            $query->whereIn('zones.id', $zone_id);
-        })
+    }
+
+    // Fallback to user's interest
+    // if (empty($categoryIds) && $request->user()?->interest) {
+    //     $categoryIds = json_decode($request->user()->interest, true);
+    // }
+
+    $products = Item::active()
+        ->whereNotIn('id', $itemIds)
         ->whereHas('store', function ($query) use ($zone_id) {
-            $query->when(config('module.current_module_data'), function ($query) {
-                $query->where('module_id', config('module.current_module_data')['id'])
-                ->whereHas('zone.modules', function ($query) {
-                    $query->where('modules.id', config('module.current_module_data')['id']);
-                });
-            })->whereIn('zone_id', $zone_id);
+            $query->whereIn('zone_id', $zone_id);
+
+            if (config('module.current_module_data')) {
+                $moduleId = config('module.current_module_data')['id'];
+                $query->where('module_id', $moduleId)
+                    ->whereHas('zone.modules', fn($q) =>
+                        $q->where('modules.id', $moduleId)
+                    );
+            }
         })
-           ->whereNotIn('id', $itemIds ?? [])
-        ->when(empty($categoryIds), function ($q) {
-            return $q->popular(); // Fallback if no categories available
-        })
+        ->whereHas('module.zones', fn($q) => $q->whereIn('zones.id', $zone_id))
+        ->when(!empty($categoryIds), fn($q) => $q->whereIn('category_id', $categoryIds))
+        ->when(empty($categoryIds), fn($q) => $q->popular()) // fallback if no category
         ->limit(5)
         ->get();
-        
-        $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
-        
-        return response()->json($products, 200);
-    }
+
+    $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
+
+    return response()->json($products, 200);
+}
+
+
     
     public function update_zone(Request $request)
     {
