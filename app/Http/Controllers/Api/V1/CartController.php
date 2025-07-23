@@ -112,6 +112,11 @@ class CartController extends Controller
         ->with('item')
         ->get()
         ->map(function ($data) {
+
+              \Log::info("Mapping cart ID {$data->id}", [
+        'item' => $data->item,
+        'item_type' => $data->item_type,
+    ]);
             $data->add_on_ids = json_decode($data->add_on_ids, true);
             $data->add_on_qtys = json_decode($data->add_on_qtys, true);
             $data->variation = $data->variation;
