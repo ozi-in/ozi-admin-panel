@@ -9,7 +9,7 @@ use App\CentralLogics\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\ItemCampaign;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
+
 class CartController extends Controller
 {
     public function get_carts(Request $request)
@@ -104,43 +104,27 @@ class CartController extends Controller
 
         $item->carts()->save($cart);
     }
-Log::info([
-    '$user_id' => $user_id,
-    'is_guest'=>$is_guest
-  //  'variation' => $variation,
-  //  'add_on_ids' => $add_on_ids,
-   // 'add_on_qtys' => $add_on_qtys,
-]);
- $carts = Cart::where('user_id', $user_id)
-    ->where('is_guest', $is_guest)
-    ->where('module_id', $request->header('moduleId'))
-    ->get();
 
-
-    \Log::info('Raw Carts', $carts->toArray());
     // ✅ Return updated cart list
- $carts = Cart::where('user_id', $user_id)
-    ->where('is_guest', $is_guest)
-    ->where('module_id', $request->header('moduleId'))
-    ->get()
-    ->loadMorph('item', [
-        \App\Models\Item::class => ['translations'],
-        \App\Models\ItemCampaign::class => ['translations'],
-    ]) // only if you need nested relationships like translations
-    ->map(function ($data) {
-        $data->add_on_ids = json_decode($data->add_on_ids, true);
-        $data->add_on_qtys = json_decode($data->add_on_qtys, true);
-        $data->variation = $data->variation;
-        $data->item = Helpers::cart_product_data_formatting(
-            $data->item,
-            $data->variation,
-            $data->add_on_ids,
-            $data->add_on_qtys,
-            false,
-            app()->getLocale()
-        );
-        return $data;
-    });
+    $carts = Cart::where('user_id', $user_id)
+        ->where('is_guest', $is_guest)
+        ->where('module_id', 6)
+        ->with('item')
+        ->get()
+        ->map(function ($data) {
+            $data->add_on_ids = json_decode($data->add_on_ids, true);
+            $data->add_on_qtys = json_decode($data->add_on_qtys, true);
+            $data->variation = $data->variation;
+            $data->item = Helpers::cart_product_data_formatting(
+                $data->item,
+                $data->variation,
+                $data->add_on_ids,
+                $data->add_on_qtys,
+                false,
+                app()->getLocale()
+            );
+            return $data;
+        });
 
     return response()->json($carts, 200);
 }
