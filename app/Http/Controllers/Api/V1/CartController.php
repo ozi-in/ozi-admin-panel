@@ -117,7 +117,7 @@ Log::info([
     ->get();
 
 
-    \Log::info('Raw Carts', $carts);
+    \Log::info('Raw Carts', $carts->toArray());
     // ✅ Return updated cart list
  $carts = Cart::where('user_id', $user_id)
     ->where('is_guest', $is_guest)
