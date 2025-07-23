@@ -666,7 +666,7 @@ $('#category_banner').select2({
     placeholder: 'Select & Search Main Category',
     minimumInputLength: 0,
     allowClear:true,
-    dropdownParent: $('.mainparent'), // or adjust to the banner form wrapper
+    dropdownParent: $('.mainparentBanner'), // or adjust to the banner form wrapper
     ajax: {
         url: categryurl+"/admin/item/get-select-categories",
         dataType: 'json',
