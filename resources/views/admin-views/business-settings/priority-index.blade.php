@@ -2939,14 +2939,15 @@
             </div>
 </div>
 
-<div class="row mt-4" id="suggested-product-section">
-    <div class="col-md-6">
-        <label>Suggested Products</label>
+<div class="row mt-6" id="suggested-product-section">
+    <hr/>
+    <div class="col-md-12">
+      <h4>Select Suggested Products</h4>
         <div class="mainsuggestedParent">
         <select id="suggestedProductSelect" multiple  name="suggested_products[]" class="form-control js-select2-custom" style="width: 100%" data-url="{{url('/')}}"></select>
                 </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 d-none">
         <div class="card p-3">
         <label>Selected Suggested Products</label>
         <ul id="selectedSuggestedList" class="list-group" style="max-height: 300px; overflow-y: auto;">
@@ -2978,6 +2979,10 @@
 
         .select2-results__options {
     max-height: 200px !important;
+    overflow-y: auto !important;
+}
+.select2-selection__rendered {
+    max-height: 120px; /* adjust as needed */
     overflow-y: auto !important;
 }
 </style>
