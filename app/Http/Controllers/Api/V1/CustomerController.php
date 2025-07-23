@@ -343,7 +343,7 @@ class CustomerController extends Controller
     //  ->when(!empty($categoryIds), fn($q) => $q->whereIn('category_id', $categoryIds))
     ->when(empty($suggested_ids), fn($q) => $q->popular()) // fallback if no category
      ->inRandomOrder()
-    ->limit(5)
+    ->limit(10)
     ->get();
     
     $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
