@@ -329,7 +329,8 @@ class CustomerController extends Controller
     })
     ->whereHas('module.zones', fn($q) => $q->whereIn('zones.id', $zone_id))
     //  ->when(!empty($categoryIds), fn($q) => $q->whereIn('category_id', $categoryIds))
-    ->when(empty($categoryIds), fn($q) => $q->popular()) // fallback if no category
+    ->when(empty($suggested_ids), fn($q) => $q->popular()) // fallback if no category
+     ->inRandomOrder()
     ->limit(5)
     ->get();
     
