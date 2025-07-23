@@ -124,7 +124,15 @@ class Helpers
     {
         $variations = [];
         $categories = [];
-        $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
+     //   $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
+
+     $category_ids = is_array($data['category_ids'])
+    ? $data['category_ids']
+    : json_decode($data['category_ids'], true);
+
+if (!is_array($category_ids)) {
+    $category_ids = []; // fallback if decode fails
+}
         foreach ($category_ids as $value) {
             $category_name = Category::where('id',$value['id'])->pluck('name');
             $categories[] = ['id' => (string)$value['id'], 'position' => $value['position'], 'name'=>data_get($category_name,'0','NA')];
@@ -1153,8 +1161,7 @@ class Helpers
         }
         return $currency_symbol ;
     }
-    
-    
+
     
     public static function format_currency($value)
     {
@@ -1168,7 +1175,14 @@ class Helpers
         
         return $currency_symbol_position == 'right' ? number_format($value, config('round_up_to_digit')) . ' ' . self::currency_symbol() : self::currency_symbol() . ' ' . number_format($value, config('round_up_to_digit'));
     }
-    
+        
+//       apiKey: "AIzaSyChwHgUgOG7oAN_KixqpPt5VbTacPa-4Us",
+//   authDomain: "ozi-technologies-99593.firebaseapp.com",
+//   projectId: "ozi-technologies-99593",
+//   storageBucket: "ozi-technologies-99593.firebasestorage.app",
+//   messagingSenderId: "436594923301",
+//   appId: "1:436594923301:web:c816aaa8f66366df962ccc",
+//   measurementId: "G-4NSPLT0604"
     public static function sendNotificationToHttp(array|null $data)
     {
         $config = self::get_business_settings('push_notification_service_file_content');
@@ -1190,6 +1204,7 @@ class Helpers
     
     public static function getAccessToken($key)
     {
+        //firebase-adminsdk-fbsvc@ozi-technologies-99593.iam.gserviceaccount.com
         $jwtToken = [
             'iss' => $key['client_email'],
             'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
