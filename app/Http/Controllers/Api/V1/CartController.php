@@ -106,9 +106,9 @@ class CartController extends Controller
     }
 Log::info([
     'item' => $item,
-    'variation' => $variation,
-    'add_on_ids' => $add_on_ids,
-    'add_on_qtys' => $add_on_qtys,
+  //  'variation' => $variation,
+  //  'add_on_ids' => $add_on_ids,
+   // 'add_on_qtys' => $add_on_qtys,
 ]);
     // ✅ Return updated cart list
     $carts = Cart::where('user_id', $user_id)
