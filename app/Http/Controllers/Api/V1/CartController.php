@@ -51,8 +51,8 @@ class CartController extends Controller
 
     $user_id = $request->user ? $request->user->id : $request['guest_id'];
     $is_guest = $request->user ? 0 : 1;
-    $model = $request->model === 'Item' ? 'App\Models\Item' : 'App\Models\ItemCampaign';
-    $item = $request->model === 'Item' ? Item::find($request->item_id) : ItemCampaign::find($request->item_id);
+    $model = $request->model == 'Item' ? 'App\Models\Item' : 'App\Models\ItemCampaign';
+    $item = $request->model == 'Item' ? Item::find($request->item_id) : ItemCampaign::find($request->item_id);
 
     $variationArray = $request->variation ?? [];
     $typeKey = is_array($variationArray) && isset($variationArray[0]['type']) ? $variationArray[0]['type'] : null;
@@ -108,7 +108,7 @@ class CartController extends Controller
     // ✅ Return updated cart list
     $carts = Cart::where('user_id', $user_id)
         ->where('is_guest', $is_guest)
-        ->where('module_id', 6)
+        ->where('module_id', $request->header('moduleId'))
         ->with('item')
         ->get()
         ->map(function ($data) {
