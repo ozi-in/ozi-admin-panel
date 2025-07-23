@@ -98,8 +98,15 @@ class BusinessSettingsController extends Controller
             }else{
                 $trending_product_ids =[];
             }
+             $suggestedRecord = BusinessSetting::where(['key' => 'suggested_products'])->first();
+            if(!empty( $suggestedRecord)){
+            $suggested_products_ids = json_decode($suggestedRecord->value, true);
+            }else{
+                $suggested_products_ids =[];
+            }
             $selectedProducts = \App\Models\Item::whereIn('id', $trending_product_ids)->get();
-            return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts'));
+             $suggestedProducts = \App\Models\Item::whereIn('id', $suggested_products_ids)->get();
+            return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts','suggestedProducts'));
         } else if ($tab == 'automated-message') {
             $key = explode(' ', $request['search']);
             $messages = AutomatedMessage::orderBy('id', 'desc')
@@ -156,6 +163,11 @@ class BusinessSettingsController extends Controller
         
         Helpers::businessUpdateOrInsert(['key' => 'trending_product_ids'], [
             'value' => json_encode($trendingIds)
+        ]);
+         $suggestedIds = $request->input('suggested_product_ids', []);
+        
+        Helpers::businessUpdateOrInsert(['key' => 'suggested_products'], [
+            'value' => json_encode($suggestedIds)
         ]);
         
         

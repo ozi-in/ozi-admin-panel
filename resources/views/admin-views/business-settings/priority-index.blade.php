@@ -2927,10 +2927,9 @@
             {{ $product->name }} ({{ $product->store->name ?? 'No Store' }})
          <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTrendingProduct({{ $product->id }})">Remove</button>
 
-               <input type="hidden" name="trending_product_ids[]" value="{{ $product->id }}">
+               <input type="hidden" name="suggested_product_ids[]" value="{{ $product->id }}">
         </li>  
     @endforeach
-
 
 
 
@@ -2940,7 +2939,30 @@
             </div>
 </div>
 
+<div class="row mt-4" id="suggested-product-section">
+    <div class="col-md-6">
+        <label>Suggested Products</label>
+        <div class="mainsuggestedParent">
+        <select id="suggestedProductSelect" multiple  name="suggested_products[]" class="form-control js-select2-custom" style="width: 100%" data-url="{{url('/')}}"></select>
+                </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3">
+        <label>Selected Suggested Products</label>
+        <ul id="selectedSuggestedList" class="list-group" style="max-height: 300px; overflow-y: auto;">
+ @foreach($suggestedProducts as $product)
+        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ $product->id }}">
+            {{ $product->name }} ({{ $product->store->name ?? 'No Store' }})
+         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSuggestedProduct({{ $product->id }})">Remove</button>
 
+               <input type="hidden" name="trending_product_ids[]" value="{{ $product->id }}">
+        </li>  
+    @endforeach
+
+        </ul>
+    </div>
+                </div>
+</div>
 
                     <div class="btn--container justify-content-end position-sticky bottom-0 p-3 bg-white border-top">
                         <button id="reset_btn" type="reset"
