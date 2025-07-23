@@ -129,7 +129,7 @@ class="input-label-secondary"></span></label>
 <input type="text" name="banner_keywords" class="form-control" placeholder="{{translate('messages.foreg._diapers,bag')}}">
 </div>
 
-<div class="form-group mb-0 mainparent d-none" id="category_wise_wrapper">
+<div class="form-group mb-0 mainparentBanner d-none" id="category_wise_wrapper">
     <label class="input-label">{{ translate('messages.category') }}</label>
     <select name="category_id" id="category_banner" class="form-control js-category-select" data-placeholder="Select Category" data-url="{{ url('/') }}"></select>
 </div>

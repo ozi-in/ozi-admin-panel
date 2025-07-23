@@ -121,7 +121,7 @@
 @endphp
 
 {{-- Main Category --}}
-<div class="form-group mb-0 mainparent {{ $selectedCategory ? '' : 'd-none' }}" id="category_wise_wrapper">
+<div class="form-group mb-0 mainparentBanner {{ $selectedCategory ? '' : 'd-none' }}" id="category_wise_wrapper">
     <label class="input-label">{{ translate('messages.category') }}</label>
     <select name="category_id" id="category_banner" class="form-control js-category-select"
             data-placeholder="Select Category" data-url="{{ url('/') }}">
