@@ -104,7 +104,12 @@ class CartController extends Controller
 
         $item->carts()->save($cart);
     }
-
+Log::info([
+    'moduleId' => $request->header('moduleId'),
+  //  'variation' => $variation,
+  //  'add_on_ids' => $add_on_ids,
+   // 'add_on_qtys' => $add_on_qtys,
+]);
     // ✅ Return updated cart list
     $carts = Cart::where('user_id', $user_id)
         ->where('is_guest', $is_guest)
