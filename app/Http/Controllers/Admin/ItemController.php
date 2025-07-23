@@ -2158,15 +2158,17 @@ class ItemController extends Controller
                 }
                 public function get_trending_items(Request $request)
                 {
-                    $items = Item::with('store')
+                     DB::enableQueryLog(); // 🔍 Enable query logging
+                    $itemsQuery = Item::with('store')
                     ->when($request->category_id, fn($q) =>
-                    $q->where('category_ids', ['id' => $request->category_id])
+                    $q->whereJsonContains('category_ids', ['id' => (int)$request->category_id])
                     )
                     ->when($request->q, fn($q) =>
                     $q->where('name', 'like', "%{$request->q}%")
-                    )
-                    ->paginate(10); // Use per-page limit
-                    
+                );
+   
+                  $items=  $itemsQuery->paginate(10); // Use per-page limit
+                     \Log::info('Executed Queries:', DB::getQueryLog());
                     $results = $items->map(fn($item) => [
                         'id' => $item->id,
                         'text' => $item->name . ' (' . optional($item->store)->name . ')'
