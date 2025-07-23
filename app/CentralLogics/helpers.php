@@ -66,6 +66,7 @@ use Modules\Rental\Emails\ProviderSubscriptionRenewOrShift;
 use Laravelpkg\Laravelchk\Http\Controllers\LaravelchkController;
 use Modules\Rental\Entities\Vehicle;
 use Aws\S3\S3Client;
+use Illuminate\Support\Facades\Log;
 class Helpers
 {
     use PaymentGatewayTrait , NotificationDataSetUpTrait;
@@ -125,7 +126,13 @@ class Helpers
         $variations = [];
         $categories = [];
      //   $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
-
+   //   $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
+Log::info([
+    'item' => $data,
+  //  'variation' => $variation,
+  //  'add_on_ids' => $add_on_ids,
+   // 'add_on_qtys' => $add_on_qtys,
+]);
      $category_ids = is_array($data['category_ids'])
     ? $data['category_ids']
     : json_decode($data['category_ids'], true);
