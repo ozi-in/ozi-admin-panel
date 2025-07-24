@@ -2964,7 +2964,7 @@
             {{ $product->name }} ({{ $product->store->name ?? 'No Store' }})
          <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSuggestedProduct({{ $product->id }})">Remove</button>
 
-               <input type="hidden" name="trending_product_ids[]" value="{{ $product->id }}">
+               <input type="hidden" name="suggested_product_ids[]" value="{{ $product->id }}">
         </li>  
     @endforeach
 
