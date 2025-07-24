@@ -1631,7 +1631,7 @@ class OrderController extends Controller
          $data['order_image'] = null;
     if ($data['details']->isNotEmpty() && isset($data['details'][0]->item)) {
         if(!empty($data['details'][0]->item->image)){
-   $data['order_image'] = "https://ozi-in.s3.ap-south-1.amazonaws.com/product/".$data['details'][0]->item->image;
+$data['order_image'] = $data['details'][0]->item->image_full_url ?? null;
         }else{
                $data['order_image'] =null;
         }
