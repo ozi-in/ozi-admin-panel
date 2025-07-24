@@ -271,19 +271,19 @@ class Helpers
                 $item['attributes'] = json_decode($item['attributes']);
                 $item['choice_options'] = json_decode($item['choice_options']);
                 if(isset( $item['add_ons'] )){
-                $item['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($item['add_ons'], true))->active()->get(), true, $trans, $local);
-                foreach (json_decode($item['variations'], true)?? [] as $var) {
-                    array_push($variations, [
-                        'type' => $var['type'],
-                        'price' => (float)$var['price'],
-                        'stock' => (int)($var['stock'] ?? 0)
-                    ]);
+                    $item['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($item['add_ons'], true))->active()->get(), true, $trans, $local);
+                    foreach (json_decode($item['variations'], true)?? [] as $var) {
+                        array_push($variations, [
+                            'type' => $var['type'],
+                            'price' => (float)$var['price'],
+                            'stock' => (int)($var['stock'] ?? 0)
+                        ]);
+                    }
                 }
-            }
                 $item['variations'] = $variations;
                 $item['food_variations'] = $item['food_variations']?json_decode($item['food_variations'], true):'';
                 if(isset($item->module)){
-                $item['module_type'] = $item->module->module_type;
+                    $item['module_type'] = $item->module->module_type;
                 }
                 $item['store_name'] = $item->store?->name;
                 $item['is_campaign'] = $item->store?->campaigns_count>0?1:0;
@@ -306,8 +306,8 @@ class Helpers
                 $item['avg_rating'] = (float)($item->avg_rating ? $item->avg_rating : 0);
                 $item['recommended'] =(int) $item->recommended;
                 if(isset($item->store->delivery_time)){
-                $item['min_delivery_time'] =  (int) explode('-',$item?->store?->delivery_time)[0] ?? 0;
-                $item['max_delivery_time'] =  (int) explode('-',$item?->store?->delivery_time)[1] ?? 0;
+                    $item['min_delivery_time'] =  (int) explode('-',$item?->store?->delivery_time)[0] ?? 0;
+                    $item['max_delivery_time'] =  (int) explode('-',$item?->store?->delivery_time)[1] ?? 0;
                 }
                 $item['common_condition_id'] =  (int) $item->pharmacy_item_details?->common_condition_id ?? 0;
                 $item['brand_id'] =  (int) $item->ecommerce_item_details?->brand_id ?? 0;
@@ -317,10 +317,10 @@ class Helpers
                 $item['is_basic'] =  (int) $item->pharmacy_item_details?->is_basic ?? 0;
                 $item['is_prescription_required'] =  (int) $item->pharmacy_item_details?->is_prescription_required ?? 0;
                 if(isset($item->store)){
-                $item['halal_tag_status'] =  (int) $item->store->storeConfig?->halal_tag_status??0;
-         
-                $item->store['self_delivery_system'] = (int) $item->store->sub_self_delivery;
-                       }
+                    $item['halal_tag_status'] =  (int) $item->store->storeConfig?->halal_tag_status??0;
+                    
+                    $item->store['self_delivery_system'] = (int) $item->store->sub_self_delivery;
+                }
                 $item['nutritions_name']= $item?->nutritions ? Nutrition::whereIn('id',$item?->nutritions->pluck('id') )->pluck('nutrition') : null;
                 $item['allergies_name']= $item?->allergies ?Allergy::whereIn('id',$item?->allergies->pluck('id') )->pluck('allergy') : null;
                 $item['generic_name']= $item?->generic ? GenericName::whereIn('id',$item?->generic->pluck('id') )->pluck('generic_name'): null ;
@@ -329,15 +329,15 @@ class Helpers
                     return $tag->tag;
                 })
                 : [];
-                 $sale_price = $item->price;            
-            // Apply discount
-            if ($item->discount_type == 'percent') {
-                $sale_price -= ($sale_price * $item->discount / 100);
-            } elseif ($item->discount_type == 'amount') {
-                $sale_price -= $item->discount;
-            }
-            
-            $item['sale_price'] =round(max($sale_price, 0), 2);
+                $sale_price = $item->price;            
+                // Apply discount
+                if ($item->discount_type == 'percent') {
+                    $sale_price -= ($sale_price * $item->discount / 100);
+                } elseif ($item->discount_type == 'amount') {
+                    $sale_price -= $item->discount;
+                }
+                
+                $item['sale_price'] =round(max($sale_price, 0), 2);
                 unset($item['nutritions']);
                 unset($item['allergies']);
                 unset($item['generic']);
@@ -386,7 +386,7 @@ class Helpers
                 $data['available_date_ends'] = $data->end_date->format('Y-m-d');
                 unset($data['end_date']);
             }
-               
+            
             $data['variations'] = $variations;
             $data['food_variations'] = $data['food_variations']?json_decode($data['food_variations'], true):'';
             $data['store_name'] = $data->store->name;
@@ -438,6 +438,68 @@ class Helpers
         return $data;
     }
     
+    public static function basic_product_data_formatting($products, $multi = true, $is_translation = false, $locale = null)
+    {
+        $resource = function ($item) use ($locale) {
+            $sale_price = $item->price;     
+            $item->setAppends(['image_full_url']);       
+            // Apply discount
+            if ($item->discount_type == 'percent') {
+                $sale_price -= ($sale_price * $item->discount / 100);
+            } elseif ($item->discount_type == 'amount') {
+                $sale_price -= $item->discount;
+            }
+            $categories = [];
+            foreach (json_decode($item['category_ids']) as $value) {
+                $category_name = Category::where('id',$value->id)->pluck('name');
+                $categories[] = ['id' => (string)$value->id, 'position' => $value->position, 'name'=>data_get($category_name,'0','NA')];
+            }
+            
+            
+            return [
+                'id' => $item->id,
+                'rating_count' => $item->rating_count,
+                'avg_rating' => $item->avg_rating,
+                'price' => $item->price,
+                'image' => $item->image,
+                'image_full_url' => $item->image_full_url,
+                'name' =>$item->name,
+                //    'sale_price' =>round(max($sale_price, 0), 2),
+                // 'image' => self::image_full_url('product', $item->image),
+                //  'sale_price' => self::get_price($item),
+                'category_ids' =>   $categories,
+                'tag_names' => $item?->tags && $item->tags->count() > 0
+                ? $item->tags->map(function ($tag) {
+                    return $tag->tag;
+                })
+                : []
+            ];
+        };
+        
+        if ($multi) {
+            return $products->map($resource);
+        }
+        
+        return $resource($products);
+    }
+    public static function get_translated_attribute($translations, $key, $locale)
+    {
+        if (!is_array($translations)) {
+            $translations = json_decode($translations, true);
+        }
+        
+        if (empty($translations) || !is_array($translations)) {
+            return null;
+        }
+        
+        foreach ($translations as $translation) {
+            if (($translation['locale'] ?? null) === $locale && isset($translation[$key])) {
+                return $translation[$key];
+            }
+        }
+        
+        return null;
+    }
     public static function product_data_formatting_translate($data, $multi_data = false, $trans = false, $local = 'en')
     {
         
@@ -2010,39 +2072,39 @@ class Helpers
                                                                 return isset($config)?($config==0?'s3':'public'):'public';
                                                             }
                                                             
-                                                         public static function upload(string $dir, string $format, $image = null)
-                                    {
-                                        
-                                        try {
-                                            if ($image != null) {
-                                                $imageName = \Carbon\Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
-                                                $filePath = $image->getRealPath(); // ✅ full path to uploaded temp file
-                                                $mimeType = $image->getMimeType();                                    
-                                                $filePath = $image->getRealPath();
-                                                $s3Client = Storage::disk('s3')->getClient();
-                                                $result = $s3Client->putObject([
-                                                    'Bucket'      => config('filesystems.disks.s3.bucket'),
-                                                    'Key' => rtrim($dir, '/') . '/' . ltrim($imageName, '/'),
-                                                    'Body'        => fopen($filePath, 'rb'),
-                                                    'ContentType' => $mimeType,
-                                                    // 'ACL' => 'public-read', // ❌ REMOVE if bucket owner enforced
-                                                ]);
-                                                
-                                              
-                                                if ($result) {
-                                            return $imageName;
-                                                } else {
-                                                    throw new \Exception('S3 Upload failed: Storage::putFileAs returned false');
-                                                }
-                                            } else {
-                                                return 'def.png';
-                                            }
-                                        } catch (\Exception $e) {
-                                            \Log::error('Upload failed: ' . $e->getMessage());
-                                            return null;
-                                        }
-                                    }
-                                    
+                                                            public static function upload(string $dir, string $format, $image = null)
+                                                            {
+                                                                
+                                                                try {
+                                                                    if ($image != null) {
+                                                                        $imageName = \Carbon\Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
+                                                                        $filePath = $image->getRealPath(); // ✅ full path to uploaded temp file
+                                                                        $mimeType = $image->getMimeType();                                    
+                                                                        $filePath = $image->getRealPath();
+                                                                        $s3Client = Storage::disk('s3')->getClient();
+                                                                        $result = $s3Client->putObject([
+                                                                            'Bucket'      => config('filesystems.disks.s3.bucket'),
+                                                                            'Key' => rtrim($dir, '/') . '/' . ltrim($imageName, '/'),
+                                                                            'Body'        => fopen($filePath, 'rb'),
+                                                                            'ContentType' => $mimeType,
+                                                                            // 'ACL' => 'public-read', // ❌ REMOVE if bucket owner enforced
+                                                                        ]);
+                                                                        
+                                                                        
+                                                                        if ($result) {
+                                                                            return $imageName;
+                                                                        } else {
+                                                                            throw new \Exception('S3 Upload failed: Storage::putFileAs returned false');
+                                                                        }
+                                                                    } else {
+                                                                        return 'def.png';
+                                                                    }
+                                                                } catch (\Exception $e) {
+                                                                    \Log::error('Upload failed: ' . $e->getMessage());
+                                                                    return null;
+                                                                }
+                                                            }
+                                                            
                                                             
                                                             public static function update(string $dir, $old_image, string $format, $image = null)
                                                             {
