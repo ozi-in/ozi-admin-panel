@@ -62,11 +62,13 @@
                                     id="default-link">{{translate('messages.default')}}</a>
                                 </li>
                                 @foreach (json_decode($language) as $lang)
+                                  
                                     <li class="nav-item">
                                         <a class="nav-link lang_link"
                                             href="#"
                                             id="{{ $lang }}-link">{{ \App\CentralLogics\Helpers::get_language_name($lang) . '(' . strtoupper($lang) . ')' }}</a>
                                     </li>
+                             
                                 @endforeach
                             </ul>
                             @endif
@@ -98,6 +100,7 @@
                                 </div>
                             </div>
                                 @foreach (json_decode($language) as $lang)
+                              
                                     <div class="d-none lang_form"
                                         id="{{ $lang }}-form">
                                         <div class="form-group">
@@ -116,6 +119,7 @@
                                             <textarea type="text" name="description[]" class="form-control min-h-90px ckeditor"></textarea>
                                         </div>
                                     </div>
+                        
                                 @endforeach
                             @else
                                 <div id="default-form">
@@ -603,7 +607,7 @@
                         <div class="card-body pb-0">
                             <div class="row g-2">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="form-group producttag">
                                         <input type="text" class="form-control" name="tags" placeholder="{{translate('messages.search_tags')}}" data-role="tagsinput">
                                     </div>
                                 </div>
