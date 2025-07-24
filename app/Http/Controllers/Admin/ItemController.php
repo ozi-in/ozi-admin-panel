@@ -2176,7 +2176,7 @@ class ItemController extends Controller
                 }
                 public function get_trending_items(Request $request)
                 {
-                    DB::enableQueryLog(); // 🔍 Enable query logging
+                 //  DB::enableQueryLog(); // 🔍 Enable query logging
                     $itemsQuery = Item::with('store')
                     ->when($request->category_id, fn($q) =>
                     $q->whereJsonContains('category_ids', ['id' => (int)$request->category_id])->orWhereJsonContains('category_ids', ['id' => (string)$request->category_id])

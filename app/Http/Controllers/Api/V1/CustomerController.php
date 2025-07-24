@@ -291,64 +291,53 @@ class CustomerController extends Controller
         $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
         return response()->json($products, 200);
     }
-    public function get_suggested_item(Request $request)
-    {
-        if (!$request->hasHeader('zoneId')) {
-            return response()->json([
-                'errors' => [['code' => 'zoneId', 'message' => 'Zone id is required!']]
-            ], 403);
-        }
-        
-        $zone_id = json_decode($request->header('zoneId'), true);
-        //  $itemIds = array_filter(explode(',', $request->input('item_ids', '')));
-        $categoryIds = [];
-        $setting = BusinessSetting::where('key', 'suggested_products')->first();
-        $suggested_ids = $setting ? json_decode($setting->value, true) : [];
-        
-        // Get category IDs from items (using category_id column)
-        // if (!empty($itemIds)) {
-        //     $categoryIds = Item::whereIn('id', $itemIds)
-        //         ->pluck('category_id')
-        //         ->unique()
-        //         ->toArray();
-        // }
-        
-     //   item name, id, image, rating, avgrating, discount, price, saleprice,tags & if something related to wishlist so that is
-        $products =  Item::active()
-    // ->select([
-    //     'id',
-    //     'name',
-    //     'image',
-    //     'rating',
-    //     'avg_rating',
-    //     'discount',
-    //     'price',
-    //     'variations',
-    //     'category_ids',
-      
-    // ])
-        ->whereIn('id', $suggested_ids)
-        ->whereHas('store', function ($query) use ($zone_id) {
-            $query->whereIn('zone_id', $zone_id);
-            
-            if (config('module.current_module_data')) {
-                $moduleId = config('module.current_module_data')['id'];
+   public function get_suggested_item(Request $request)
+{
+    if (!$request->hasHeader('zoneId')) {
+        return response()->json([
+            'errors' => [['code' => 'zoneId', 'message' => 'Zone id is required!']]
+        ], 403);
+    }
+
+    $zoneIds = json_decode($request->header('zoneId'), true);
+
+    $suggestedIds = BusinessSetting::where('key', 'suggested_products')->value('value');
+    $suggestedIds = $suggestedIds ? json_decode($suggestedIds, true) : [];
+
+    $moduleId = config('module.current_module_data')['id'] ?? null;
+
+    // ✅ Base item query
+    $query = Item::active()
+        ->select([
+            'id', 'name', 'image', 'rating', 'avg_rating', 'discount',
+            'price', 'variations', 'category_ids','rating_count'
+        ])
+        ->with('store:id,zone_id,module_id')
+        ->whereHas('store', function ($query) use ($zoneIds, $moduleId) {
+            $query->whereIn('zone_id', $zoneIds);
+
+            if ($moduleId) {
                 $query->where('module_id', $moduleId)
-                ->whereHas('zone.modules', fn($q) =>
-                $q->where('modules.id', $moduleId)
-            );
-        }
-    })
-    ->whereHas('module.zones', fn($q) => $q->whereIn('zones.id', $zone_id))
-    //  ->when(!empty($categoryIds), fn($q) => $q->whereIn('category_id', $categoryIds))
-    ->when(empty($suggested_ids), fn($q) => $q->popular()) // fallback if no category
-   //  ->inRandomOrder()
-    ->limit(10)
-    ->get();
-    
-    $products=$products->shuffle();
+                      ->whereHas('zone.modules', fn($q) =>
+                          $q->where('modules.id', $moduleId)
+                      );
+            }
+        })
+        ->whereHas('module.zones', fn ($q) =>
+            $q->whereIn('zones.id', $zoneIds)
+        );
+
+    // ✅ Use suggested or fallback
+    if (!empty($suggestedIds)) {
+        $query->whereIn('id', $suggestedIds);
+    } else {
+        $query->popular(); // fallback if suggested is empty
+    }
+
+    $products = $query->limit(10)->get()->shuffle(); // shuffle after fetching
+
     $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
-    
+
     return response()->json($products, 200);
 }
 

@@ -270,6 +270,7 @@ class Helpers
                 $item['category_ids'] = $categories;
                 $item['attributes'] = json_decode($item['attributes']);
                 $item['choice_options'] = json_decode($item['choice_options']);
+                if(isset( $item['add_ons'] )){
                 $item['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($item['add_ons'], true))->active()->get(), true, $trans, $local);
                 foreach (json_decode($item['variations'], true)?? [] as $var) {
                     array_push($variations, [
@@ -278,9 +279,12 @@ class Helpers
                         'stock' => (int)($var['stock'] ?? 0)
                     ]);
                 }
+            }
                 $item['variations'] = $variations;
                 $item['food_variations'] = $item['food_variations']?json_decode($item['food_variations'], true):'';
+                if(isset($item->module)){
                 $item['module_type'] = $item->module->module_type;
+                }
                 $item['store_name'] = $item->store?->name;
                 $item['is_campaign'] = $item->store?->campaigns_count>0?1:0;
                 $item['zone_id'] = $item->store?->zone_id;
@@ -301,8 +305,10 @@ class Helpers
                 $item['rating_count'] = (int)($item->rating ? array_sum(json_decode($item->rating, true)) : 0);
                 $item['avg_rating'] = (float)($item->avg_rating ? $item->avg_rating : 0);
                 $item['recommended'] =(int) $item->recommended;
+                if(isset($item->store->delivery_time)){
                 $item['min_delivery_time'] =  (int) explode('-',$item?->store?->delivery_time)[0] ?? 0;
                 $item['max_delivery_time'] =  (int) explode('-',$item?->store?->delivery_time)[1] ?? 0;
+                }
                 $item['common_condition_id'] =  (int) $item->pharmacy_item_details?->common_condition_id ?? 0;
                 $item['brand_id'] =  (int) $item->ecommerce_item_details?->brand_id ?? 0;
                 $item['brand_name'] =   $item->ecommerce_item_details?->brand?->name ?? '';
@@ -310,10 +316,11 @@ class Helpers
                 
                 $item['is_basic'] =  (int) $item->pharmacy_item_details?->is_basic ?? 0;
                 $item['is_prescription_required'] =  (int) $item->pharmacy_item_details?->is_prescription_required ?? 0;
+                if(isset($item->store)){
                 $item['halal_tag_status'] =  (int) $item->store->storeConfig?->halal_tag_status??0;
-                
+         
                 $item->store['self_delivery_system'] = (int) $item->store->sub_self_delivery;
-                
+                       }
                 $item['nutritions_name']= $item?->nutritions ? Nutrition::whereIn('id',$item?->nutritions->pluck('id') )->pluck('nutrition') : null;
                 $item['allergies_name']= $item?->allergies ?Allergy::whereIn('id',$item?->allergies->pluck('id') )->pluck('allergy') : null;
                 $item['generic_name']= $item?->generic ? GenericName::whereIn('id',$item?->generic->pluck('id') )->pluck('generic_name'): null ;

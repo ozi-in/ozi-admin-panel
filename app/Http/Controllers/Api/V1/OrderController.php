@@ -1628,13 +1628,13 @@ class OrderController extends Controller
             $data['store'] = $data['store'] ? Helpers::store_data_formatting($data['store']) : $data['store'];
             $data['delivery_man'] = $data['delivery_man'] ? Helpers::deliverymen_data_formatting([$data['delivery_man']]) : $data['delivery_man'];
 
-         $data['order_image'] = null;
-    if ($data['details']->isNotEmpty() && isset($data['details'][0]->item)) {
-        if(!empty($data['details'][0]->item->image)){
-$data['order_image'] = $data['details'][0]->item->image_full_url ?? null;
-        }else{
-               $data['order_image'] =null;
-        }
+            $data['order_image'] = null;
+            if ($data['details']->isNotEmpty() && isset($data['details'][0]->item)) {
+            if(!empty($data['details'][0]->item->image)){
+            $data['order_image'] = $data['details'][0]->item->image_full_url ?? null;
+            }else{
+            $data['order_image'] =null;
+            }
      
 
     }

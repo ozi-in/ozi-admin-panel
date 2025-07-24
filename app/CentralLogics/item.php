@@ -1360,7 +1360,7 @@ class ProductLogic
     $products = $query
         ->limit($limit)
         ->offset($offset)
-        ->get();
+        ->get()->shuffle();
 
     return [
         'total_size' => $total_size,
