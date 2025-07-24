@@ -336,7 +336,7 @@ class CustomerController extends Controller
 
     $products = $query->limit(10)->get()->shuffle(); // shuffle after fetching
 
-    $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
+    $products = Helpers::basic_product_data_formatting($products, true, false, app()->getLocale());
 
     return response()->json($products, 200);
 }
