@@ -660,7 +660,7 @@ $(document).ready(function () {
     });
 });
 let suggestedProductMap = new Map();
-let selectedSuggestedProductIds = new Set();
+//let selectedSuggestedProductIds = new Set();
 $(document).ready(function () {
 
     const categryurl = $('#category_banner').data('url');
@@ -789,16 +789,38 @@ $('#suggestedProductSelect').select2({
         },
         cache: true,
         delay: 250
-    }
+    },
+     templateResult: formatProductOption,
+    escapeMarkup: function (m) {
+        return m; // Allow HTML in templateResult
+    },
+    closeOnSelect: false
 });
 
-//On select, add to right side
-$('#suggestedProductSelect').on('select2:select', function (e) {
+function formatProductOption(option) {
+    if (!option.id) return option.text;
 
+    const id = parseInt(option.id);
+    const alreadyAdded = selectedSuggestedProductIds.has(id);
+
+    const label = alreadyAdded
+        ? `<span>${option.text} <span class="badge bg-success ms-2">Added</span></span>`
+        : `<span>${option.text}</span>`;
+
+    return $(label);
+}
+
+$('#suggestedProductSelect').on('select2:select', function (e) {
     const data = e.params.data;
     const id = parseInt(data.id);
 
-    if (!selectedSuggestedProductIds.has(id)) {
+    if (selectedSuggestedProductIds.has(id)) {
+        // REMOVE if already exists
+        selectedSuggestedProductIds.delete(id);
+        suggestedProductMap.delete(id);
+        $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
+    } else {
+        // ADD to right side
         selectedSuggestedProductIds.add(id);
         suggestedProductMap.set(id, data);
 
@@ -809,25 +831,27 @@ $('#suggestedProductSelect').on('select2:select', function (e) {
                 <input type="hidden" name="suggested_product_ids[]" value="${id}">
             </li>
         `;
-
         $('#selectedSuggestedList').append(listItem);
     }
 
     // Clear select box so user can search again
- //$('#suggestedProductSelect').val(null).trigger('change');
+    $('#suggestedProductSelect').val(null).trigger('change.select2');
+
+    // Force dropdown redraw so "Added" badge updates
+    $('#suggestedProductSelect').select2('close').select2('open');
 });
 
-$('#suggestedProductSelect').on('select2:unselect', function (e) {
-    const data = e.params.data;
-    const id = parseInt(data.id);
+// $('#suggestedProductSelect').on('select2:unselect', function (e) {
+//     const data = e.params.data;
+//     const id = parseInt(data.id);
 
-    // Remove from right-side UI
-    $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
+//     // Remove from right-side UI
+//     $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
 
-    // Remove from internal tracking
-    selectedSuggestedProductIds.delete(id);
-    suggestedProductMap.delete(id);
-});
+//     // Remove from internal tracking
+//     selectedSuggestedProductIds.delete(id);
+//     suggestedProductMap.delete(id);
+// });
 
 });
 // Remove from right side
@@ -839,8 +863,8 @@ function removeSuggestedProduct(id) {
     $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
 
     // Also deselect from select2
-    let current = $('#suggestedProductSelect').val();
-    $('#suggestedProductSelect').val(current.filter(val => parseInt(val) !== id)).trigger('change');
+    // let current = $('#suggestedProductSelect').val();
+    // $('#suggestedProductSelect').val(current.filter(val => parseInt(val) !== id)).trigger('change');
 }
 $('.producttag input[name="tags"]').on('itemAdded', function(event) {
     const currentTags = $(this).tagsinput('items');

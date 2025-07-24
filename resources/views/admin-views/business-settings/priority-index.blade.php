@@ -2939,17 +2939,16 @@
             </div>
 </div>
 
-<div class="row mt-6" id="suggested-product-section">
-    <hr/>
+<div class="row mt-6" id="suggested-product-section mb-2">
+
+    <div class="col-12 text-left">
+            <hr/>
+          <h4>Select Suggested Products</h4>
+                </div>
     <div class="col-md-6">
-      <h4>Select Suggested Products</h4>
+
         <div class="mainsuggestedParent">
         <select id="suggestedProductSelect" multiple  name="suggested_products[]" class="form-control js-select2-custom" style="width: 100%" data-url="{{url('/')}}">
-@if(!empty($suggestedProducts))
-    @foreach($suggestedProducts as $product)
-        <option value="{{ $product->id }}" selected>{{ $product->name }}</option>
-    @endforeach
-@endif
 
 
 
@@ -2957,7 +2956,7 @@
                 </div>
     </div>
     <div class="col-md-6">
-        <div class="card p-3">
+        <div class="card p-3" style="min-height: 200px;">
         <label>Selected Suggested Products</label>
         <ul id="selectedSuggestedList" class="list-group" style="max-height: 300px; overflow-y: auto;">
  @foreach($suggestedProducts as $product)
@@ -3259,6 +3258,8 @@ function removeTrendingProduct(id) {
         `);
     }
 }
+
+    const  selectedSuggestedProductIds = new Set(@json($suggestedProducts->pluck('id')->toArray()));
 
 </script>
 @endpush
