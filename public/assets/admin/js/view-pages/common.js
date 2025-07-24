@@ -769,6 +769,7 @@ $('#suggestedProductSelect').select2({
     allowClear: true,
     multiple:true,
     minimumInputLength: 0,
+    maximumSelectionLength: 10,
         dropdownParent: $('.mainsuggestedParent'), // or adjust to the banner form wrapper
     ajax: {
         url: suggestedProductSelecturl+"/admin/item/get-suggested-items",
@@ -791,8 +792,9 @@ $('#suggestedProductSelect').select2({
     }
 });
 
-// On select, add to right side
+//On select, add to right side
 $('#suggestedProductSelect').on('select2:select', function (e) {
+
     const data = e.params.data;
     const id = parseInt(data.id);
 
@@ -812,7 +814,19 @@ $('#suggestedProductSelect').on('select2:select', function (e) {
     }
 
     // Clear select box so user can search again
- $('#suggestedProductSelect').val(null).trigger('change');
+ //$('#suggestedProductSelect').val(null).trigger('change');
+});
+
+$('#suggestedProductSelect').on('select2:unselect', function (e) {
+    const data = e.params.data;
+    const id = parseInt(data.id);
+
+    // Remove from right-side UI
+    $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
+
+    // Remove from internal tracking
+    selectedSuggestedProductIds.delete(id);
+    suggestedProductMap.delete(id);
 });
 
 });
@@ -820,5 +834,11 @@ $('#suggestedProductSelect').on('select2:select', function (e) {
 function removeSuggestedProduct(id) {
     selectedSuggestedProductIds.delete(id);
     suggestedProductMap.delete(id);
-    $(`#selectedSuggestedList li[data-id='${id}']`).remove();
+
+    // Remove from DOM
+    $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
+
+    // Also deselect from select2
+    let current = $('#suggestedProductSelect').val();
+    $('#suggestedProductSelect').val(current.filter(val => parseInt(val) !== id)).trigger('change');
 }
