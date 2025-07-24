@@ -87,7 +87,7 @@ class Item extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 1)->where('is_approved',1)->where('rating_count', '>=', 5)
+        return $query->where('status', 1)->where('is_approved',1)
         ->whereHas('store', function($query) {
             $query->where('status', 1)
                     ->where(function($query) {
