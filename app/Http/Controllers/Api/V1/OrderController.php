@@ -1612,7 +1612,7 @@ class OrderController extends Controller
         }
         $user_id = $request->user ? $request->user->id : $request['guest_id'];
 
-        $paginator = Order::with(['store', 'delivery_man.rating', 'parcel_category'])
+        $paginator = Order::with(['store', 'delivery_man.rating', 'parcel_category' ,'details.item'])
         // ->when(!isset($request->user) , function($query){
         //     $query->where('is_guest' , 1);
         // })
@@ -1627,6 +1627,20 @@ class OrderController extends Controller
             $data['delivery_address'] = $data['delivery_address'] ? json_decode($data['delivery_address']) : $data['delivery_address'];
             $data['store'] = $data['store'] ? Helpers::store_data_formatting($data['store']) : $data['store'];
             $data['delivery_man'] = $data['delivery_man'] ? Helpers::deliverymen_data_formatting([$data['delivery_man']]) : $data['delivery_man'];
+
+         $data['order_image'] = null;
+    if ($data['details']->isNotEmpty() && isset($data['details'][0]->item)) {
+        if(!empty($data['details'][0]->item->image)){
+   $data['order_image'] = "https://ozi-in.s3.ap-south-1.amazonaws.com/product/".$data['details'][0]->item->image;
+        }else{
+               $data['order_image'] =null;
+        }
+     
+
+    }
+
+    // Remove 'details' to keep response clean
+    unset($data['details']);
             return $data;
         }, $paginator->items());
         $data = [
