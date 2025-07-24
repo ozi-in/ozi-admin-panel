@@ -68,10 +68,12 @@
                                             id="default-link">{{ translate('messages.default') }}</a>
                                     </li>
                                     @foreach (json_decode($language) as $lang)
+                                         
                                         <li class="nav-item">
                                             <a class="nav-link lang_link" href="#"
                                                 id="{{ $lang }}-link">{{ \App\CentralLogics\Helpers::get_language_name($lang) . '(' . strtoupper($lang) . ')' }}</a>
                                         </li>
+                                
                                     @endforeach
                                 </ul>
                             @endif
@@ -100,6 +102,7 @@
                                     </div>
                                 </div>
                                 @foreach (json_decode($language) as $lang)
+                                  
                                     <?php
                                     if (count($product['translations'])) {
                                         $translate = [];
@@ -130,6 +133,7 @@
                                             <textarea type="text" name="description[]" class="form-control ckeditor min--height-200">{!! $translate[$lang]['description'] ?? '' !!}</textarea>
                                         </div>
                                     </div>
+                      
                                 @endforeach
                             @else
                                 <div id="default-form">
@@ -710,12 +714,12 @@
                         <div class="row g-2">
                             <div class="col-12">
                                 @if (isset($temp_product) && $temp_product == 1 )
-                                <div class="form-group">
+                                <div class="form-group producttag">
                                     @php( $tags =\App\Models\Tag::whereIn('id',json_decode($product?->tag_ids) )->get('tag'))
                                     <input type="text" class="form-control" name="tags" placeholder="Enter tags" value="@foreach($tags as $c) {{$c->tag.','}} @endforeach" data-role="tagsinput">
                                 </div>
                                 @else
-                                <div class="form-group">
+                                <div class="form-group producttag">
                                     <input type="text" class="form-control" name="tags" placeholder="Enter tags" value="@foreach($product->tags as $c) {{$c->tag.','}} @endforeach" data-role="tagsinput">
                                 </div>
                                 @endif

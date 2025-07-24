@@ -2180,13 +2180,13 @@ class ItemController extends Controller
                     $itemsQuery = Item::with('store')
                     ->when($request->category_id, fn($q) =>
                     $q->whereJsonContains('category_ids', ['id' => (int)$request->category_id])->orWhereJsonContains('category_ids', ['id' => (string)$request->category_id])
-                    )
-                    ->when($request->q, fn($q) =>
-                    $q->where('name', 'like', "%{$request->q}%")
                 );
+                //     ->when($request->q, fn($q) =>
+                //     $q->where('name', 'like', "%{$request->q}%")
+                // );
                 
                 $items=  $itemsQuery->paginate(10); // Use per-page limit
-                \Log::info('Executed Queries:', DB::getQueryLog());
+             //   \Log::info('Executed Queries:', DB::getQueryLog());
                 $results = $items->map(fn($item) => [
                     'id' => $item->id,
                     'text' => $item->name . ' (' . optional($item->store)->name . ')'

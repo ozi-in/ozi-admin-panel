@@ -842,3 +842,12 @@ function removeSuggestedProduct(id) {
     let current = $('#suggestedProductSelect').val();
     $('#suggestedProductSelect').val(current.filter(val => parseInt(val) !== id)).trigger('change');
 }
+$('.producttag input[name="tags"]').on('itemAdded', function(event) {
+    const currentTags = $(this).tagsinput('items');
+
+    if (currentTags.length > 2) {
+        // Remove the latest added tag
+        $(this).tagsinput('remove', event.item);
+        toastr.warning('You can only add up to 2 tags.');
+    }
+});
