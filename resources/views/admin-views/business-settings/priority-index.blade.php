@@ -2991,7 +2991,7 @@
     overflow-y: auto !important;
 }
 .select2-selection__rendered {
-    max-height: 120px; /* adjust as needed */
+   
     overflow-y: auto !important;
 }
 </style>
