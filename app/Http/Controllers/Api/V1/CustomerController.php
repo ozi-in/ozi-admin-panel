@@ -342,10 +342,11 @@ class CustomerController extends Controller
     ->whereHas('module.zones', fn($q) => $q->whereIn('zones.id', $zone_id))
     //  ->when(!empty($categoryIds), fn($q) => $q->whereIn('category_id', $categoryIds))
     ->when(empty($suggested_ids), fn($q) => $q->popular()) // fallback if no category
-     ->inRandomOrder()
+   //  ->inRandomOrder()
     ->limit(10)
     ->get();
     
+    $products=$products->shuffle();
     $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
     
     return response()->json($products, 200);
