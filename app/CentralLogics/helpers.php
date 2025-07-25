@@ -472,6 +472,7 @@ class Helpers
                 // 'image' => self::image_full_url('product', $item->image),
                 //  'sale_price' => self::get_price($item),
                 'category_ids' =>   $categories,
+                 'tags'=>$item->tags,
                 'tag_names' => $item?->tags && $item->tags->count() > 0
                 ? $item->tags->map(function ($tag) {
                     return $tag->tag;
