@@ -260,11 +260,15 @@ $total_discount_on_product += $discount;
 
 <p><strong>Delivery Man Tips:</strong> {{ \App\CentralLogics\Helpers::format_currency($delivery_man_tips)}} </p>
 @endif
+@php($additional_charge = $order['additional_charge'])
+@if($additional_charge>0)
+
 <p><strong>{{ \App\CentralLogics\Helpers::get_business_data('additional_charge_name')??translate('messages.additional_charge') }}:</strong>
 
-@php($additional_charge = $order['additional_charge'])
+
 {{ \App\CentralLogics\Helpers::format_currency($additional_charge) }}
 </p>
+@endif
 @if($order['delivery_charge']>0)
 @php($del_c = $order['delivery_charge'])
 <p><strong>Delivery Charges:</strong> {{ \App\CentralLogics\Helpers::format_currency($del_c)}} </p>
