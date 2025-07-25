@@ -165,7 +165,7 @@ $taxable = $gross - $discount;
 // $total += $line_total;
 //$total_tax += $details->tax_amount;
 
-
+$total_subtotal=0;
 ?>
 <tr>
 <td>{{ \Illuminate\Support\Str::limit($item['name'] ?? 'Item', 40, '...') }}
@@ -213,7 +213,7 @@ $taxable = $gross - $discount;
 @endforeach
 <?php      $total=$gross-$discount;
 $total_quantity+=$details->quantity ;
-
+$total_subtotal+= $total;
 ?>
 </td>
 <td>{{ $details->quantity }}</td>
@@ -243,7 +243,7 @@ $total_discount_on_product += $discount;
     <td>{{ number_format($sub_total, 2) }}</td>
     <td>{{ number_format($sub_total, 2) }}</td>
     <td>-{{ number_format($total_discount_on_product, 2) }}</td>
-    <td>{{ number_format($total, 2) }}</td>
+    <td>{{ number_format($total_subtotal, 2) }}</td>
 </tr>
 </tfoot>
 </table>
