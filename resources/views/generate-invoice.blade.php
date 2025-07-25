@@ -4,84 +4,131 @@
 <meta charset="UTF-8">
 <title>Invoice #{{ $order->order_id }}</title>
 <style>
+@media print {
+    .print-btn {
+        display: none !important;
+    }
+  body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .invoice-box {
+        width: 100% !important;
+        padding: 0;
+           border: 1px solid #000 !important;
+        box-sizing: border-box;
+    }
+
+    .totals {
+        width: 100%;
+        padding-right: 30px;
+        box-sizing: border-box;
+        text-align: right;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    .section-box, .header {
+        width: 100% !important;
+        display: block !important;
+        box-sizing: border-box;
+    }
+}
+
+/* General Styling */
 body {
-       font-family: 'Arial', 'Helvetica', sans-serif;
+    font-family: 'Arial', 'Helvetica', sans-serif;
     color: #000;
     margin: 0;
     padding: 20px;
 }
+
 .invoice-box {
     border: 1px solid #000;
     padding: 20px;
-    width: 60%;
-    margin:0 auto;
+    width: 80%;
+    margin: 0 auto;
 }
+
 .header,
 .section {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-bottom: 10px;
 }
+
 .section-box {
     border: 1px solid #000;
     padding: 10px;
     width: 48%;
+    box-sizing: border-box;
 }
+
 h2, h3, h4 {
     margin: 5px 0;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
     font-size: 14px;
 }
+
 th, td {
     border: 1px solid #000;
     padding: 6px;
     text-align: center;
 }
+
 .totals {
     margin-top: 20px;
-    width: 30%;
-    margin-left: auto;
+    width: 100%;
     text-align: right;
-     padding-right: 50px;
+    padding-right: 25px;
+    box-sizing: border-box;
 }
+
 .grand-total {
     font-size: 18px;
     font-weight: bold;
     margin-top: 10px;
 }
+
 .signature {
     text-align: right;
     margin-top: 40px;
 }
+
 .signature img {
     width: 80px;
 }
+
 .print-btn {
     margin-top: 30px;
     padding: 10px 20px;
     cursor: pointer;
     font-size: 16px;
 }
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
 
-th, td {
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-    border-left: none;
-    border-right: none;
-    padding: 8px 12px;
-}
-.smallfont{
-    font-size:12px;
+.smallfont {
+    font-size: 12px;
 }
 </style>
+
 </head>
 <body>
 
