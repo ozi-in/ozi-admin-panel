@@ -234,7 +234,7 @@ $total_discount_on_product += $discount;
 @endforeach
 </tbody>
 <tfoot>
-<tr><td colspan="">Total</td><td>1</td><td>{{number_format($sub_total,2)}}</td><td>{{number_format($order['total_tax_amount'],2)}}</td><td>{{number_format($total_discount_on_product,2)}}</td><td colpan="">{{number_format($total,2)}}</td></tr>
+<tr><td colspan="">Total</td><td>1</td><td>{{number_format($sub_total,2)}}</td><td>{{number_format($sub_total,2)}}</td><td>{{number_format($total_discount_on_product,2)}}</td><td colpan="">{{number_format($total,2)}}</td></tr>
 </tfoot>
 </table>
 
