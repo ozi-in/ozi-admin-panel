@@ -155,7 +155,7 @@ th, td {
     display: flex
 ;">
     <div>
-        <p><strong>Invoice Number:</strong> {{ $order->invoice_number }}</p>
+        <p><strong>Invoice Number:</strong> {{ 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT);}}</p>
   <p>  <strong>Order ID:</strong> {{ $order->id }}</p>
    <p> <strong>Order Date:</strong> {{ date('d-m-Y', strtotime($order->created_at)) }}</p>
     <p>    <strong>Invoice Date:</strong> {{ date('d-m-Y') }}</p>
