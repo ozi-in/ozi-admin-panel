@@ -76,7 +76,7 @@ class OrderController extends Controller
             $order['min_delivery_time'] =  $order->store?(int) explode('-',$order->store?->delivery_time)[0] ?? 0:0;
             $order['max_delivery_time'] =  $order->store?(int) explode('-',$order->store?->delivery_time)[1] ?? 0:0;
             $order['offline_payment'] =  isset($order->offline_payments) ? Helpers::offline_payment_formater($order->offline_payments) : null;
-
+            $data['order_image'] = Helpers::get_order_image($order['details']);
             unset($order['offline_payments']);
             unset($order['details']);
         } else {
@@ -1627,17 +1627,7 @@ class OrderController extends Controller
             $data['delivery_address'] = $data['delivery_address'] ? json_decode($data['delivery_address']) : $data['delivery_address'];
             $data['store'] = $data['store'] ? Helpers::store_data_formatting($data['store']) : $data['store'];
             $data['delivery_man'] = $data['delivery_man'] ? Helpers::deliverymen_data_formatting([$data['delivery_man']]) : $data['delivery_man'];
-
-            $data['order_image'] = null;
-            if ($data['details']->isNotEmpty() && isset($data['details'][0]->item)) {
-            if(!empty($data['details'][0]->item->image)){
-            $data['order_image'] = $data['details'][0]->item->image_full_url ?? null;
-            }else{
-            $data['order_image'] =null;
-            }
-     
-
-    }
+            $data['order_image'] = Helpers::get_order_image($data['details']);
 
     // Remove 'details' to keep response clean
     unset($data['details']);

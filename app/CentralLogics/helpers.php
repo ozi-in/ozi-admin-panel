@@ -4663,6 +4663,19 @@ class Helpers
                                                                             $finalPrice = max(0, $productPrice - $discountApplied);
                                                                             return ['final_price' => $finalPrice, 'discount_applied' => $discountApplied];
                                                                         }
-                                                                    }
+
+
+   public static function get_order_image($details)
+    {
+        if ($details->isNotEmpty() && isset($details[0]->item)) {
+            return !empty($details[0]->item->image)
+                ? ($details[0]->item->image_full_url ?? null)
+                : null;
+        }
+        return null;
+    }
+}
+                                                                        
+                                                                    
                                                                     
                                                                     
