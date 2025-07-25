@@ -411,4 +411,21 @@ class HomeController extends Controller
         Helpers::gen_mpdf(view: $mpdf_view, file_prefix: 'OrderInvoice', file_postfix: $id);
         return back();
     }
+
+     public function generate_order_invoice($id)
+    {
+        $decode_id = base64_decode($id);
+        $BusinessData = ['footer_text', 'email_address'];
+        $order = Order::with('store')->findOrFail($decode_id);
+        $BusinessData = BusinessSetting::whereIn('key', $BusinessData)->pluck('value', 'key');
+        $logo = BusinessSetting::where('key', "logo")->first();
+           return view('generate-invoice', [
+        'order' => $order,
+       'invoiceUrl' => route('generate_order_invoice', ['id' => base64_encode($id)]),
+        'business' => $BusinessData,
+        'logo' => $logo,
+    ]);
+    }
+
+    
 }
