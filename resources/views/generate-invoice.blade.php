@@ -43,9 +43,10 @@ th, td {
 }
 .totals {
     margin-top: 20px;
+    width: 30%;
+    margin-left: auto;
     text-align: right;
-    margin-right:55px;
-        margin-left: 70%;
+     padding-right: 50px;
 }
 .grand-total {
     font-size: 18px;
