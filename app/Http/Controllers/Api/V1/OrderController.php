@@ -76,7 +76,7 @@ class OrderController extends Controller
             $order['min_delivery_time'] =  $order->store?(int) explode('-',$order->store?->delivery_time)[0] ?? 0:0;
             $order['max_delivery_time'] =  $order->store?(int) explode('-',$order->store?->delivery_time)[1] ?? 0:0;
             $order['offline_payment'] =  isset($order->offline_payments) ? Helpers::offline_payment_formater($order->offline_payments) : null;
-            $data['order_image'] = Helpers::get_order_image($order['details']);
+            $order['order_image'] = Helpers::get_order_image($order['details']);
             unset($order['offline_payments']);
             unset($order['details']);
         } else {
