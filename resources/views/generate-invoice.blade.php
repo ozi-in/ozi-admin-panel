@@ -2,7 +2,7 @@
 <html lang="{{ \App\CentralLogics\Helpers::system_default_language() }}" dir="{{ \App\CentralLogics\Helpers::system_default_direction() }}">
 <head>
 <meta charset="UTF-8">
-<title>Invoice #{{ $order->order_id }}</title>
+<title>Tax Invoice</title>
 <style>
 @media print {
     .print-btn {
