@@ -45,6 +45,7 @@ th, td {
     margin-top: 20px;
     text-align: right;
     margin-right:55px;
+        margin-left: 70%;
 }
 .grand-total {
     font-size: 18px;
@@ -141,10 +142,9 @@ Phone: {{ $address['contact_person_number'] ?? 'N/A' }}
 $subtotal = 0;
 $total = 0;
 $sub_total = 0;
-$total_tax = 0;
-$total_shipping_cost = $order->delivery_charge;
+//$total_tax = 0;
+$total_quantity=0;
 $total_discount_on_product = 0;
-$extra_discount = 0;
 $total_addon_price = 0;
 ?>
 @foreach ($order->details as $key => $details)
@@ -163,7 +163,7 @@ $taxable = $gross - $discount;
 //  $line_total = $taxable + $igst;
 
 // $total += $line_total;
-$total_tax += $details->tax_amount;
+//$total_tax += $details->tax_amount;
 
 
 ?>
@@ -211,7 +211,10 @@ $total_tax += $details->tax_amount;
 </div>
 @php($total_addon_price += $addon['price'] * $addon['quantity'])
 @endforeach
-<?php      $total=($gross+$details->tax_amount)-$discount;?>
+<?php      $total=$gross-$discount;
+$total_quantity+=$details->quantity ;
+
+?>
 </td>
 <td>{{ $details->quantity }}</td>
 <td>{{ number_format($gross, 2) }}</td>
@@ -226,20 +229,31 @@ $total_tax += $details->tax_amount;
 <?php
 
 $sub_total += $details['price'] * $details['quantity'];
-$total_tax += $details['tax'];
+//$total_tax += $details['tax'];
 $total_discount_on_product += $discount;
 
 
 ?>
 @endforeach
 </tbody>
-<tfoot>
-<tr><td colspan="">Total</td><td>1</td><td>{{number_format($sub_total,2)}}</td><td>{{number_format($sub_total,2)}}</td><td>{{number_format($total_discount_on_product,2)}}</td><td colpan="">{{number_format($total,2)}}</td></tr>
+<tfoot style="font-weight:bold; background-color: #f0f0f0; border-top: 2px solid #000;">
+<tr>
+    <td colspan="1">Total</td>
+    <td>{{$total_quantity}}</td>
+    <td>{{ number_format($sub_total, 2) }}</td>
+    <td>{{ number_format($sub_total, 2) }}</td>
+    <td>-{{ number_format($total_discount_on_product, 2) }}</td>
+    <td>{{ number_format($total, 2) }}</td>
+</tr>
 </tfoot>
 </table>
 
-<div class="totals">
-<p><strong>Total Tax:</strong> {{ \App\CentralLogics\Helpers::format_currency($total_tax, 2) }}</p>
+<div class="totals" >
+
+@if($total_addon_price > 0)
+<p><strong>Add-on Price:</strong> {{ \App\CentralLogics\Helpers::format_currency($total_addon_price, 2) }}</p>
+@endif
+<!-- <p><strong>Total Tax:</strong> </p> -->
 <?php $delivery_man_tips =$order->dm_tips; ?>
 
 @if($order['dm_tips']>0)
