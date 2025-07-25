@@ -312,7 +312,7 @@ class CustomerController extends Controller
             'id', 'name', 'image', 'rating', 'avg_rating', 'discount',
             'price', 'variations', 'category_ids','rating_count'
         ])
-        ->with('store:id,zone_id,module_id')
+        ->with('store:id,zone_id,module_id,delivery_time,schedule_order')
         ->whereHas('store', function ($query) use ($zoneIds, $moduleId) {
             $query->whereIn('zone_id', $zoneIds);
 
@@ -336,7 +336,7 @@ class CustomerController extends Controller
 
     $products = $query->limit(10)->get()->shuffle(); // shuffle after fetching
 
-    $products = Helpers::product_data_formatting($products, true, false, app()->getLocale());
+    $products = Helpers::basic_product_data_formatting($products, true, false, app()->getLocale());
 
     return response()->json($products, 200);
 }
