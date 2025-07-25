@@ -421,7 +421,7 @@ class HomeController extends Controller
         $logo = BusinessSetting::where('key', "logo")->first();
            return view('generate-invoice', [
         'order' => $order,
-       'invoiceUrl' => route('generate_order_invoice', ['id' => base64_encode($id)]),
+       'invoiceUrl' => route('generate_order_invoice', ['id' => $id]),
         'business' => $BusinessData,
         'logo' => $logo,
     ]);
