@@ -140,8 +140,8 @@ Phone: {{ $address['contact_person_number'] ?? 'N/A' }}
 <tbody>
 <?php
 $subtotal = 0;
-$total = 0;
 $sub_total = 0;
+$total_subtotal=0;
 //$total_tax = 0;
 $total_quantity=0;
 $total_discount_on_product = 0;
@@ -165,7 +165,7 @@ $taxable = $gross - $discount;
 // $total += $line_total;
 //$total_tax += $details->tax_amount;
 
-$total_subtotal=0;
+
 ?>
 <tr>
 <td>{{ \Illuminate\Support\Str::limit($item['name'] ?? 'Item', 40, '...') }}
@@ -211,9 +211,11 @@ $total_subtotal=0;
 </div>
 @php($total_addon_price += $addon['price'] * $addon['quantity'])
 @endforeach
-<?php      $total=$gross-$discount;
+<?php    
+
+$total=$gross-$discount;
 $total_quantity+=$details->quantity ;
-$total_subtotal+= $total;
+$total_subtotal+=$total;
 ?>
 </td>
 <td>{{ $details->quantity }}</td>
