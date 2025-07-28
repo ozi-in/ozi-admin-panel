@@ -267,9 +267,9 @@ $total_subtotal+=$total;
 ?>
 </td>
 <td>{{ $details->quantity }}</td>
-<td>{{ number_format($gross, 2) }}</td>
-<td>{{ number_format($gross, 2) }}</td>
-<td>{{ number_format($discount * $details->quantity, 2) }}</td>
+<td>{{ number_format($gross) }}</td>
+<td>{{ number_format($gross2) }}</td>
+<td>{{ number_format($discount * $details->quantity) }}</td>
 
 
 <td>{{ number_format($total, 2) }}</td>
@@ -280,7 +280,7 @@ $total_subtotal+=$total;
 
 $sub_total += $details['price'] * $details['quantity'];
 //$total_tax += $details['tax'];
-$total_discount_on_product += $discount;
+$total_discount_on_product += ($discount * $details['quantity']);
 
 
 ?>
@@ -290,10 +290,10 @@ $total_discount_on_product += $discount;
 <tr>
     <td colspan="1">Total</td>
     <td>{{$total_quantity}}</td>
-    <td>{{ number_format($sub_total, 2) }}</td>
-    <td>{{ number_format($sub_total, 2) }}</td>
-    <td>-{{ number_format($total_discount_on_product, 2) }}</td>
-    <td>{{ number_format($total_subtotal, 2) }}</td>
+    <td>{{ number_format($sub_total) }}</td>
+    <td>{{ number_format($sub_total) }}</td>
+    <td>-{{ number_format($total_discount_on_product) }}</td>
+    <td>{{ number_format($total_subtotal) }}</td>
 </tr>
 </tfoot>
 </table>
