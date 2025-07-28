@@ -300,8 +300,12 @@ class CustomerController extends Controller
     }
 
     $zoneIds = json_decode($request->header('zoneId'), true);
-
-    $suggestedIds = BusinessSetting::where('key', 'suggested_products')->value('value');
+if(isset($request->best)){
+   $suggestedIds = BusinessSetting::where('key', 'bestselling_product_ids')->value('value');
+}else{
+      $suggestedIds = BusinessSetting::where('key', 'suggested_products')->value('value');
+}
+ 
     $suggestedIds = $suggestedIds ? json_decode($suggestedIds, true) : [];
 
     $moduleId = config('module.current_module_data')['id'] ?? null;

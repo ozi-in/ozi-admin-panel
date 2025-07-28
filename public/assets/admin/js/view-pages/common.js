@@ -660,6 +660,7 @@ $(document).ready(function () {
     });
 });
 let suggestedProductMap = new Map();
+let bestProductMap = new Map();
 //let selectedSuggestedProductIds = new Set();
 $(document).ready(function () {
 
@@ -840,32 +841,105 @@ $('#suggestedProductSelect').on('select2:select', function (e) {
     // Force dropdown redraw so "Added" badge updates
     $('#suggestedProductSelect').select2('close').select2('open');
 });
-
-// $('#suggestedProductSelect').on('select2:unselect', function (e) {
-//     const data = e.params.data;
-//     const id = parseInt(data.id);
-
-//     // Remove from right-side UI
-//     $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
-
-//     // Remove from internal tracking
-//     selectedSuggestedProductIds.delete(id);
-//     suggestedProductMap.delete(id);
-// });
-
 });
 // Remove from right side
 function removeSuggestedProduct(id) {
     selectedSuggestedProductIds.delete(id);
     suggestedProductMap.delete(id);
-
     // Remove from DOM
     $(`#selectedSuggestedList li[data-id="${id}"]`).remove();
-
-    // Also deselect from select2
-    // let current = $('#suggestedProductSelect').val();
-    // $('#suggestedProductSelect').val(current.filter(val => parseInt(val) !== id)).trigger('change');
 }
+
+$(document).ready(function(){
+    const bestsellingProductSelecturl = $('#bestProductSelect').data('url');
+// Initialize Select2 for Suggested Products
+$('#bestProductSelect').select2({
+    placeholder: 'Search Best Selling Products',
+    allowClear: true,
+    multiple:true,
+    minimumInputLength: 0,
+    maximumSelectionLength: 10,
+        dropdownParent: $('.mainbestedParent'), // or adjust to the banner form wrapper
+    ajax: {
+        url: bestsellingProductSelecturl+"/admin/item/get-suggested-items",
+        data: function (params) {
+            return {
+                q: params.term || '',      // search query
+                page: params.page || 1     // pagination
+            };
+        },
+        processResults: function (data) {
+            return {
+                results: data.results,
+                pagination: {
+                    more: data.pagination?.more
+                }
+            };
+        },
+        cache: true,
+        delay: 250
+    },
+     templateResult: formatBestProductOption,
+    escapeMarkup: function (m) {
+        return m; // Allow HTML in templateResult
+    },
+    closeOnSelect: false
+});
+
+function formatBestProductOption(option) {
+    if (!option.id) return option.text;
+
+    const id = parseInt(option.id);
+    const alreadyAdded = selectedbestsellingProductIds.has(id);
+
+    const label = alreadyAdded
+        ? `<span>${option.text} <span class="badge bg-success ms-2">Added</span></span>`
+        : `<span>${option.text}</span>`;
+
+    return $(label);
+}
+
+$('#bestProductSelect').on('select2:select', function (e) {
+    const data = e.params.data;
+    const id = parseInt(data.id);
+
+    if (selectedbestsellingProductIds.has(id)) {
+        // REMOVE if already exists
+        selectedbestsellingProductIds.delete(id);
+        bestProductMap.delete(id);
+        $(`#selectedbestsellingList li[data-id="${id}"]`).remove();
+    } else {
+        // ADD to right side
+        selectedbestsellingProductIds.add(id);
+        bestProductMap.set(id, data);
+
+        const listItem = `
+            <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${id}">
+                ${data.text}
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removebestProduct(${id})">Remove</button>
+                <input type="hidden" name="bestselling_product_ids[]" value="${id}">
+            </li>
+        `;
+        $('#selectedBestSellingList').append(listItem);
+    }
+
+    // Clear select box so user can search again
+    $('#bestProductSelect').val(null).trigger('change.select2');
+
+    // Force dropdown redraw so "Added" badge updates
+    $('#bestProductSelect').select2('close').select2('open');
+});
+});
+// Remove from right side
+function removebestProduct(id) {
+    selectedbestsellingProductIds.delete(id);
+    bestProductMap.delete(id);
+    // Remove from DOM
+    $(`#selectedBestSellingList li[data-id="${id}"]`).remove();
+}
+
+
+
 $('.producttag input[name="tags"]').on('itemAdded', function(event) {
     const currentTags = $(this).tagsinput('items');
 
