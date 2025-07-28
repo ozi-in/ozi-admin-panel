@@ -206,6 +206,7 @@ $gross = $details['price'] * $details->quantity;
 $item = $details->item;
 $gross = $details->price * $details->quantity;
 $discount = $item->discount_type === 'percent' ? ($gross * $item->discount/ 100) : $item->discount;
+ $discount=$discount* $details->quantity;
 $taxable = $gross - $discount;
 // $igst = ($taxable * 5) / 100;
 //  $line_total = $taxable + $igst;
@@ -269,7 +270,7 @@ $total_subtotal+=$total;
 <td>{{ $details->quantity }}</td>
 <td>{{ number_format($gross) }}</td>
 <td>{{ number_format($gross) }}</td>
-<td>{{ number_format($discount * $details->quantity) }}</td>
+<td>{{ number_format($discount) }}</td>
 
 
 <td>{{ number_format($total, 2) }}</td>
@@ -280,7 +281,7 @@ $total_subtotal+=$total;
 
 $sub_total += $details['price'] * $details['quantity'];
 //$total_tax += $details['tax'];z
-$total_discount_on_product += ($discount * $details['quantity']);
+$total_discount_on_product += ($discount);
 
 
 ?>
@@ -293,7 +294,7 @@ $total_discount_on_product += ($discount * $details['quantity']);
     <td>{{ number_format($sub_total) }}</td>
     <td>{{ number_format($sub_total) }}</td>
     <td>-{{ number_format($total_discount_on_product) }}</td>
-    <td>{{ number_format($total_subtotal-$total_discount_on_product) }}</td>
+    <td>{{ number_format($total_subtotal) }}</td>
 </tr>
 </tfoot>
 </table>
