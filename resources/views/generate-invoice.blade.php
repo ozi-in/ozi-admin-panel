@@ -155,7 +155,7 @@ th, td {
     display: flex
 ;">
     <div style="width:50%;">
-        <p><strong>Invoice Number:</strong> {{ 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT);}}</p>
+      <p><strong>Invoice Number:</strong> {{ 'INV-' . str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
   <p>  <strong>Order ID:</strong> {{ $order->id }}</p>
    <p> <strong>Order Date:</strong> {{ date('d-m-Y', strtotime($order->created_at)) }}</p>
     <p>    <strong>Invoice Date:</strong> {{ date('d-m-Y') }}</p>
@@ -268,7 +268,7 @@ $total_subtotal+=$total;
 </td>
 <td>{{ $details->quantity }}</td>
 <td>{{ number_format($gross) }}</td>
-<td>{{ number_format($gross2) }}</td>
+<td>{{ number_format($gross) }}</td>
 <td>{{ number_format($discount * $details->quantity) }}</td>
 
 
@@ -279,7 +279,7 @@ $total_subtotal+=$total;
 <?php
 
 $sub_total += $details['price'] * $details['quantity'];
-//$total_tax += $details['tax'];
+//$total_tax += $details['tax'];z
 $total_discount_on_product += ($discount * $details['quantity']);
 
 
