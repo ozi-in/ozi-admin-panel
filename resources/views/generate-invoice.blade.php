@@ -293,7 +293,7 @@ $total_discount_on_product += ($discount * $details['quantity']);
     <td>{{ number_format($sub_total) }}</td>
     <td>{{ number_format($sub_total) }}</td>
     <td>-{{ number_format($total_discount_on_product) }}</td>
-    <td>{{ number_format($total_subtotal) }}</td>
+    <td>{{ number_format($total_subtotal-$total_discount_on_product) }}</td>
 </tr>
 </tfoot>
 </table>
