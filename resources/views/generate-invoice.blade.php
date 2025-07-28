@@ -269,7 +269,7 @@ $total_subtotal+=$total;
 <td>{{ $details->quantity }}</td>
 <td>{{ number_format($gross, 2) }}</td>
 <td>{{ number_format($gross, 2) }}</td>
-<td>{{ number_format($discount, 2) }}</td>
+<td>{{ number_format($discount * $details->quantity, 2) }}</td>
 
 
 <td>{{ number_format($total, 2) }}</td>
