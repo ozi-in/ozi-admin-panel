@@ -336,6 +336,8 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::post('update-interest', 'CustomerController@update_interest');
             Route::put('cm-firebase-token', 'CustomerController@update_cm_firebase_token');
             Route::get('suggested-items', 'CustomerController@get_suggested_item');
+            Route::get('get-best-items', 'CustomerController@get_suggested_item');
+        
           
             //Remove account
             Route::delete('remove-account', 'CustomerController@remove_account');
