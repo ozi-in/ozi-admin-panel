@@ -336,7 +336,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::post('update-interest', 'CustomerController@update_interest');
             Route::put('cm-firebase-token', 'CustomerController@update_cm_firebase_token');
             Route::get('suggested-items', 'CustomerController@get_suggested_item');
-            Route::get('trending-products', 'ItemController@get_trending_products');
+          
             //Remove account
             Route::delete('remove-account', 'CustomerController@remove_account');
             
@@ -389,6 +389,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
                 Route::get('running-orders', 'OrderController@get_running_orders');
                 Route::get('details', 'OrderController@get_order_details');
                 Route::post('place', 'OrderController@place_order');
+               Route::post('place-on-website', 'OrderController@place_order_website');                
                 Route::post('prescription/place', 'OrderController@prescription_place_order');
                 Route::put('cancel', 'OrderController@cancel_order');
                 Route::post('refund-request', 'OrderController@refund_request');
@@ -471,7 +472,9 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::get('featured/items', 'CategoryController@get_featured_category_products');
             Route::get('popular', 'CategoryController@get_popular_category_list');
         });
-        
+                Route::group(['prefix' => 'customer'], function () {
+          Route::get('trending-products', 'ItemController@get_trending_products');
+                });
         Route::group(['prefix' => 'common-condition'], function () {
             Route::get('/', 'CommonConditionController@get_conditions');
             Route::get('/list', 'CommonConditionController@getCommonConditionList');
