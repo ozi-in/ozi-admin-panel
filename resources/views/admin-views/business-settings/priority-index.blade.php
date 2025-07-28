@@ -2973,6 +2973,40 @@
                 </div>
 </div>
 
+<div class="row mt-6" id="bestselling-product-section mb-2">
+
+    <div class="col-12 text-left">
+            <hr/>
+          <h4>Select Best Selling Products</h4>
+                </div>
+    <div class="col-md-6">
+
+        <div class="mainbestedParent">
+        <select id="bestProductSelect" multiple  name="bestselling_products[]" class="form-control js-select2-custom" style="width: 100%" data-url="{{url('/')}}">
+
+
+
+        </select>
+                </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3" style="min-height: 200px;">
+        <label>Selected Best Selling Products</label>
+        <ul id="selectedBestSellingList" class="list-group" style="max-height: 300px; overflow-y: auto;">
+ @foreach($bestsellingProducts as $product)
+        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ $product->id }}">
+            {{ $product->name }} ({{ $product->store->name ?? 'No Store' }})
+         <button type="button" class="btn btn-sm btn-outline-danger" onclick="removebestProduct({{ $product->id }})">Remove</button>
+
+               <input type="hidden" name="bestselling_product_ids[]" value="{{ $product->id }}">
+        </li>  
+    @endforeach
+
+        </ul>
+    </div>
+                </div>
+</div>
+
                     <div class="btn--container justify-content-end position-sticky bottom-0 p-3 bg-white border-top">
                         <button id="reset_btn" type="reset"
                             class="btn btn--reset">{{ translate('Reset') }}</button>
@@ -3260,6 +3294,6 @@ function removeTrendingProduct(id) {
 }
 
     const  selectedSuggestedProductIds = new Set(@json($suggestedProducts->pluck('id')->toArray()));
-
+    const  selectedbestsellingProductIds = new Set(@json($bestsellingProducts->pluck('id')->toArray()));
 </script>
 @endpush

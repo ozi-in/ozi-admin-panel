@@ -98,6 +98,13 @@ class BusinessSettingsController extends Controller
             }else{
                 $trending_product_ids =[];
             }
+
+             $best_product_ids_Record = BusinessSetting::where(['key' => 'bestselling_product_ids'])->first();
+            if(!empty( $best_product_ids_Record)){
+            $best_product_ids = json_decode($best_product_ids_Record->value, true);
+            }else{
+                $best_product_ids =[];
+            }
              $suggestedRecord = BusinessSetting::where(['key' => 'suggested_products'])->first();
             if(!empty( $suggestedRecord)){
             $suggested_products_ids = json_decode($suggestedRecord->value, true);
@@ -106,7 +113,8 @@ class BusinessSettingsController extends Controller
             }
             $selectedProducts = \App\Models\Item::whereIn('id', $trending_product_ids)->get();
              $suggestedProducts = \App\Models\Item::whereIn('id', $suggested_products_ids)->get();
-            return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts','suggestedProducts'));
+               $bestsellingProducts = \App\Models\Item::whereIn('id', $best_product_ids)->get();
+            return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts','suggestedProducts','bestsellingProducts'));
         } else if ($tab == 'automated-message') {
             $key = explode(' ', $request['search']);
             $messages = AutomatedMessage::orderBy('id', 'desc')
@@ -169,7 +177,11 @@ class BusinessSettingsController extends Controller
         Helpers::businessUpdateOrInsert(['key' => 'suggested_products'], [
             'value' => json_encode($suggestedIds)
         ]);
+         $bestsellingproductIds = $request->input('bestselling_product_ids', []);
         
+        Helpers::businessUpdateOrInsert(['key' => 'bestselling_product_ids'], [
+            'value' => json_encode($bestsellingproductIds)
+        ]);
         
         Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
         return back();
