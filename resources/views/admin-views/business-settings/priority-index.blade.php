@@ -3006,6 +3006,29 @@
     </div>
                 </div>
 </div>
+<div class="row mt-6 mb-2">
+    <div class="col-md-6">
+        <h4>Select Best Selling Categories</h4>
+        <select id="mainCategorySelect" class="form-control" multiple data-url="{{url('/')}}/"></select>
+
+       
+    </div>
+
+    <div class="col-md-6">
+        <h5>Selected Best Selling Categories</h5>
+        <ul id="BestSellingCategoryList" class="list-group">
+             @foreach($bestsellingCategories as $category)
+<li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ $category->name}}
+                             <input type="hidden" name="best_selling_categories_ids[]" value="{{ $category->id}}">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeMainCategory({{ $category->id}})">Remove</button>
+                </li>
+@endforeach
+
+        </ul>
+    </div>
+</div>
+
 
                     <div class="btn--container justify-content-end position-sticky bottom-0 p-3 bg-white border-top">
                         <button id="reset_btn" type="reset"
@@ -3295,5 +3318,10 @@ function removeTrendingProduct(id) {
 
     const  selectedSuggestedProductIds = new Set(@json($suggestedProducts->pluck('id')->toArray()));
     const  selectedbestsellingProductIds = new Set(@json($bestsellingProducts->pluck('id')->toArray()));
+    let selectedMainCategories = new Map();
+         // Populate preselected categories
+@foreach($bestsellingCategories as $category)
+    selectedMainCategories.set({{ $category->id }}, {!! json_encode($category->name) !!});
+@endforeach
 </script>
 @endpush

@@ -921,6 +921,7 @@ $('#bestProductSelect').on('select2:select', function (e) {
             </li>
         `;
         $('#selectedBestSellingList').append(listItem);
+        
     }
 
     // Clear select box so user can search again
@@ -947,5 +948,84 @@ $('.producttag input[name="tags"]').on('itemAdded', function(event) {
         // Remove the latest added tag
         $(this).tagsinput('remove', event.item);
         toastr.warning('You can only add up to 2 tags.');
+    }
+});
+
+
+
+
+$(document).ready(function () {
+   //let selectedMainCategories = new Map(); // id => name
+    const $mainSelect = $('#mainCategorySelect');
+    const $selectedList = $('#BestSellingCategoryList');
+    const mainUrl = $mainSelect.data("url");
+
+    // Initialize Select2
+    $mainSelect.select2({
+        placeholder: 'Search Best Selling Categories',
+        ajax: {
+            url: mainUrl + 'admin/item/get-select-categories',
+       data: function (params) {
+            return {
+                q: params.term || '',
+                page: params.page || 1
+            };
+        },
+         processResults: function (data) {
+            return {
+                results: data.results,
+                      //  disabled: selectedMainCategories.has(parseInt(item.id)),
+                pagination: {
+                    more: data.pagination?.more
+                }
+            };
+        },
+            delay: 250
+        },
+         templateResult: function (data) {
+        if (data.loading) return data.text;
+
+        const alreadySelected = selectedMainCategories.has(parseInt(data.id));
+        const mark = alreadySelected ? ' ✅' : '';
+
+        const $result = $(`
+            <span>${data.text}${mark}</span>
+        `);
+        return $result;
+    }
+    });
+
+    // On main category select
+    $mainSelect.on('select2:select', function (e) {
+        const id = parseInt(e.params.data.id);
+        const name = e.params.data.text;
+
+        if (!selectedMainCategories.has(id)) {
+            selectedMainCategories.set(id, name);
+            renderSelectedList();
+        }
+
+         $('#mainCategorySelect').val(null).trigger('change');
+    });
+
+    // Render selected list
+    function renderSelectedList() {
+        $selectedList.empty();
+        selectedMainCategories.forEach((name, id) => {
+            const $item = $(`
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${name}
+                             <input type="hidden" name="best_selling_categories_ids[]" value="${id}">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeMainCategory(${id})">Remove</button>
+                </li>
+            `);
+            $selectedList.append($item);
+        });
+    }
+
+    // Remove category function (global)
+    window.removeMainCategory = function (id) {
+        selectedMainCategories.delete(id);
+        renderSelectedList();
     }
 });
