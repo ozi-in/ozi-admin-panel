@@ -94,27 +94,35 @@ class BusinessSettingsController extends Controller
             $categories=Category::where('parent_id',0)->get();
             $trending_product_ids_Record = BusinessSetting::where(['key' => 'trending_product_ids'])->first();
             if(!empty( $trending_product_ids_Record)){
-            $trending_product_ids = json_decode($trending_product_ids_Record->value, true);
+                $trending_product_ids = json_decode($trending_product_ids_Record->value, true);
             }else{
                 $trending_product_ids =[];
             }
-
-             $best_product_ids_Record = BusinessSetting::where(['key' => 'bestselling_product_ids'])->first();
+            
+            $best_product_ids_Record = BusinessSetting::where(['key' => 'bestselling_product_ids'])->first();
             if(!empty( $best_product_ids_Record)){
-            $best_product_ids = json_decode($best_product_ids_Record->value, true);
+                $best_product_ids = json_decode($best_product_ids_Record->value, true);
             }else{
                 $best_product_ids =[];
             }
-             $suggestedRecord = BusinessSetting::where(['key' => 'suggested_products'])->first();
+            $suggestedRecord = BusinessSetting::where(['key' => 'suggested_products'])->first();
             if(!empty( $suggestedRecord)){
-            $suggested_products_ids = json_decode($suggestedRecord->value, true);
+                $suggested_products_ids = json_decode($suggestedRecord->value, true);
             }else{
                 $suggested_products_ids =[];
             }
+            
+            $best_selling_categories_ids_Record = BusinessSetting::where(['key' => 'best_selling_categories_ids'])->first();
+            if(!empty( $best_selling_categories_ids_Record)){
+                $best_selling_categories_ids = json_decode($best_selling_categories_ids_Record->value, true);
+            }else{
+                $best_selling_categories_ids =[];
+            }
             $selectedProducts = \App\Models\Item::whereIn('id', $trending_product_ids)->get();
-             $suggestedProducts = \App\Models\Item::whereIn('id', $suggested_products_ids)->get();
-               $bestsellingProducts = \App\Models\Item::whereIn('id', $best_product_ids)->get();
-            return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts','suggestedProducts','bestsellingProducts'));
+            $suggestedProducts = \App\Models\Item::whereIn('id', $suggested_products_ids)->get();
+            $bestsellingProducts = \App\Models\Item::whereIn('id', $best_product_ids)->get();
+            $bestsellingCategories= \App\Models\Category::whereIn('id', $best_selling_categories_ids)->where('parent_id',0)->get();
+            return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts','suggestedProducts','bestsellingProducts','bestsellingCategories'));
         } else if ($tab == 'automated-message') {
             $key = explode(' ', $request['search']);
             $messages = AutomatedMessage::orderBy('id', 'desc')
@@ -172,15 +180,21 @@ class BusinessSettingsController extends Controller
         Helpers::businessUpdateOrInsert(['key' => 'trending_product_ids'], [
             'value' => json_encode($trendingIds)
         ]);
-         $suggestedIds = $request->input('suggested_product_ids', []);
+        $suggestedIds = $request->input('suggested_product_ids', []);
         
         Helpers::businessUpdateOrInsert(['key' => 'suggested_products'], [
             'value' => json_encode($suggestedIds)
         ]);
-         $bestsellingproductIds = $request->input('bestselling_product_ids', []);
+        $bestsellingproductIds = $request->input('bestselling_product_ids', []);
         
         Helpers::businessUpdateOrInsert(['key' => 'bestselling_product_ids'], [
             'value' => json_encode($bestsellingproductIds)
+        ]);
+
+         $best_selling_categories_ids = $request->input('best_selling_categories_ids', []);
+        
+        Helpers::businessUpdateOrInsert(['key' => 'best_selling_categories_ids'], [
+            'value' => json_encode($best_selling_categories_ids)
         ]);
         
         Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
@@ -617,7 +631,7 @@ class BusinessSettingsController extends Controller
         Helpers::businessUpdateOrInsert(['key' => 'per_km_shipping_charge'], [
             'value' => $request['per_km_shipping_charge']
         ]);
-          Helpers::businessUpdateOrInsert(['key' => 'delivery_tat'], [
+        Helpers::businessUpdateOrInsert(['key' => 'delivery_tat'], [
             'value' => $request['delivery_tat']
         ]);
         Helpers::businessUpdateOrInsert(['key' => 'currency_symbol_position'], [

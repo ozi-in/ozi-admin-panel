@@ -2202,6 +2202,7 @@ class ItemController extends Controller
                 $perPage = 20;
                 $query = Category::query()
                 ->where('parent_id',0)
+                 ->where('status',1)
                 ->when($request->q, function ($q) use ($request) {
                     $q->where('name', 'like', '%' . $request->q . '%');
                 });

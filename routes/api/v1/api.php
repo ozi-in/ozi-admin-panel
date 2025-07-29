@@ -473,6 +473,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::get('stores/{category_id}', 'CategoryController@get_stores');
             Route::get('featured/items', 'CategoryController@get_featured_category_products');
             Route::get('popular', 'CategoryController@get_popular_category_list');
+              Route::get('/best-selling-categories', 'CategoryController@get_best_categories');
         });
                 Route::group(['prefix' => 'customer'], function () {
           Route::get('trending-products', 'ItemController@get_trending_products');
