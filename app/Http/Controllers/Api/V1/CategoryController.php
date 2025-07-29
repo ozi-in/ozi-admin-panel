@@ -280,11 +280,8 @@ class CategoryController extends Controller
     public function get_best_categories(Request $request,$search=null)
     {
         try {
-            
-            $category_list_default_status = BusinessSetting::where('key', 'category_list_default_status')->first()?->value ?? 1;
-            $category_list_sort_by_general = PriorityList::where('name', 'category_list_sort_by_general')->where('type','general')->first()?->value ?? '';
-            $zone_id=  $request->header('zoneId') ? json_decode($request->header('zoneId'), true) : [];
-            $key = explode(' ', $search);
+   
+            $zone_id=  $request->header('zoneId') ? json_decode($request->header('zoneId'), true) : [];           
             $featured = $request->query('featured');
             $best_selling_categories_ids = BusinessSetting::where('key', 'best_selling_categories_ids')->value('value'); 
             $best_selling_categories_ids = $best_selling_categories_ids ? json_decode($best_selling_categories_ids, true) : [];
@@ -309,52 +306,15 @@ class CategoryController extends Controller
             ->when($best_selling_categories_ids, function($query) use ($best_selling_categories_ids){
           
                 $query->whereIn('id',$best_selling_categories_ids);
-            })
-            
-         
-            ->when($category_list_default_status  == 1 , function ($query) {
-                $query->orderBy('priority','desc');
-            })
-            
-            
-            ->when($category_list_default_status  != 1 &&  $category_list_sort_by_general == 'latest', function ($query) {
-                $query->latest();
-            })
-            ->when($category_list_default_status  != 1 &&  $category_list_sort_by_general == 'oldest', function ($query) {
-                $query->oldest();
-            })
-            ->when($category_list_default_status  != 1 &&  $category_list_sort_by_general == 'a_to_z', function ($query) {
-                $query->orderby('name');
-            })
-            ->when($category_list_default_status  != 1 &&  $category_list_sort_by_general == 'z_to_a', function ($query) {
-                $query->orderby('name','desc');
-            })
+            })           
+        
             ->get();
             
-            if(count($zone_id) > 0){
-                foreach ($categories as $category) {
-                    $productCountQuery = Item::active()
-                    ->whereHas('store', function ($query) use ($zone_id) {
-                        $query->whereIn('zone_id', $zone_id);
-                    })
-                    ->whereHas('category',function($q)use($category){
-                        return $q->whereId($category->id)->orWhere('parent_id', $category->id);
-                    })
-                    ->withCount('orders');
-                    
-                    $productCount = $productCountQuery->count();
-                    $orderCount = $productCountQuery->sum('order_count');
-                    
-                    $category['products_count'] = $productCount;
-                    $category['order_count'] = $orderCount;
-                }
-                if($category_list_default_status  != 1 &&  $category_list_sort_by_general == 'order_count'){
-                    
-                    $categories = $categories->sortByDesc('order_count')->values()->all();
-                }
-            }
+    
 
-          //  $categories=$categories->shuffle();
+   \Log::info('Before shuffle: ' . implode(',', $categories->pluck('id')->toArray()));
+$categories = $categories->shuffle();
+\Log::info('After shuffle: ' . implode(',', $categories->pluck('id')->toArray()));
             return response()->json($categories, 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
