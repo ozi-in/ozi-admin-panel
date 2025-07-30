@@ -29,5 +29,9 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-
+        'order_api' => [
+        'base_url' => env('ECOM_BASE_URL'),
+        'api_key'=>env('ECOM_API_KEY'),
+        'pgi_api_key'=>env('PIDGE_API_TOKEN'),
+        ],
 ];

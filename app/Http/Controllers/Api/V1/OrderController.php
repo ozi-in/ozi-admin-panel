@@ -39,7 +39,8 @@ use App\Models\ParcelDeliveryInstruction;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use MatanYadaev\EloquentSpatial\Objects\Point;
-
+use App\Services\OrderConnector;
+use Carbon\Carbon;
 class OrderController extends Controller
 {
     public function track_order(Request $request)
@@ -67,7 +68,11 @@ class OrderController extends Controller
             return $query->whereJsonContains('delivery_address->contact_person_number', $request['contact_number']);
         })
         ->Notpos()->first();
+        
         if ($order) {
+
+ // 🟡 If the order has an AWB number, call Pidge to track it
+
             $order['store'] = $order['store'] ? Helpers::store_data_formatting($order['store']) : $order['store'];
             $order['delivery_address'] = $order['delivery_address'] ? json_decode($order['delivery_address']) : $order['delivery_address'];
             $order['delivery_man'] = $order['delivery_man'] ? Helpers::deliverymen_data_formatting([$order['delivery_man']]) : $order['delivery_man'];
@@ -1039,7 +1044,14 @@ class OrderController extends Controller
                 $this->createCashBackHistory($order->order_amount, $order->user_id,$order->id);
             }
 
-            DB::commit();
+                     DB::commit();
+            try{
+$this->Ecommorder($request,$order,$order_details);
+            }
+            catch(Exception $exception){
+                throw new Exception($exception->getMessage());
+            }
+   
 
 
             $payments = $order->payments()->where('payment_method','cash_on_delivery')->exists();
@@ -1739,6 +1751,11 @@ class OrderController extends Controller
             $order?->store ?   Helpers::increment_order_count($order?->store) : '';
 
             Helpers::send_order_notification($order);
+            // if(!empty($order->EcommInvoiceID)){
+            // $connector = new OrderConnector(); 
+            // $connector->cancelOrderByInvoiceId($order->EcommInvoiceID);
+            // }
+            
             return response()->json(['message' => translate('messages.order_canceled_successfully')], 200);
         }
         return response()->json([
@@ -3143,8 +3160,9 @@ class OrderController extends Controller
                 $this->createCashBackHistory($order->order_amount, $order->user_id, $order->id);
             }
 
-            DB::commit();
 
+
+            DB::commit();
             $payments = $order->payments()->where('payment_method', 'cash_on_delivery')->exists();
             $order_mail_status = Helpers::get_mail_status('place_order_mail_status_user');
             $order_verification_mail_status = Helpers::get_mail_status('order_verification_mail_status_user');
@@ -3183,5 +3201,79 @@ class OrderController extends Controller
     }
 
     return response()->json($orders, 200);
+}
+
+
+
+public function Ecommorder(Request $request,$order,$order_details){
+    $connector = new OrderConnector(); 
+         $localTimezone = config('app.timezone');
+         $localDatetime=$order->created_at;
+            $utcDatetime = Carbon::parse($localDatetime, $localTimezone)->setTimezone('UTC');
+            $payment_mode=2;
+            $shippingMethod=1;
+            if($order->payment_status=="paid" && $request->payment_method!="cash_on_delivery"){
+                $payment_mode=5;
+                $shippingMethod=3;
+            }
+             $ecommItems=[];
+            foreach ($order_details as $key => $item) {
+                $ecommItems[]=
+                [
+                    "Sku"=>"test_1",
+                    "Quantity"=>$item['quantity'],
+                    "Price"=>$item['price'],
+                   // "itemDiscount"=>$item['discount_on_item']
+                ];
+            }
+                $payload = [
+                    "orderType" => "retailorder",
+                    "marketplaceId" => 10,
+                    "discount"=>$order->store_discount_amount,
+                      "promoCodeDiscount"=>$order->coupon_discount_amount,
+                    "orderNumber" => $order->id,
+                    "orderDate" => $utcDatetime,
+                    "expDeliveryDate" => "", 
+                    "paymentMode" => $payment_mode,
+                    "shippingMethod" => $shippingMethod, 
+                   "shippingCost"=>$order->delivery_charge,
+                    "items" => $ecommItems,
+                        "customer" => [[
+                            "gst_number" => "",
+                            "billing" => [
+                                "name" => $request->contact_person_name,
+                                "addressLine1" => $request->address,
+                                "addressLine2" => $request?->floor ?? '',
+                                "postalCode" => "122001",
+                                "city" => "Gurgaon",
+                                "state" => "Haryana",
+                                "country" => "India",
+                                "contact" => $request->contact_person_number,
+                                "email" => $request->contact_person_email,
+                                  "latitude"=> $request->latitude,
+                                    "longitude"=> $request->longitude,
+                            ],
+                            "shipping" => [
+                                "name" => $request->contact_person_name,
+                                "addressLine1" => $request->address,
+                                "addressLine2" => $request?->floor ?? '',
+                                "postalCode" => "122001",
+                                "city" => "Gurgaon",
+                                "state" => "Haryana",
+                                "country" => "India",
+                                "contact" => $request->contact_person_number,
+                                "email" => $request->contact_person_email, 
+                                   "latitude"=> $request->latitude,
+                                    "longitude"=> $request->longitude,
+                                ]
+                                ]]
+                            ];
+
+                             try {
+                        $response = $connector->call('createOrder', $payload);
+                        return response()->json(['message' => 'Order created successfully', 'response' => $response]);
+                    } catch (\Exception $e) {
+                        return response()->json(['error' => $e->getMessage()], 500);
+                    }
 }
 }
