@@ -3220,7 +3220,7 @@ public function Ecommorder(Request $request,$order,$order_details){
             foreach ($order_details as $key => $item) {
                 $ecommItems[]=
                 [
-                    "Sku"=>"test_1",
+                    "Sku"=>$item['sku'],
                     "Quantity"=>$item['quantity'],
                     "Price"=>$item['price'],
                    // "itemDiscount"=>$item['discount_on_item']
