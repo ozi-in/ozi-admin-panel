@@ -15,6 +15,7 @@ use App\Http\Controllers\FlutterwaveV3Controller;
 use App\Http\Controllers\PaypalPaymentController;
 use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\SslCommerzPaymentController;
+use App\Http\Controllers\OrderTestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -216,3 +217,9 @@ Route::group(['prefix' => 'deliveryman', 'as' => 'deliveryman.'], function () {
     Route::post('apply', 'DeliveryManController@store')->name('store');
 
 });
+
+
+
+Route::get('/test-order', [OrderTestController::class, 'testCreateOrder']);
+
+

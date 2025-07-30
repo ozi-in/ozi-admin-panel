@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use App\Http\Controllers\TATController;
 use App\Http\Controllers\EasyEcomWebhookController;
+use App\Http\Controllers\PidgeWebhookController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -521,3 +522,4 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
 WebSocketsRouter::webSocket('/delivery-man/live-location', DMLocationSocketHandler::class);
 
 Route::post('/webhook/easyecom/shipping-assigned', [EasyEcomWebhookController::class, 'shippingAssigned']);
+Route::post('/webhook/pidge-tracking', [PidgeWebhookController::class, 'handle']);
