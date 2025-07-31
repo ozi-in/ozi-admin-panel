@@ -30,7 +30,7 @@ class PidgeWebhookController extends Controller
     // === Update Order Status ===
     $newStatus = null;
 
-    if ($externalStatus === 'fulfilled') {
+    if ($externalStatus === 'c') {
         $newStatus = 'confirmed';
     }
 
@@ -104,7 +104,9 @@ if ($riderData && !empty($riderData['mobile'])) {
             'updated_at' => now(),
         ]
     );
-
+//$order = Order::where('id', $data['reference_id'])->first();
+$order->delivery_man_id=$deliveryMan->id;
+$order->save();
     Log::info("Delivery location updated for rider ID {$deliveryMan->id}");
 }
     }
