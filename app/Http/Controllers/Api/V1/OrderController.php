@@ -84,7 +84,8 @@ class OrderController extends Controller
             $order['order_image'] = Helpers::get_order_image($order['details']);
             $latitude = request()->header('latitude');
             $longitude = request()->header('longitude');
-            if(!empty($latitude)){
+            if(!empty($latitude) && (in_array($order->status,["picked_up" ,"delivered","handover","processing"]))){
+        
             $order['delivery_tat'] = Helpers::getDeliveryTAT($latitude,$longitude ,$order['delivery_man']);
             }else{
                 $order['delivery_tat'] = null;
