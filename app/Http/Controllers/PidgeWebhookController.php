@@ -37,7 +37,8 @@ class PidgeWebhookController extends Controller
         if ($fulfillmentStatus === 'CREATED') {
             $update_Current_order=1;
             $newStatus = 'confirmed';
-        } elseif (in_array($fulfillmentStatus, ['OUT_FOR_DELIVERY', 'REACHED_PICKUP','PICKED_UP','REACHED_DELIVERY'])) {
+        } 
+        elseif (in_array($fulfillmentStatus, ['PICKED_UP'])) {
             $newStatus = 'picked_up';
         } elseif ($fulfillmentStatus === 'DELIVERED') {
             $newStatus = 'delivered';
