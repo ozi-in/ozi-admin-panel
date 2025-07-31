@@ -4674,6 +4674,75 @@ class Helpers
         }
         return null;
     }
+    public static function getDeliveryTAT($originLat,$originLng,$deliveryMan)
+    {
+      
+   $deliveryMan=$deliveryMan[0];
+
+         $destLat = $deliveryMan->last_location ? $deliveryMan->last_location->latitude : null;
+           $destLng = $deliveryMan->last_location ? $deliveryMan->last_location->longitude : null;
+      
+        if(!empty( $destLat) && !empty( $destLng) ){
+        $apiKey = \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value;
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&key=$apiKey";
+        
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+        
+        if (!$data || $data['status'] !== 'OK') {
+            return ['error' => 'Google API failed','status'=>0];
+        }
+        
+        $element = $data['rows'][0]['elements'][0];
+        
+        if ($element['status'] !== 'OK') {
+            return ['error' => 'Route not found','status'=>0];
+        }
+        $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value;
+        
+        $distance = $element['distance']['text'];
+              $distanceKm = $element['distance']['value'] / 1000; // meters to km
+   
+      $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value; // in minutes
+
+$distance = $element['distance']['text'];
+$duration = $element['duration']['text'];
+        
+        // ✅ Serviceability Check
+        $maxDistance = 35; // Max allowed km
+        if ($distanceKm > $maxDistance) {
+            return [
+                // 'message' => 'Your area is unserviceable',
+                'distance' => $distance,
+                'duration' => "Your area is unserviceable",
+            ];
+        }
+        
+        // ✅ Get delivery TAT based on config
+        $tat = 'Unknown';
+        foreach (config('tat.levels') as $level) {
+            if ($distanceKm < $level['max_km']) {
+                $tat = $level['label'];
+                break;
+            }
+        }
+        
+        return [
+            'distance' => $distance,
+            'duration' => $duration,
+            'tat' => $tat,
+        ];
+    }else{
+
+    
+ return [
+                // 'message' => 'Your area is unserviceable',
+                'distance' => $distance,
+                'duration' => "Your area is unserviceable",
+            ];
+        }
+
+    }
 }
                                                                         
                                                                     

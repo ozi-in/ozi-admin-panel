@@ -302,5 +302,5 @@ if (!function_exists('config_settings')) {
         }
     }
 
-
+  
 }
