@@ -4676,6 +4676,7 @@ class Helpers
     }
     public static function getDeliveryTAT($originLat,$originLng,$deliveryMan)
     {
+        if(!empty($deliveryMan)){
       
    $deliveryMan=$deliveryMan[0];
 
@@ -4743,6 +4744,7 @@ $duration = $element['duration']['text'];
         }
 
     }
+}
 }
                                                                         
                                                                     
