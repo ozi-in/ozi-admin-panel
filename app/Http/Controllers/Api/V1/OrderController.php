@@ -1043,15 +1043,15 @@ class OrderController extends Controller
             if($order->is_guest  == 0 && $order->user_id ){
                 $this->createCashBackHistory($order->order_amount, $order->user_id,$order->id);
             }
-
+  
+ 
                      DB::commit();
-            try{
-$this->Ecommorder($request,$order,$order_details);
-            }
-            catch(Exception $exception){
-                throw new Exception($exception->getMessage());
-            }
-   
+                    try{
+                    $this->Ecommorder($request,$order,$order_details);
+                    }
+                    catch(Exception $exception){
+                   return $exception->getMessage;
+                    }
 
 
             $payments = $order->payments()->where('payment_method','cash_on_delivery')->exists();
