@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class PidgeWebhookController extends Controller
 {
-    public function handle(Request $request)
+  public function handle(Request $request)
 {
     Log::info('Pidge Webhook Received', [$request->all()]);
 
@@ -27,7 +27,7 @@ class PidgeWebhookController extends Controller
     $externalStatus = $data['status'] ?? null;
     $fulfillmentStatus = $data['fulfillment']['status'] ?? null;
 
-    // Map external status to internal status
+    // === Update Order Status ===
     $newStatus = null;
 
     if ($externalStatus === 'fulfilled') {
@@ -36,26 +36,82 @@ class PidgeWebhookController extends Controller
 
     if ($fulfillmentStatus === 'CREATED') {
         $newStatus = 'confirmed';
-    } elseif ($fulfillmentStatus === 'OUT_FOR_DELIVERY') {
-        $newStatus = 'picked_up';
-    } elseif ($fulfillmentStatus === 'REACHED_PICKUP') {
+    } elseif (in_array($fulfillmentStatus, ['OUT_FOR_DELIVERY', 'REACHED_PICKUP','PICKED_UP'])) {
         $newStatus = 'picked_up';
     } elseif ($fulfillmentStatus === 'DELIVERED') {
         $newStatus = 'delivered';
     } elseif ($fulfillmentStatus === 'UNDELIVERED') {
         $newStatus = 'undelivered';
     }
+    else{
+          $newStatus = $fulfillmentStatus;
+    }
 
     if ($newStatus) {
         $order->order_status = $newStatus;
+        if( $newStatus=="delivered"){
+        $order->payment_status = 'paid';
+        }
         $order->save();
         Log::info("Order ID {$order->id} updated to {$newStatus}");
     } else {
         Log::info("Order ID {$order->id} - no status change needed");
     }
 
+    // === Extract Rider Location ===
+    $logs = $data['fulfillment']['logs'] ?? [];
+    $latestLocation = null;
+
+    foreach (array_reverse($logs) as $log) {
+        if (!empty($log['location']['latitude']) && !empty($log['location']['longitude'])) {
+            $latestLocation = $log;
+            break;
+        }
+    }
+
+    if ($latestLocation) {
+   $riderData = $data['fulfillment']['rider'] ?? null;
+  
+if ($riderData && !empty($riderData['mobile'])) {
+    // Search for existing delivery man
+    $deliveryMan = \App\Models\DeliveryMan::where('phone', $riderData['mobile'])->first();
+
+    // Create manually if not exists
+    if (!$deliveryMan) {
+        $deliveryMan = new \App\Models\DeliveryMan();
+        $deliveryMan->f_name = $riderData['name'] ?? 'Unknown';
+        $deliveryMan->phone = $riderData['mobile'];
+        $deliveryMan->email = null;
+        $deliveryMan->zone_id = 1;
+        $deliveryMan->identity_type = 'N/A';
+        $deliveryMan->identity_number = 'N/A';
+        $deliveryMan->identity_image = json_encode([]);
+        $deliveryMan->password = bcrypt('password');
+        $deliveryMan->active = 1;
+        $deliveryMan->save();
+    }
+
+    // Save location
+    $location = $latestLocation['location'];
+    \App\Models\DeliveryHistory::updateOrCreate(
+        ['delivery_man_id' => $deliveryMan->id],
+        [
+            'latitude' => $location['latitude'],
+            'longitude' => $location['longitude'],
+            'location' => ucfirst(strtolower(str_replace("_"," ",$latestLocation['status']))),
+            'time' => now(),
+            'order_id' => $data['reference_id'],
+            'updated_at' => now(),
+        ]
+    );
+
+    Log::info("Delivery location updated for rider ID {$deliveryMan->id}");
+}
+    }
+
     return response()->json(['message' => 'Webhook processed'], 200);
 }
+
 
 }
 

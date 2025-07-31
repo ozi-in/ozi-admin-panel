@@ -97,7 +97,7 @@ public function cancelOrderByInvoiceId(string $invoiceId)
 
 public function getPidgeOrderStatus(string $orderId)
 {
-    $url = $this->baseUrl . "/pidge/order/{$orderId}/status";
+$url = $this->baseUrl . "/pidge/order/{$orderId}/status";
 
     try {
         $response = Http::withHeaders([
@@ -118,6 +118,36 @@ public function getPidgeOrderStatus(string $orderId)
         return $response->json();
     } catch (\Exception $e) {
         Log::error('Pidge API Exception', [
+            'url' => $url,
+            'message' => $e->getMessage(),
+        ]);
+        return null;
+    }
+}
+
+public function getRiderLocation(string $riderId)
+{
+    $url = $this->baseUrl . "/pidge/rider/{$riderId}/location";
+
+    try {
+        $response = Http::withHeaders([
+            'api-key' => $this->apiKey,
+        ])->withToken($this->pidgeapiKey)
+            ->timeout(10)
+            ->get($url);
+
+        if (!$response->successful()) {
+            Log::error('Pidge API Error (Rider Location)', [
+                'url' => $url,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+            return null;
+        }
+
+        return $response->json();
+    } catch (\Exception $e) {
+        Log::error('Pidge API Exception (Rider Location)', [
             'url' => $url,
             'message' => $e->getMessage(),
         ]);

@@ -12,7 +12,7 @@ class EasyEcomWebhookController extends Controller
         // $expectedToken = env('EASYECOM_WEBHOOK_TOKEN');
         // $receivedToken = $request->header('Access-Token');
         
-        // if ($receivedToken !== $expectedToken) {
+        // if ($receivedToken git!== $expectedToken) {
         //     Log::warning('Unauthorized webhook attempt', [
         //         'received_token' => $receivedToken,
         //     ]);
