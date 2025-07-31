@@ -4699,12 +4699,12 @@ class Helpers
         if ($element['status'] !== 'OK') {
             return ['error' => 'Route not found','status'=>0];
         }
-        $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value;
+      //  $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value;
         
         $distance = $element['distance']['text'];
               $distanceKm = $element['distance']['value'] / 1000; // meters to km
    
-      $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value; // in minutes
+      //$delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value; // in minutes
 
 $distance = $element['distance']['text'];
 $duration = $element['duration']['text'];
