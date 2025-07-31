@@ -3217,10 +3217,13 @@ public function Ecommorder(Request $request,$order,$order_details){
                 $shippingMethod=3;
             }
              $ecommItems=[];
+           
             foreach ($order_details as $key => $item) {
+                  $item_details=json_decode($item['item_details']);
                 $ecommItems[]=
+      
                 [
-                    "Sku"=>$item['sku'],
+                    "Sku"=>isset($item_details->sku) ? $item_details->sku :'',
                     "Quantity"=>$item['quantity'],
                     "Price"=>$item['price'],
                    // "itemDiscount"=>$item['discount_on_item']
