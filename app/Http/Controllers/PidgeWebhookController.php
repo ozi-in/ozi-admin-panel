@@ -37,7 +37,7 @@ class PidgeWebhookController extends Controller
         if ($fulfillmentStatus === 'CREATED') {
             $update_Current_order=1;
             $newStatus = 'confirmed';
-        } elseif (in_array($fulfillmentStatus, ['OUT_FOR_DELIVERY', 'REACHED_PICKUP','PICKED_UP'])) {
+        } elseif (in_array($fulfillmentStatus, ['OUT_FOR_DELIVERY', 'REACHED_PICKUP','PICKED_UP','REACHED_DELIVERY'])) {
             $newStatus = 'picked_up';
         } elseif ($fulfillmentStatus === 'DELIVERED') {
             $newStatus = 'delivered';
@@ -91,9 +91,9 @@ class PidgeWebhookController extends Controller
                     $deliveryMan->active = 1;
                     $deliveryMan->save();
                 }
-                // if($update_Current_order>0){
-                //     $deliveryMan->increment('current_order');
-                // }
+                if($update_Current_order>0){
+                    $deliveryMan->increment('current_orders');
+                }
                 // Save location
                 $location = $latestLocation['location'];
                 \App\Models\DeliveryHistory::create([
