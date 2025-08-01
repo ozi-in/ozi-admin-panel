@@ -1209,43 +1209,68 @@
                                                         'accepted' => translate('messages.accepted'),
                                                         'processing' => translate('messages.processing'),
                                                         'handover' => translate('messages.handover'),
-                                                        'picked_up' => translate('messages.out_for_delivery'),
+                                                        'picked_up' => translate('messages.picked_up'),
                                                         'delivered' => translate('messages.delivered'),
+                                                             'undelivered' => translate('messages.undelivered'),
                                                         'canceled' => translate('messages.canceled'),
                                                         default => translate('messages.status') ,
+                                                         'reached_pickup' => translate('messages.reached_pickup'),
+                                                             'rto_delivered' => translate('messages.rto_delivered'),
+                                                              'out_for_pickup' => translate('messages.out_for_pickup'),
+                                                                   'lost' => translate('messages.lost'),
+                                                                      'damaged' => translate('messages.damaged'),
+                                                                               'in_transit' => translate('messages.in_transit'),
                                                     };
                                                     ?>
                                                 {{ $message }}
                                             </button>
-                                            @php($order_delivery_verification = (bool) \App\Models\BusinessSetting::where(['key' => 'order_delivery_verification'])->first()->value)
-                                            <div class="dropdown-menu text-capitalize" aria-labelledby="dropdownMenuButton">
-                                                <a class="dropdown-item {{ $order['order_status'] == 'pending' ? 'active' : '' }} route-alert"
-                                                   data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'pending']) }}" data-message="{{ translate('Change status to pending ?') }}"
-                                                   href="javascript:">{{ translate('messages.pending') }}</a>
-                                                <a class="dropdown-item {{ $order['order_status'] == 'confirmed' ? 'active' : '' }} route-alert"
-                                                   data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'confirmed']) }}" data-message="{{ translate('Change status to confirmed ?') }}"
-                                                   href="javascript:">{{ translate('messages.confirmed') }}</a>
-                                                @if ($order->order_type != 'parcel')
-                                                    @if ($order->store && $order->store->module->module_type == 'food')
-                                                        <a class="dropdown-item {{ $order['order_status'] == 'processing' ? 'active' : '' }} order_status_change_alert" data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'processing']) }}" data-message="{{ translate('Change status to cooking ?') }}" data-processing={{ $max_processing_time }}
-                                                        href="javascript:">{{ translate('messages.processing') }}</a>
-                                                    @else
-                                                        <a class="dropdown-item {{ $order['order_status'] == 'processing' ? 'active' : '' }} route-alert"
-                                                           data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'processing']) }}" data-message="{{ translate('Change status to processing ?') }}"
-                                                           href="javascript:">{{ translate('messages.processing') }}</a>
-                                                    @endif
-                                                    <a class="dropdown-item {{ $order['order_status'] == 'handover' ? 'active' : '' }} route-alert"
-                                                       data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'handover']) }}" data-message="{{ translate('Change status to handover ?') }}"
-                                                       href="javascript:">{{ translate('messages.handover') }}</a>
-                                                @endif
-                                                <a class="dropdown-item {{ $order['order_status'] == 'picked_up' ? 'active' : '' }} route-alert"
-                                                   data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'picked_up']) }}" data-message="{{ translate('Change status to out for delivery ?') }}"
-                                                   href="javascript:">{{ translate('messages.out_for_delivery') }}</a>
-                                                <a class="dropdown-item {{ $order['order_status'] == 'delivered' ? 'active' : '' }} route-alert"
-                                                   data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'delivered']) }}" data-message="{{ translate('Change status to delivered (payment status will be paid if not)?') }}"
-                                                   href="javascript:">{{ translate('messages.delivered') }}</a>
-                                                <a class="dropdown-item {{ $order['order_status'] == 'canceled' ? 'active' : '' }} canceled-status">{{ translate('messages.canceled') }}</a>
-                                            </div>
+                                   <?php ($order_delivery_verification = (bool) (\App\Models\BusinessSetting::where(['key' => 'order_delivery_verification'])->first()?->value ?? false)); ?>
+
+                                           <div class="dropdown-menu text-capitalize" aria-labelledby="dropdownMenuButton">
+
+   <?php
+        $statuses = [
+            'pending' => 'pending',
+            'confirmed' => 'confirmed',
+            'processing' => $order->store && $order->store->module->module_type == 'food' ? 'cooking' : 'processing',
+            'handover' => 'handover',
+            'picked_up' => 'picked_up',
+            'in_transit' => 'in_transit',
+            'out_for_pickup' => 'out_for_pickup',
+            'reached_delivery' => 'reached_delivery',
+            'delivered' => 'delivered',
+            'rto_delivered' => 'rto_delivered',
+            'canceled' => 'canceled',
+            'reached_pickup'=>'reached_pickup'
+        ];
+   ?>
+
+    @foreach($statuses as $key => $label)
+        @if($key == 'processing' && $order->order_type != 'parcel')
+            @if($order->store && $order->store->module->module_type == 'food')
+                <a class="dropdown-item {{ $order['order_status'] == 'processing' ? 'active' : '' }} order_status_change_alert"
+                   data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'processing']) }}"
+                   data-message="{{ translate('Change status to cooking ?') }}"
+                   data-processing="{{ $max_processing_time }}"
+                   href="javascript:">{{ translate('messages.' . $label) }}</a>
+            @else
+                <a class="dropdown-item {{ $order['order_status'] == 'processing' ? 'active' : '' }} route-alert"
+                   data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'processing']) }}"
+                   data-message="{{ translate('Change status to processing ?') }}"
+                   href="javascript:">{{ translate('messages.' . $label) }}</a>
+            @endif
+        @elseif($key == 'canceled')
+            <a class="dropdown-item {{ in_array($order['order_status'], ['canceled', 'cancelled']) ? 'active' : '' }} canceled-status"
+               href="javascript:">{{ translate('messages.canceled') }}</a>
+        @else
+            <a class="dropdown-item {{ $order['order_status'] == $key ? 'active' : '' }} route-alert"
+               data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => $key]) }}"
+               data-message="{{ translate('Change status to ' . str_replace('_', ' ', $key) . '?') }}"
+               href="javascript:">{{ translate('messages.' . $label) }}</a>
+        @endif
+    @endforeach
+
+</div>
 
                                         </div>
                                     </div>
