@@ -717,10 +717,10 @@ class ItemController extends Controller
         'pharmacy_item_details.common_condition' => 'name',
     ];
 
-    $q->applyRelationShipSearch(
-        relationships: $relationships,
-        searchParameter:[$name] // ✅ this should not be $key
-    );
+    // $q->applyRelationShipSearch(
+    //     relationships: $relationships,
+    //     searchParameter:[$name] // ✅ this should not be $key
+    // );
 })
         ->limit(50)
         ->get(['id','name','image']);
