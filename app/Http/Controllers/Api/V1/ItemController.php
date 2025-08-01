@@ -700,7 +700,7 @@ class ItemController extends Controller
     $q->where('name', 'like', "%{$name}%")
       ->orWhere(function ($q2) use ($key) {
           foreach ($key as $word) {
-              $q2->orWhere('name', 'like', "%{$word}%");
+              $q2->orWhere('name', 'like', "{$word}%");
           }
       });
 
