@@ -30,7 +30,11 @@ class PidgeWebhookController extends Controller
         
         // === Update Order Status ===
         $newStatus = null;
-        if (in_array($externalStatus, ['CANCELLED', 'COMPLETED','PENDING'])) {
+        if($externalStatus=='CANCELLED'){
+            $newStatus ='canceled';
+        }
+        if (in_array($externalStatus, ['COMPLETED','PENDING'])) {
+           
         $newStatus = strtolower($externalStatus); // 'cancelled' or 'completed'
     }
         $update_Current_order=0;
