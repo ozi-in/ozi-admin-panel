@@ -32,7 +32,7 @@ trait ReportFilter
             $query->orWhereHas($relation, function ($query) use ($field, $searchParameter) {
                 $query->where(function ($q) use ($field, $searchParameter) {
                     foreach ($searchParameter as $value) {
-                        $q->orWhere($field, 'like', "%{$value}%");
+                        $q->where($field, 'like', "%{$value}%");
                     }
                 });
             });
