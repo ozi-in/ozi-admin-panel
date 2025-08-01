@@ -25,32 +25,33 @@ class PidgeWebhookController extends Controller
         }
         
         $externalStatus = $data['status'] ?? null;
+            $fulfillment = $data['fulfillment'] ?? null;
         $fulfillmentStatus = $data['fulfillment']['status'] ?? null;
         
         // === Update Order Status ===
         $newStatus = null;
-        
-        if ($externalStatus === 'c') {
-            $newStatus = 'confirmed';
-        }
+        if (in_array($externalStatus, ['CANCELLED', 'COMPLETED','PENDING'])) {
+        $newStatus = strtolower($externalStatus); // 'cancelled' or 'completed'
+    }
         $update_Current_order=0;
+        if( $fulfillmentStatus ){
         if ($fulfillmentStatus === 'CREATED') {
             $update_Current_order=1;
             $newStatus = 'confirmed';
         } 
-        elseif (in_array($fulfillmentStatus, ['PICKED_UP'])) {
-            $newStatus = 'picked_up';
-        } elseif ($fulfillmentStatus === 'DELIVERED') {
-            $newStatus = 'delivered';
-        } elseif ($fulfillmentStatus === 'UNDELIVERED') {
-            $newStatus = 'undelivered';
-        }
+        // elseif (in_array($fulfillmentStatus, ['PICKED_UP'])) {
+        //     $newStatus = 'picked_up';
+        // } elseif ($fulfillmentStatus === 'DELIVERED') {
+        //     $newStatus = 'delivered';
+        // } elseif ($fulfillmentStatus === 'UNDELIVERED') {
+        //     $newStatus = 'undelivered';
+        // }
         else{
             $newStatus = $fulfillmentStatus;
         }
-        
+    }
         if ($newStatus) {
-            $order->order_status = $newStatus;
+            $order->order_status = strtolower($newStatus);
             if( $newStatus=="delivered"){
                 $order->payment_status = 'paid';
             }
@@ -61,6 +62,7 @@ class PidgeWebhookController extends Controller
         }
         
         // === Extract Rider Location ===
+        if($fulfillment){
         $logs = $data['fulfillment']['logs'] ?? [];
         $latestLocation = null;
         
@@ -70,6 +72,7 @@ class PidgeWebhookController extends Controller
                 break;
             }
         }
+    }
         
         if ($latestLocation) {
             $riderData = $data['fulfillment']['rider'] ?? null;
