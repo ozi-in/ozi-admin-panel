@@ -706,7 +706,7 @@ class ItemController extends Controller
 
 
     $relationships = [
-        'translations' => 'value',
+       // 'translations' => 'value',
         'tags' => 'tag',
         'nutritions' => 'nutrition',
         'allergies' => 'allergy',
@@ -747,7 +747,7 @@ class ItemController extends Controller
     });
 
             $relationships = [
-                'translations' => 'value',
+              //  'translations' => 'value',
                 'items.nutritions' => 'nutrition',
                 'items.allergies' => 'allergy',
                 'items.generic' => 'generic_name',
