@@ -26,7 +26,22 @@ trait ReportFilter
         return $query;
     }
 
-    public static function scopeApplyRelationShipSearch($query, $relationships,$searchParameter )
+    // public static function scopeApplyRelationShipSearch($query, $relationships,$searchParameter )
+    // {
+    //     foreach ($relationships as $relation => $field) {
+    //         $query->orWhereHas($relation, function ($query) use ($field, $searchParameter) {
+    //             $query->where(function ($q) use ($field, $searchParameter) {
+    //                 foreach ($searchParameter as $value) {
+    //                     $q->orWhere($field, 'like', "%{$value}%");
+    //                 }
+    //             });
+    //         });
+    //     }
+
+    //     return $query;
+    // }
+
+  public static function scopeApplyRelationShipSearch($query, $relationships,$searchParameter )
     {
         foreach ($relationships as $relation => $field) {
             $query->orWhereHas($relation, function ($query) use ($field, $searchParameter) {
@@ -40,8 +55,6 @@ trait ReportFilter
 
         return $query;
     }
-
-
 
 
 
