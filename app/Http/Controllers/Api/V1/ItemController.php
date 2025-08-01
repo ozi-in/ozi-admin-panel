@@ -686,7 +686,7 @@ class ItemController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
  $key = $this->removeStopWords($request->name);
-
+$escapedName = str_replace("'", "''", $request->name);
         $items = Item::active()->whereHas('store', function($query)use($zone_id){
             $query->when(config('module.current_module_data'), function($query){
                 $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
@@ -723,6 +723,9 @@ class ItemController extends Controller
     );
 })
         ->limit(50)
+        ->orderByRaw("CASE WHEN name LIKE '{$escapedName}%' THEN 1
+                  WHEN name LIKE '%{$escapedName}%' THEN 2
+                  ELSE 3 END")
         ->get(['id','name','image']);
 
         $stores = Store::
@@ -765,6 +768,7 @@ class ItemController extends Controller
         ->active()
         ->limit(50)
         ->select(['id','name','logo'])
+        
         ->get();
 
         return [
