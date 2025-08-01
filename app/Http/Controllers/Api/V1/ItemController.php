@@ -705,8 +705,6 @@ class ItemController extends Controller
               $q2->orWhere('name', 'like', "{$word}%");
           }
       });
-
-
     $relationships = [
        // 'translations' => 'value',
         'tags' => 'tag',
