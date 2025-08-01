@@ -685,7 +685,7 @@ class ItemController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-        $key = explode(' ', $request->name);
+ $key = $this->removeStopWords($request->name);
 
         $items = Item::active()->whereHas('store', function($query)use($zone_id){
             $query->when(config('module.current_module_data'), function($query){
@@ -694,17 +694,16 @@ class ItemController extends Controller
                 });
             })->whereIn('zone_id', json_decode($zone_id, true));
         })
-        ->where(function ($q) use ($key, $request) {
+->where(function ($q) use ($key, $request) {
     $name = $request->name;
 
-    $q->where(function ($q1) use ($name) {
-        $q1->where('name', 'like', "%{$name}%");
-    })
-    ->orWhere(function ($q2) use ($key) {
-        foreach ($key as $word) {
-            $q2->where('name', 'like', "%{$word}%");
-        }
-    });
+    $q->where('name', 'like', "%{$name}%")
+      ->orWhere(function ($q2) use ($key) {
+          foreach ($key as $word) {
+              $q2->orWhere('name', 'like', "%{$word}%");
+          }
+      });
+
 
     $relationships = [
         'translations' => 'value',
@@ -720,7 +719,7 @@ class ItemController extends Controller
 
     $q->applyRelationShipSearch(
         relationships: $relationships,
-        searchParameter: [$request->name] // ✅ this should not be $key
+        searchParameter:[$name] // ✅ this should not be $key
     );
 })
         ->limit(50)
@@ -755,7 +754,7 @@ class ItemController extends Controller
                 'items.ecommerce_item_details.brand' => 'name',
                 'items.pharmacy_item_details.common_condition' => 'name'
             ];
-            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter: [$name]);
+            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:  $name);
         })
         ->when(config('module.current_module_data'), function($query)use($zone_id){
             $query->module(config('module.current_module_data')['id']);
@@ -774,7 +773,18 @@ class ItemController extends Controller
         ];
 
     }
+function removeStopWords($text) {
+    $stopWords = [
+        'for', 'and', 'the', 'of', 'a', 'in', 'to', 'with', 'kg', 'count', 'fluid', 'ounce', 'ml', 'gm', '&', '-', '–', 'on', 'by', 'from'
+    ];
 
+    $words = preg_split('/\s+/', strtolower($text)); // split by space
+    $filtered = array_filter($words, function ($word) use ($stopWords) {
+        return !in_array($word, $stopWords) && strlen($word) > 1;
+    });
+
+    return array_values($filtered);
+}
     public function get_store_condition_products(Request $request)
     {
         if (!$request->hasHeader('zoneId')) {
