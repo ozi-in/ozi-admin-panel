@@ -11,6 +11,7 @@
         "ext-simplexml": "*",
         "beyondcode/laravel-websockets": "^1.14",
         "brian2694/laravel-toastr": "^5.54",
+        "darkaonline/l5-swagger": "^8.6",
         "doctrine/dbal": "^3.3",
         "firebase/php-jwt": "^6.4",
         "gregwar/captcha": "^1.1",
@@ -41,6 +42,7 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.5",
         "fakerphp/faker": "^1.9.1",
+        "knuckleswtf/scribe": "^5.2",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^6.1",

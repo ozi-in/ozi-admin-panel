@@ -708,21 +708,21 @@ class ItemController extends Controller
 
 
     $relationships = [
-       // 'translations' => 'value',
+      'translations' => 'value',
         'tags' => 'tag',
-        'nutritions' => 'nutrition',
-        'allergies' => 'allergy',
+       // 'nutritions' => 'nutrition',
+       // 'allergies' => 'allergy',
         'category.parent' => 'name',
         'category' => 'name',
         'generic' => 'generic_name',
         'ecommerce_item_details.brand' => 'name',
         'pharmacy_item_details.common_condition' => 'name',
     ];
-
-    $q->applyRelationShipSearch(
+   $q->applyRelationShipSearch(
         relationships: $relationships,
         searchParameter:$key // ✅ this should not be $key
     );
+ 
 })
 
 ->orderByRaw("
