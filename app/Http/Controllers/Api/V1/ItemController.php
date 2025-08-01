@@ -694,24 +694,35 @@ class ItemController extends Controller
                 });
             })->whereIn('zone_id', json_decode($zone_id, true));
         })
-        ->where(function ($q) use ($key) {
-            foreach ($key as $value) {
-                $q->orwhere('name', 'like', "%{$value}%")->orWhere('description', 'like', "%{$value}%");
-            }
+        ->where(function ($q) use ($key, $request) {
+    $name = $request->name;
 
-            $relationships = [
-                'translations' => 'value',
-                'tags' => 'tag',
-                'nutritions' => 'nutrition',
-                'allergies' => 'allergy',
-                'category.parent' => 'name',
-                'category' => 'name',
-                'generic' => 'generic_name',
-                'ecommerce_item_details.brand' => 'name',
-                'pharmacy_item_details.common_condition' => 'name',
-            ];
-            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:$key);
-        })
+    $q->where(function ($q1) use ($name) {
+        $q1->where('name', 'like', "%{$name}%");
+    })
+    ->orWhere(function ($q2) use ($key) {
+        foreach ($key as $word) {
+            $q2->where('name', 'like', "%{$word}%");
+        }
+    });
+
+    $relationships = [
+        'translations' => 'value',
+        'tags' => 'tag',
+        'nutritions' => 'nutrition',
+        'allergies' => 'allergy',
+        'category.parent' => 'name',
+        'category' => 'name',
+        'generic' => 'generic_name',
+        'ecommerce_item_details.brand' => 'name',
+        'pharmacy_item_details.common_condition' => 'name',
+    ];
+
+    $q->applyRelationShipSearch(
+        relationships: $relationships,
+        searchParameter: [$request->name] // ✅ this should not be $key
+    );
+})
         ->limit(50)
         ->get(['id','name','image']);
 
@@ -724,10 +735,17 @@ class ItemController extends Controller
             return $q->validate();
         }])->weekday()
 
-        ->where(function ($q) use ($key) {
-            foreach ($key as $value) {
-                $q->orWhere('name', 'like', "%{$value}%");
-            }
+           ->where(function ($q) use ($key, $request) {
+    $name = $request->name;
+
+    $q->where(function ($q1) use ($name) {
+        $q1->where('name', 'like', "%{$name}%");
+    })
+    ->orWhere(function ($q2) use ($key) {
+        foreach ($key as $word) {
+            $q2->where('name', 'like', "%{$word}%");
+        }
+    });
 
             $relationships = [
                 'translations' => 'value',
@@ -737,7 +755,7 @@ class ItemController extends Controller
                 'items.ecommerce_item_details.brand' => 'name',
                 'items.pharmacy_item_details.common_condition' => 'name'
             ];
-            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:$key);
+            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter: [$name]);
         })
         ->when(config('module.current_module_data'), function($query)use($zone_id){
             $query->module(config('module.current_module_data')['id']);
