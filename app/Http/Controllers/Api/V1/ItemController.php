@@ -754,7 +754,7 @@ class ItemController extends Controller
                 'items.ecommerce_item_details.brand' => 'name',
                 'items.pharmacy_item_details.common_condition' => 'name'
             ];
-            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:  $name);
+            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:  [$name]);
         })
         ->when(config('module.current_module_data'), function($query)use($zone_id){
             $query->module(config('module.current_module_data')['id']);
