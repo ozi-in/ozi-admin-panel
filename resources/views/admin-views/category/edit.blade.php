@@ -42,13 +42,13 @@ active
                id="default-link">{{translate('messages.default')}}</a>
         </li>
         @foreach ($language as $lang)
-            @if($lang !== config('app.locale')) <!-- Skip the default language -->
+  
                 <li class="nav-item">
                     <a class="nav-link lang_link"
                        href="#"
                        id="{{ $lang }}-link">{{ \App\CentralLogics\Helpers::get_language_name($lang) . '(' . strtoupper($lang) . ')' }}</a>
                 </li>
-            @endif
+      
         @endforeach
     </ul>
 @endif
@@ -63,7 +63,7 @@ active
                                 </div>
                                 <input type="hidden" name="lang[]" value="default">
                                 @foreach($language as $lang)
-                                    @if($lang !== config('app.locale')) <!-- Skip the default language -->
+                                
                                     <?php
                                         if(count($category['translations'])){
                                             $translate = [];
@@ -80,7 +80,7 @@ active
                                         <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_category')}}" maxlength="191" value="{{$translate[$lang]['name']??''}}"  >
                                     </div>
                                     <input type="hidden" name="lang[]" value="{{$lang}}">
-                                              @endif
+                                           
                                 @endforeach
                             @else
                                 <div class="form-group">
