@@ -1906,12 +1906,12 @@ class OrderController extends Controller
                     $payment->payment_method = 'cash_on_delivery';
                 }
                 $payment->save();
-                if(empty($order->EcommOrderID)){
+              
+                }
+  if(empty($order->EcommOrderID)){
                 Helpers::Ecommorder($order);
                 Helpers::sendOrderPlacedSMS();
                 }
-                }
-
             $order = Order::where(['user_id' => $user_id, 'id' => $request['order_id']])->Notpos()->first();
 
             $order_mail_status = Helpers::get_mail_status('place_order_mail_status_user');
