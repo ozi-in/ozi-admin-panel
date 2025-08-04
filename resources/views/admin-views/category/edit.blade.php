@@ -34,22 +34,24 @@ active
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
-                            @if($language)
-                                <ul class="nav nav-tabs mb-4 border-0">
-                                    <li class="nav-item">
-                                        <a class="nav-link lang_link active"
-                                        href="#"
-                                        id="default-link">{{translate('messages.default')}}</a>
-                                    </li>
-                                    @foreach ($language as $lang)
-                                        <li class="nav-item">
-                                            <a class="nav-link lang_link"
-                                                href="#"
-                                                id="{{ $lang }}-link">{{ \App\CentralLogics\Helpers::get_language_name($lang) . '(' . strtoupper($lang) . ')' }}</a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
+                                          @if($language)
+    <ul class="nav nav-tabs mb-4 border-0">
+        <li class="nav-item">
+            <a class="nav-link lang_link active"
+               href="#"
+               id="default-link">{{translate('messages.default')}}</a>
+        </li>
+        @foreach ($language as $lang)
+  
+                <li class="nav-item">
+                    <a class="nav-link lang_link"
+                       href="#"
+                       id="{{ $lang }}-link">{{ \App\CentralLogics\Helpers::get_language_name($lang) . '(' . strtoupper($lang) . ')' }}</a>
+                </li>
+      
+        @endforeach
+    </ul>
+@endif
                             @if($language)
                                 <div class="form-group lang_form" id="default-form">
                                     <label class="input-label" for="exampleFormControlInput1">{{translate('messages.name')}} ({{ translate('messages.default') }}) <span class="form-label-secondary text-danger"
@@ -61,6 +63,7 @@ active
                                 </div>
                                 <input type="hidden" name="lang[]" value="default">
                                 @foreach($language as $lang)
+                                
                                     <?php
                                         if(count($category['translations'])){
                                             $translate = [];
@@ -77,6 +80,7 @@ active
                                         <input type="text" name="name[]" class="form-control" placeholder="{{translate('messages.new_category')}}" maxlength="191" value="{{$translate[$lang]['name']??''}}"  >
                                     </div>
                                     <input type="hidden" name="lang[]" value="{{$lang}}">
+                                           
                                 @endforeach
                             @else
                                 <div class="form-group">
