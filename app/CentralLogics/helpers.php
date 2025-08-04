@@ -4777,7 +4777,7 @@ $duration = $newDuration;
     }
 }
 
-public function Ecommorder($order){
+public static function Ecommorder($order){
     $connector = new OrderConnector(); 
     $decode_Request=json_decode($order->delivery_address);
          $localTimezone = config('app.timezone');
@@ -4855,7 +4855,7 @@ public function Ecommorder($order){
                     }
 }
 
-public function sendOrderPlacedSMS()
+public static function sendOrderPlacedSMS()
 {
     $recipients = SmsRecipient::pluck('phone_number')->toArray(); // All numbers
    // $message = "New order placed: Order ID {$order->id}, Total: ₹{$order->order_amount}";
