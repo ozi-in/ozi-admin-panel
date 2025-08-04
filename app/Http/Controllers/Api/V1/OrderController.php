@@ -1908,12 +1908,13 @@ class OrderController extends Controller
                 $payment->save();
               
                 }
-  if(empty($order->EcommOrderID)){
+                
+ 
+            $order = Order::where(['user_id' => $user_id, 'id' => $request['order_id']])->Notpos()->first();
+ if(empty($order->EcommOrderID)){
                 Helpers::Ecommorder($order);
                 Helpers::sendOrderPlacedSMS();
                 }
-            $order = Order::where(['user_id' => $user_id, 'id' => $request['order_id']])->Notpos()->first();
-
             $order_mail_status = Helpers::get_mail_status('place_order_mail_status_user');
             $order_verification_mail_status = Helpers::get_mail_status('order_verification_mail_status_user');
             $address = json_decode($order->delivery_address, true);
