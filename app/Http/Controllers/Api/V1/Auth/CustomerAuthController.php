@@ -146,7 +146,7 @@ class CustomerAuthController extends Controller
                 if($user->email){
                     $user_email = $user->email;
                 }
-                echo $is_personal_info ;die;
+               // echo $is_personal_info ;die;
                 if ($is_personal_info == 1 && auth()->loginUsingId($user->id)) {
                     $token = auth()->user()->createToken('RestaurantCustomerAuth')->accessToken;
                     if(isset($request['guest_id'])){
