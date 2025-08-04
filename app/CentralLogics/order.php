@@ -673,7 +673,7 @@ class OrderLogic
             $baseId = 100000;
             $latestOrder = Order::orderBy('id', 'desc')->lockForUpdate()->first();
             $latestId = $latestOrder ? $latestOrder->id : ($baseId - 1);
-            
+        //    $latestId=(int) $latestId."1";
             return $latestId + 1;
         });
     }

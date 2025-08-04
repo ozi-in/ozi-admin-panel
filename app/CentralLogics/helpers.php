@@ -4699,15 +4699,43 @@ class Helpers
         if ($element['status'] !== 'OK') {
             return ['error' => 'Route not found','status'=>0];
         }
-      //  $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value;
-        
-        $distance = $element['distance']['text'];
-              $distanceKm = $element['distance']['value'] / 1000; // meters to km
-   
-      //$delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value; // in minutes
+    $delivery_Tat =5;
 
-$distance = $element['distance']['text'];
-$duration = $element['duration']['text'];
+  //  $distance = $element['distance']['text'];
+    $distanceKm = $element['distance']['value'] / 1000; // meters to km
+$durationText = $element['duration']['text'];
+    // Parse hours and minutes from Google duration
+    $hours = 0;
+    $minutes = 0;
+
+if (preg_match('/(\d+)\s*hour/', $durationText, $matches)) {
+    $hours = (int) $matches[1];
+}
+if (preg_match('/(\d+)\s*min/', $durationText, $matches)) {
+    $minutes = (int) $matches[1];
+}
+
+$totalMinutes = $hours * 60 + $minutes + ($delivery_Tat ?? 0);
+
+// Rebuild duration string
+$newHours = floor($totalMinutes / 60);
+$newMinutes = $totalMinutes % 60;
+
+$newDuration = '';
+if ($newHours > 0) {
+    $newDuration .= $newHours . ' hour' . ($newHours > 1 ? 's' : '');
+}
+if ($newMinutes > 0) {
+    if ($newDuration !== '') {
+        $newDuration .= ' ';
+    }
+    $newDuration .= $newMinutes . ' min' . ($newMinutes > 1 ? 's' : '');
+}
+if ($newDuration === '') {
+    $newDuration = '0 mins';
+}
+
+$duration = $newDuration;
         
         // ✅ Serviceability Check
         $maxDistance = 35; // Max allowed km
