@@ -192,7 +192,10 @@ class CartController extends Controller
         $is_guest = $request->user ? 0 : 1;
 
         $cart = Cart::find($request->cart_id);
+        if($cart ){
         $cart->delete();
+        }
+
 
         $carts = Cart::where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->get()
         ->map(function ($data) {
