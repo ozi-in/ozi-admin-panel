@@ -1063,8 +1063,10 @@ class OrderController extends Controller
                      DB::commit();
                     try{
                     if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
-                   Helpers::Ecommorder($order);
+                    if( $order->order_status != 'failed'  && $order->order_status != 'canceled'){
+                    Helpers::Ecommorder($order);
                     Helpers::sendOrderPlacedSMS();
+                    }
                     }
                     }
                     catch(Exception $exception){
@@ -1911,7 +1913,8 @@ class OrderController extends Controller
                 
  
             $order = Order::where(['user_id' => $user_id, 'id' => $request['order_id']])->Notpos()->first();
- if(empty($order->EcommOrderID)){
+
+ if(empty($order->EcommOrderID) && $order->order_status != 'failed'  && $order->order_status != 'canceled' ){
                 Helpers::Ecommorder($order);
                 Helpers::sendOrderPlacedSMS();
                 }
