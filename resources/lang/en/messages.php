@@ -7679,4 +7679,5 @@ Smartly or Earn. ',
   'Change status to out for pickup?' => 'Change status to out for pickup?',
   'in_transit' => 'In transit',
   'Change status to in transit?' => 'Change status to in transit?',
+  'The selected payment method is invalid.' => 'The selected payment method is invalid.',
 );

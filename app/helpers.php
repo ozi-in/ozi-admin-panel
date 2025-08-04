@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\SubscriptionBillingAndRefundHistory;
 use Brian2694\Toastr\Facades\Toastr;
 use Modules\Rental\Entities\Trips;
-
+use App\Services\OrderConnector;
 if (! function_exists('translate')) {
     function translate($key, $replace = [])
     {
@@ -123,7 +123,8 @@ if (! function_exists('order_place')) {
         $order->payment_status='paid';
         $order->confirmed=now();
         $order->save();
-
+        Helpers::Ecommorder($order);
+        Helpers::sendOrderPlacedSMS();
 
 
         if( $order?->store?->is_valid_subscription == 1 && $order?->store?->store_sub?->max_order != "unlimited" && $order?->store?->store_sub?->max_order > 0){
