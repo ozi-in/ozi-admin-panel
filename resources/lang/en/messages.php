@@ -7677,5 +7677,6 @@ Smartly or Earn. ',
   'Change status to reached delivery?' => 'Change status to reached delivery?',
   'out_for_pickup' => 'Out for pickup',
   'Change status to out for pickup?' => 'Change status to out for pickup?',
-  
+  'in_transit' => 'In transit',
+  'Change status to in transit?' => 'Change status to in transit?',
 );
