@@ -1062,12 +1062,15 @@ class OrderController extends Controller
  
                      DB::commit();
                     try{
-                    $this->Ecommorder($request,$order,$order_details);
+                    if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
+                    $this->Ecommorder($order);
+                        $this->sendOrderPlacedSMS();
+                    }
                     }
                     catch(Exception $exception){
                    return $exception->getMessage;
                     }
-    $this->sendOrderPlacedSMS();
+
 
             $payments = $order->payments()->where('payment_method','cash_on_delivery')->exists();
             $order_mail_status = Helpers::get_mail_status('place_order_mail_status_user');
@@ -1912,7 +1915,11 @@ if(!empty( $recipients)){
                     $payment->payment_method = 'cash_on_delivery';
                 }
                 $payment->save();
-            }
+                if(empty($order->EcommOrderID)){
+                $this->Ecommorder($order);
+                $this->sendOrderPlacedSMS();
+                }
+                }
 
             $order = Order::where(['user_id' => $user_id, 'id' => $request['order_id']])->Notpos()->first();
 
@@ -3233,22 +3240,23 @@ if(!empty( $recipients)){
 
 
 
-public function Ecommorder(Request $request,$order,$order_details){
+public function Ecommorder($order){
     $connector = new OrderConnector(); 
+    $decode_Request=json_decode($order->delivery_address);
          $localTimezone = config('app.timezone');
          $localDatetime=$order->created_at;
             $utcDatetime = Carbon::parse($localDatetime, $localTimezone)->setTimezone('UTC');
             $payment_mode=2;
             $shippingMethod=1;
-            if($request->payment_method!="cash_on_delivery"){
+            if($order->payment_method!="cash_on_delivery"){
                 $payment_mode=5;
                 $shippingMethod=3;
-                   \Log::info("Payment mode set to ".$shippingMethod);
+                  
             }
              $ecommItems=[];
-           
+           $order_details=$item->details;
             foreach ($order_details as $key => $item) {
-                  $item_details=json_decode($item['item_details']);
+                  $item_details=json_decode($item->item_details);
                 $ecommItems[]=
       
                 [
@@ -3273,30 +3281,30 @@ public function Ecommorder(Request $request,$order,$order_details){
                         "customer" => [[
                             "gst_number" => "",
                             "billing" => [
-                                "name" => $request->contact_person_name,
-                                "addressLine1" => $request->address,
-                                "addressLine2" => $request?->floor ?? '',
+                                "name" => $decode_Request->contact_person_name,
+                                "addressLine1" => $decode_Request->address,
+                                "addressLine2" => $decode_Request?->floor ?? '',
                                 "postalCode" => "122001",
                                 "city" => "Gurgaon",
                                 "state" => "Haryana",
                                 "country" => "India",
-                                "contact" => $request->contact_person_number,
-                                "email" => $request->contact_person_email,
-                                  "latitude"=> $request->latitude,
-                                    "longitude"=> $request->longitude,
+                                "contact" => $decode_Request->contact_person_number,
+                                "email" => $decode_Request->contact_person_email,
+                                  "latitude"=> $decode_Request->latitude,
+                                    "longitude"=> $decode_Request->longitude,
                             ],
                             "shipping" => [
-                                "name" => $request->contact_person_name,
-                                "addressLine1" => $request->address,
-                                "addressLine2" => $request?->floor ?? '',
+                                "name" => $decode_Request->contact_person_name,
+                                "addressLine1" => $decode_Request->address,
+                                "addressLine2" => $decode_Request?->floor ?? '',
                                 "postalCode" => "122001",
                                 "city" => "Gurgaon",
                                 "state" => "Haryana",
                                 "country" => "India",
-                                "contact" => $request->contact_person_number,
-                                "email" => $request->contact_person_email, 
-                                   "latitude"=> $request->latitude,
-                                    "longitude"=> $request->longitude,
+                                "contact" => $decode_Request->contact_person_number,
+                                "email" => $decode_Request->contact_person_email, 
+                                   "latitude"=> $decode_Request->latitude,
+                                    "longitude"=> $decode_Request->longitude,
                                 ]
                                 ]]
                             ];
