@@ -4701,7 +4701,7 @@ class Helpers
         }
     $delivery_Tat =5;
 
-  //  $distance = $element['distance']['text'];
+    $distance = $element['distance']['text'];
     $distanceKm = $element['distance']['value'] / 1000; // meters to km
 $durationText = $element['duration']['text'];
     // Parse hours and minutes from Google duration
