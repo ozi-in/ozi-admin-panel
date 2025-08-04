@@ -1063,8 +1063,8 @@ class OrderController extends Controller
                      DB::commit();
                     try{
                     if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
-                    $this->Ecommorder($order);
-                        $this->sendOrderPlacedSMS();
+                   Helpers::Ecommorder($order);
+                    Helpers::sendOrderPlacedSMS();
                     }
                     }
                     catch(Exception $exception){
@@ -1123,16 +1123,7 @@ class OrderController extends Controller
             ]
         ], 403);
     }
-public function sendOrderPlacedSMS()
-{
-    $recipients = SmsRecipient::pluck('phone_number')->toArray(); // All numbers
-   // $message = "New order placed: Order ID {$order->id}, Total: ₹{$order->order_amount}";
-if(!empty( $recipients)){
-    foreach ($recipients as $number) {
-       $response_sms = SMS_module::send($number,'12345');
-    }
-}
-}
+
 
 
     public function prescription_place_order(Request $request)
@@ -1916,8 +1907,8 @@ if(!empty( $recipients)){
                 }
                 $payment->save();
                 if(empty($order->EcommOrderID)){
-                $this->Ecommorder($order);
-                $this->sendOrderPlacedSMS();
+                Helpers::Ecommorder($order);
+                Helpers::sendOrderPlacedSMS();
                 }
                 }
 
@@ -3240,81 +3231,5 @@ if(!empty( $recipients)){
 
 
 
-public function Ecommorder($order){
-    $connector = new OrderConnector(); 
-    $decode_Request=json_decode($order->delivery_address);
-         $localTimezone = config('app.timezone');
-         $localDatetime=$order->created_at;
-            $utcDatetime = Carbon::parse($localDatetime, $localTimezone)->setTimezone('UTC');
-            $payment_mode=2;
-            $shippingMethod=1;
-            if($order->payment_method!="cash_on_delivery"){
-                $payment_mode=5;
-                $shippingMethod=3;
-                  
-            }
-             $ecommItems=[];
-           $order_details=$item->details;
-            foreach ($order_details as $key => $item) {
-                  $item_details=json_decode($item->item_details);
-                $ecommItems[]=
-      
-                [
-                    "Sku"=>isset($item_details->sku) ? $item_details->sku :'test_1',
-                    "Quantity"=>$item['quantity'],
-                    "Price"=>$item['price'],
-                   // "itemDiscount"=>$item['discount_on_item']
-                ];
-            }
-                $payload = [
-                    "orderType" => "retailorder",
-                    "marketplaceId" => 10,
-                    "discount"=>$order->store_discount_amount,
-                      "promoCodeDiscount"=>$order->coupon_discount_amount,
-                    "orderNumber" => $order->id,
-                    "orderDate" => $utcDatetime,
-                    "expDeliveryDate" => "", 
-                    "paymentMode" => $payment_mode,
-                    "shippingMethod" => $shippingMethod, 
-                   "shippingCost"=>$order->delivery_charge,
-                    "items" => $ecommItems,
-                        "customer" => [[
-                            "gst_number" => "",
-                            "billing" => [
-                                "name" => $decode_Request->contact_person_name,
-                                "addressLine1" => $decode_Request->address,
-                                "addressLine2" => $decode_Request?->floor ?? '',
-                                "postalCode" => "122001",
-                                "city" => "Gurgaon",
-                                "state" => "Haryana",
-                                "country" => "India",
-                                "contact" => $decode_Request->contact_person_number,
-                                "email" => $decode_Request->contact_person_email,
-                                  "latitude"=> $decode_Request->latitude,
-                                    "longitude"=> $decode_Request->longitude,
-                            ],
-                            "shipping" => [
-                                "name" => $decode_Request->contact_person_name,
-                                "addressLine1" => $decode_Request->address,
-                                "addressLine2" => $decode_Request?->floor ?? '',
-                                "postalCode" => "122001",
-                                "city" => "Gurgaon",
-                                "state" => "Haryana",
-                                "country" => "India",
-                                "contact" => $decode_Request->contact_person_number,
-                                "email" => $decode_Request->contact_person_email, 
-                                   "latitude"=> $decode_Request->latitude,
-                                    "longitude"=> $decode_Request->longitude,
-                                ]
-                                ]]
-                            ];
 
-                             try {
-                        $response = $connector->call('createOrder', $payload);
-                            Log::info('Error Response:', $response);
-                        return response()->json(['message' => 'Order created successfully', 'response' => $response]);
-                    } catch (\Exception $e) {
-                        return response()->json(['error' => $e->getMessage()], 500);
-                    }
-}
 }
