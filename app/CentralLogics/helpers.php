@@ -40,7 +40,7 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\OrderVerificationMail;
 use App\Models\NotificationMessage;
 use App\Models\NotificationSetting;
-
+use Illuminate\Support\Facades\Log;
 use App\Models\SubscriptionPackage;
 use App\Traits\PaymentGatewayTrait;
 use Illuminate\Support\Facades\App;
@@ -4791,7 +4791,7 @@ public static function Ecommorder($order){
                   
             }
              $ecommItems=[];
-           $order_details=$item->details;
+           $order_details=$order->details;
             foreach ($order_details as $key => $item) {
                   $item_details=json_decode($item->item_details);
                 $ecommItems[]=
