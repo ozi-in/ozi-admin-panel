@@ -4832,8 +4832,8 @@ public static function Ecommorder($order){
                             ],
                             "shipping" => [
                                 "name" => $decode_Request->contact_person_name,
-                                "addressLine1" => $decode_Request->address,
-                                "addressLine2" => $decode_Request?->floor ?? '',
+                                "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
+                                "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
                                 "city" => "Gurgaon",
                                 "state" => "Haryana",
