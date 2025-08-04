@@ -19,6 +19,8 @@ use App\Http\Controllers\PidgeWebhookController;
 
 Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function () {
     Route::get('/tat', [TATController::class, 'getDeliveryTAT']);
+
+   Route::get('sendOrderPlacedSMS', 'OrderController@sendOrderPlacedSMS');
     Route::group(['prefix' => 'configurations'], function () {
         Route::get('/', 'ExternalConfigurationController@getConfiguration');
         Route::get('/get-external', 'ExternalConfigurationController@getExternalConfiguration');
@@ -523,3 +525,4 @@ WebSocketsRouter::webSocket('/delivery-man/live-location', DMLocationSocketHandl
 
 Route::post('/webhook/easyecom/shipping-assigned', [EasyEcomWebhookController::class, 'shippingAssigned']);
 Route::post('/webhook/pidge-tracking', [PidgeWebhookController::class, 'handle']);
+

@@ -40,6 +40,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use MatanYadaev\EloquentSpatial\Objects\Point;
 use App\Services\OrderConnector;
+use Illuminate\Support\Facades\Log;
+use App\CentralLogics\SMS_module;
+use App\Models\SmsRecipient;
 use Carbon\Carbon;
 class OrderController extends Controller
 {
@@ -1064,7 +1067,7 @@ class OrderController extends Controller
                     catch(Exception $exception){
                    return $exception->getMessage;
                     }
-
+    $this->sendOrderPlacedSMS();
 
             $payments = $order->payments()->where('payment_method','cash_on_delivery')->exists();
             $order_mail_status = Helpers::get_mail_status('place_order_mail_status_user');
@@ -1092,6 +1095,7 @@ class OrderController extends Controller
                     if ($order->is_guest == 1 && $order->order_status == 'pending' && config('order_delivery_verification') == 1 && $order_verification_mail_status == '1' && isset($request->contact_person_email) && Helpers::getNotificationStatusData('customer','customer_delivery_verification','mail_status') ) {
                         Mail::to($request->contact_person_email)->send(new OrderVerificationMail($order->otp,$request->contact_person_name));
                     }
+      
                 }
             } catch (\Exception $exception) {
                 info([$exception->getFile(), $exception->getLine(), $exception->getMessage()]);
@@ -1116,6 +1120,18 @@ class OrderController extends Controller
             ]
         ], 403);
     }
+public function sendOrderPlacedSMS()
+{
+    $recipients = SmsRecipient::pluck('phone_number')->toArray(); // All numbers
+   // $message = "New order placed: Order ID {$order->id}, Total: ₹{$order->order_amount}";
+if(!empty( $recipients)){
+    foreach ($recipients as $number) {
+       $response_sms = SMS_module::send($number,'12345');
+    }
+}
+}
+
+
     public function prescription_place_order(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -3224,9 +3240,10 @@ public function Ecommorder(Request $request,$order,$order_details){
             $utcDatetime = Carbon::parse($localDatetime, $localTimezone)->setTimezone('UTC');
             $payment_mode=2;
             $shippingMethod=1;
-            if($order->payment_status=="paid" && $request->payment_method!="cash_on_delivery"){
+            if($request->payment_method!="cash_on_delivery"){
                 $payment_mode=5;
                 $shippingMethod=3;
+                   \Log::info("Payment mode set to ".$shippingMethod);
             }
              $ecommItems=[];
            
