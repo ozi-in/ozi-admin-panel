@@ -3252,7 +3252,7 @@ public function Ecommorder(Request $request,$order,$order_details){
                 $ecommItems[]=
       
                 [
-                    "Sku"=>isset($item_details->sku) ? $item_details->sku :'',
+                    "Sku"=>isset($item_details->sku) ? $item_details->sku :'test_1',
                     "Quantity"=>$item['quantity'],
                     "Price"=>$item['price'],
                    // "itemDiscount"=>$item['discount_on_item']
@@ -3303,6 +3303,7 @@ public function Ecommorder(Request $request,$order,$order_details){
 
                              try {
                         $response = $connector->call('createOrder', $payload);
+                            Log::info('Error Response:', $response);
                         return response()->json(['message' => 'Order created successfully', 'response' => $response]);
                     } catch (\Exception $e) {
                         return response()->json(['error' => $e->getMessage()], 500);
