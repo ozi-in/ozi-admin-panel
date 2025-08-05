@@ -686,7 +686,7 @@ class ItemController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $search = addslashes($request->name);
+$search = trim(preg_replace('/\s+/', ' ', $request->name)); // remove extra spaces
  $key = $this->removeStopWords($request->name);
 
         $items = Item::active()->whereHas('store', function($query)use($zone_id){
@@ -725,13 +725,16 @@ class ItemController extends Controller
 
 ->orderByRaw("
     CASE
-        WHEN name = ? THEN 1
-        WHEN name LIKE ? THEN 2
-        WHEN name LIKE ? THEN 3
+        WHEN LOWER(name) = ? THEN 1
+        WHEN LOWER(name) LIKE ? THEN 2
+        WHEN LOWER(name) LIKE ? THEN 3
         ELSE 4
-    END,
-    LENGTH(name)
-", [$search, "$search%", "%$search%"])
+    END
+", [
+    strtolower($search), 
+    strtolower("$search%"), 
+    strtolower("%$search%")
+])
         ->limit(50)
         ->get(['id','name','image']);
 
