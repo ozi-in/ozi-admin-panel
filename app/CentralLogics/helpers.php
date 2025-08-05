@@ -4796,47 +4796,50 @@ public static function Ecommorder($order){
                 ];
             }
                 $payload = [
-                    "orderType" => "retailorder",
-                    "marketplaceId" => 10,
-                    "discount"=>$order->store_discount_amount,
-                      "promoCodeDiscount"=>$order->coupon_discount_amount,
-                    "orderNumber" => $order->id,
-                    "orderDate" => $utcDatetime,
-                    "expDeliveryDate" => "", 
-                    "paymentMode" => $payment_mode,
-                    "shippingMethod" => $shippingMethod, 
-                   "shippingCost"=>$order->delivery_charge,
-                    "items" => $ecommItems,
-                        "customer" => [
-                            "gst_number" => "",
-                            "billing" => [
-                                "name" => $decode_Request->contact_person_name,
-                                "addressLine1" => $decode_Request->address,
-                                "addressLine2" => $decode_Request?->floor ?? '',
-                                "postalCode" => "122001",
-                                "city" => "Gurgaon",
-                                "state" => "Haryana",
-                                "country" => "India",
-                                "contact" => $decode_Request->contact_person_number,
-                                "email" => $decode_Request->contact_person_email,
-                                  "latitude"=> $decode_Request->latitude,
-                                    "longitude"=> $decode_Request->longitude,
-                            ],
-                            "shipping" => [
-                                "name" => $decode_Request->contact_person_name,
-                                "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
-                                "addressLine2" => $decode_Request?->address ?? '',
-                                "postalCode" => "122001",
-                                "city" => "Gurgaon",
-                                "state" => "Haryana",
-                                "country" => "India",
-                                "contact" => $decode_Request->contact_person_number,
-                                "email" => $decode_Request->contact_person_email, 
-                                   "latitude"=> $decode_Request->latitude,
-                                    "longitude"=> $decode_Request->longitude,
-                                ]
-                                ]
-                            ];
+    "orderType" => "retailorder",
+    "marketplaceId" => 10,
+    "discount" => $order->store_discount_amount,
+    "promoCodeDiscount" => $order->coupon_discount_amount,
+    "orderNumber" => $order->id,
+    "orderDate" => $utcDatetime,
+    "expDeliveryDate" => "", 
+    "paymentMode" => $payment_mode,
+    "shippingMethod" => $shippingMethod, 
+    "shippingCost" => $order->delivery_charge,
+    "items" => $ecommItems,
+    
+    // ✅ This should be a direct object, NOT wrapped in []
+    "customer" => [
+        "gst_number" => "",
+        "billing" => [
+            "name" => $decode_Request->contact_person_name,
+            "addressLine1" => $decode_Request->address,
+            "addressLine2" => $decode_Request?->floor ?? '',
+            "postalCode" => "122001",
+            "city" => "Gurgaon",
+            "state" => "Haryana",
+            "country" => "India",
+            "contact" => $decode_Request->contact_person_number,
+            "email" => $decode_Request->contact_person_email,
+            "latitude" => $decode_Request->latitude,
+            "longitude" => $decode_Request->longitude,
+        ],
+        "shipping" => [
+            "name" => $decode_Request->contact_person_name,
+            "addressLine1" => $decode_Request->house . ', ' . $decode_Request->road,
+            "addressLine2" => $decode_Request?->address ?? '',
+            "postalCode" => "122001",
+            "city" => "Gurgaon",
+            "state" => "Haryana",
+            "country" => "India",
+            "contact" => $decode_Request->contact_person_number,
+            "email" => $decode_Request->contact_person_email,
+            "latitude" => $decode_Request->latitude,
+            "longitude" => $decode_Request->longitude,
+        ],
+    ],
+];
+
                                           Log::info(' Payload:', $payload);
 
                              try {
