@@ -4811,6 +4811,7 @@ public static function Ecommorder($order){
                             "gst_number" => "",
                             "billing" => [
                                 "name" => $decode_Request->contact_person_name,
+                                "billing_name"=>$decode_Request->contact_person_name,
                                 "addressLine1" => $decode_Request->address,
                                 "addressLine2" => $decode_Request?->floor ?? '',
                                 "postalCode" => "122001",
@@ -4824,6 +4825,7 @@ public static function Ecommorder($order){
                             ],
                             "shipping" => [
                                 "name" => $decode_Request->contact_person_name,
+                                 "customer_name"=>$decode_Request->contact_person_name,
                                 "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
