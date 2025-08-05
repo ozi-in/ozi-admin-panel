@@ -4806,14 +4806,14 @@ public static function Ecommorder($order){
                     "paymentMode" => $payment_mode,
                     "shippingMethod" => $shippingMethod, 
                    "shippingCost"=>$order->delivery_charge,
+                     "is_market_shipped"=> 0,
                     "items" => $ecommItems,
                         "customer" => [[
                             "gst_number" => "",
                             "billing" => [
                                 "name" => $decode_Request->contact_person_name,
-                                "billing_name"=>$decode_Request->contact_person_name,
-                                "addressLine1" => $decode_Request->address,
-                                "addressLine2" => $decode_Request?->floor ?? '',
+                              "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
+                                "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
                                 "city" => "Gurgaon",
                                 "state" => "Haryana",
@@ -4825,7 +4825,6 @@ public static function Ecommorder($order){
                             ],
                             "shipping" => [
                                 "name" => $decode_Request->contact_person_name,
-                                 "customer_name"=>$decode_Request->contact_person_name,
                                 "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
