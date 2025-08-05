@@ -724,13 +724,14 @@ class ItemController extends Controller
 })
 
 ->orderByRaw("
-        CASE
-            WHEN name = ? THEN 1
-            WHEN name LIKE ? THEN 2
-            WHEN name LIKE ? THEN 3
-            ELSE 4
-        END
-    ", [$search, "$search%", "%$search%"])
+    CASE
+        WHEN name = ? THEN 1
+        WHEN name LIKE ? THEN 2
+        WHEN name LIKE ? THEN 3
+        ELSE 4
+    END,
+    LENGTH(name)
+", [$search, "$search%", "%$search%"])
         ->limit(50)
         ->get(['id','name','image']);
 
@@ -785,7 +786,7 @@ class ItemController extends Controller
     }
 function removeStopWords($text) {
     $stopWords = [
-        'for', 'and', 'the', 'of', 'a', 'in', 'to', 'with', 'kg', 'count', 'fluid', 'ounce', 'ml', 'gm', '&', '-', '–', 'on', 'by', 'from'
+        'for', 'and', 'the', 'of', 'a', 'in', 'to', 'with', 'kg', 'count', 'fluid', 'ounce', 'ml', 'gm', '&', '-', '–', 'on', 'by', 'from','(', ')', '+'
     ];
 
     $words = preg_split('/\s+/', strtolower($text)); // split by space
