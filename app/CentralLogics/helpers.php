@@ -4837,6 +4837,7 @@ public static function Ecommorder($order){
                                 ]
                                 ]]
                             ];
+                                          Log::info(' Payload:', $payload);
 
                              try {
                         $response = $connector->call('createOrder', $payload);
