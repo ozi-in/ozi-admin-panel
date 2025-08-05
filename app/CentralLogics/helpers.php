@@ -4764,17 +4764,9 @@ $duration = $newDuration;
             'duration' => $duration,
             'tat' => $tat,
         ];
-    }else{
-
-    
- return [
-                // 'message' => 'Your area is unserviceable',
-                'distance' => $distance,
-                'duration' => "Your area is unserviceable",
-            ];
-        }
-
     }
+    }
+    return null;
 }
 
 public static function Ecommorder($order){
