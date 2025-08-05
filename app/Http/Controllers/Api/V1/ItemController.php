@@ -701,6 +701,7 @@ $search = $this->normalizeSearchString($request->name);
     $name = $request->name;
 
     $q->where('name', 'like', "%{$name}%")
+    ->where('description', 'like', "%{$name}%")
       ->orWhere(function ($q2) use ($key) {
           foreach ($key as $word) {
               $q2->orWhere('name', 'like', "{$word}%");
