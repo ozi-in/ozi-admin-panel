@@ -685,7 +685,7 @@ class ItemController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-$search = normalizeSearchString($request->name);
+$search = $this->normalizeSearchString($request->name);
 
 
  $key = $this->removeStopWords($request->name);
