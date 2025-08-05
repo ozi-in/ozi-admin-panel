@@ -685,8 +685,9 @@ class ItemController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
+$search = normalizeSearchString($request->name);
 
-$search = trim(preg_replace('/\s+/', ' ', $request->name)); // remove extra spaces
+
  $key = $this->removeStopWords($request->name);
 
         $items = Item::active()->whereHas('store', function($query)use($zone_id){
@@ -722,18 +723,17 @@ $search = trim(preg_replace('/\s+/', ' ', $request->name)); // remove extra spac
         searchParameter:$key // ✅ this should not be $key
     );
 })
-
 ->orderByRaw("
     CASE
-        WHEN LOWER(name) = ? THEN 1
-        WHEN LOWER(name) LIKE ? THEN 2
-        WHEN LOWER(name) LIKE ? THEN 3
+        WHEN LOWER(REPLACE(REPLACE(name, ' ', ''), '+', '')) = ? THEN 1
+        WHEN LOWER(REPLACE(REPLACE(name, ' ', ''), '+', '')) LIKE ? THEN 2
+        WHEN LOWER(REPLACE(REPLACE(name, ' ', ''), '+', '')) LIKE ? THEN 3
         ELSE 4
     END
 ", [
-    strtolower($search), 
-    strtolower("$search%"), 
-    strtolower("%$search%")
+    $search,
+    "$search%",
+    "%$search%"
 ])
         ->limit(50)
         ->get(['id','name','image']);
@@ -798,6 +798,9 @@ function removeStopWords($text) {
     });
 
     return array_values($filtered);
+}
+function normalizeSearchString($string) {
+    return strtolower(str_replace([' ', '+'], '', trim($string)));
 }
     public function get_store_condition_products(Request $request)
     {
