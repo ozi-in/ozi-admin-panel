@@ -4807,7 +4807,7 @@ public static function Ecommorder($order){
                     "shippingMethod" => $shippingMethod, 
                    "shippingCost"=>$order->delivery_charge,
                     "items" => $ecommItems,
-                        "customer" => [[
+                        "customer" => [
                             "gst_number" => "",
                             "billing" => [
                                 "name" => $decode_Request->contact_person_name,
@@ -4835,7 +4835,7 @@ public static function Ecommorder($order){
                                    "latitude"=> $decode_Request->latitude,
                                     "longitude"=> $decode_Request->longitude,
                                 ]
-                                ]]
+                                ]
                             ];
                                           Log::info(' Payload:', $payload);
 
