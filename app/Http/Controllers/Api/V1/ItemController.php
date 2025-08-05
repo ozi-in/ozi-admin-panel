@@ -701,14 +701,14 @@ $search = $this->normalizeSearchString($request->name);
     $name = $request->name;
 
     $q->where('name', 'like', "%{$name}%")
-    ->where('description', 'like', "%{$name}%")
+   // ->where('description', 'like', "%{$name}%")
       ->orWhere(function ($q2) use ($key) {
           foreach ($key as $word) {
               $q2->orWhere('name', 'like', "{$word}%");
           }
       });
     $relationships = [
-       // 'translations' => 'value',
+       'translations' => 'value',
         'tags' => 'tag',
         'nutritions' => 'nutrition',
         'allergies' => 'allergy',
@@ -790,7 +790,12 @@ $search = $this->normalizeSearchString($request->name);
     }
 function removeStopWords($text) {
     $stopWords = [
-        'for', 'and', 'the', 'of', 'a', 'in', 'to', 'with', 'kg', 'count', 'fluid', 'ounce', 'ml', 'gm', '&', '-', '–', 'on', 'by', 'from','(', ')', '+'
+        'for', 'and', 'the', 'of', 'a', 'in', 'to', 'with', 'kg', 'count', 'fluid', 'ounce', 'ml', 'gm', '&', '-', '–', 'on', 'by', 'from','(', ')', '+' , 'if', 'in', 'into', 'is', 'it', 'no', 'not',
+    'of', 'on', 'or', 'such', 'that', 'the', 'their',
+    'then', 'there', 'these', 'they', 'this', 'to',
+    'was', 'will', 'with', 'from', 'have', 'has', 'had',
+    'more', 'some', 'can', 'you', 'we', 'your', 'i',
+    'all', 'any', 'our', 'out', 'so', 'do', 'up', 'down'
     ];
 
     $words = preg_split('/\s+/', strtolower($text)); // split by space
