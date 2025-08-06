@@ -4809,9 +4809,12 @@ public static function Ecommorder($order){
                      "is_market_shipped"=> 0,
                     "items" => $ecommItems,
                         "customer" => [[
+                             "billing_name" => !empty($decode_Request->contact_person_name) ? $decode_Request->contact_person_name:'OziCustomer',
+                               "billing_address_1" =>  $decode_Request->house.','.$decode_Request->road.', ',
+                                    "shipping_name" => $decode_Request->contact_person_name,
                             "gst_number" => "",
                             "billing" => [
-                                "name" => $decode_Request->contact_person_name,
+                                "name" => !empty($decode_Request->contact_person_name) ? $decode_Request->contact_person_name:'OziCustomer',
                               "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
@@ -4824,7 +4827,7 @@ public static function Ecommorder($order){
                                     "longitude"=> $decode_Request->longitude,
                             ],
                             "shipping" => [
-                                "name" => $decode_Request->contact_person_name,
+                                "name" => !empty($decode_Request->contact_person_name) ? $decode_Request->contact_person_name:'OziCustomer',
                                 "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",

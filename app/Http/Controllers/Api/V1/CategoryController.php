@@ -311,10 +311,8 @@ class CategoryController extends Controller
             ->get();
             
     
-
-   \Log::info('Before shuffle: ' . implode(',', $categories->pluck('id')->toArray()));
 $categories = $categories->shuffle();
-\Log::info('After shuffle: ' . implode(',', $categories->pluck('id')->toArray()));
+
             return response()->json($categories, 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
