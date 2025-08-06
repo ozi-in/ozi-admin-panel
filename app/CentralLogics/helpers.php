@@ -4688,11 +4688,11 @@ class Helpers
       
         if(!empty( $destLat) && !empty( $destLng) ){
         $apiKey = \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value;
-        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&key=$apiKey";
-        
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&departure_time=now&traffic_model=best_guess&key=$apiKey";
+
         $response = file_get_contents($url);
         $data = json_decode($response, true);
-        
+       // echo "<pre>";print_R($data);die;
         if (!$data || $data['status'] !== 'OK') {
             return ['error' => 'Google API failed','status'=>0];
         }
@@ -4706,19 +4706,13 @@ class Helpers
 
     $distance = $element['distance']['text'];
     $distanceKm = $element['distance']['value'] / 1000; // meters to km
-$durationText = $element['duration']['text'];
+$durationText = $element['duration_in_traffic']['text'] ?? $element['duration']['text'];
     // Parse hours and minutes from Google duration
     $hours = 0;
     $minutes = 0;
 
-if (preg_match('/(\d+)\s*hour/', $durationText, $matches)) {
-    $hours = (int) $matches[1];
-}
-if (preg_match('/(\d+)\s*min/', $durationText, $matches)) {
-    $minutes = (int) $matches[1];
-}
-
-$totalMinutes = $hours * 60 + $minutes + ($delivery_Tat ?? 0);
+$durationSeconds = $element['duration_in_traffic']['value'] ?? $element['duration']['value'];
+$totalMinutes = round($durationSeconds / 60) + ($delivery_Tat ?? 0);
 
 // Rebuild duration string
 $newHours = floor($totalMinutes / 60);

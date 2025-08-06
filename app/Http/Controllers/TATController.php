@@ -21,7 +21,8 @@ class TATController extends Controller
         $destLng = $request->dest_lng;
         
         $apiKey = \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value;
-        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&key=$apiKey";
+       $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&departure_time=now&traffic_model=best_guess&key=$apiKey";
+
         
         $response = file_get_contents($url);
         $data = json_decode($response, true);
@@ -39,24 +40,15 @@ class TATController extends Controller
         
         $distance = $element['distance']['text'];
               $distanceKm = $element['distance']['value'] / 1000; // meters to km
-   
-      $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value; // in minutes
 
-$distance = $element['distance']['text'];
-$durationText = $element['duration']['text'];
+
+$durationText = $element['duration_in_traffic']['text'] ?? $element['duration']['text'];
 
 // Parse hours and minutes from Google duration
 $hours = 0;
 $minutes = 0;
-
-if (preg_match('/(\d+)\s*hour/', $durationText, $matches)) {
-    $hours = (int) $matches[1];
-}
-if (preg_match('/(\d+)\s*min/', $durationText, $matches)) {
-    $minutes = (int) $matches[1];
-}
-
-$totalMinutes = $hours * 60 + $minutes + ($delivery_Tat ?? 0);
+$durationSeconds = $element['duration_in_traffic']['value'] ?? $element['duration']['value'];
+$totalMinutes = round($durationSeconds / 60) + ($delivery_Tat ?? 0);
 
 // Rebuild duration string
 $newHours = floor($totalMinutes / 60);
