@@ -67,38 +67,75 @@ class WishlistController extends Controller
         return response()->json(['message' => translate('messages.not_found')], 404);
     }
 
-    public function wish_list(Request $request)
-    {
-        if (!$request->hasHeader('zoneId')) {
-            $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
-            return response()->json([
-                'errors' => $errors
-            ], 403);
-        }
-        $zone_id= $request->header('zoneId');
-        $longitude= $request->header('longitude');
-        $latitude= $request->header('latitude');
-        $wishlists = Wishlist::where('user_id', $request->user()->id)->with(['item'=>function($q)use($zone_id){
-            return $q->whereHas('store', function($query)use($zone_id){
-                $query->when(config('module.current_module_data'), function($query){
-                    $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
-                        $query->where('modules.id', config('module.current_module_data')['id']);
-                    });
-                })->whereHas('module',function($query){
-                    $query->where('status',1);
-                })->whereIn('zone_id', json_decode($zone_id, true));
-            });
-        }, 'store'=>function($q)use($zone_id,$longitude,$latitude){
-            return $q->when(config('module.current_module_data'), function($query)use($zone_id){
-                $query->whereHas('zone.modules', function($query){
-                    $query->where('modules.id', config('module.current_module_data')['id']);
-                })->module(config('module.current_module_data')['id']);
-            })->withOpen($longitude??0,$latitude??0)->whereHas('module',function($query){
-                $query->where('status',1);
-            })->whereIn('zone_id', json_decode($zone_id, true));
-        }])->get();
-        $wishlists = Helpers::wishlist_data_formatting($wishlists, true);
-        return response()->json($wishlists, 200);
+   public function wish_list(Request $request)
+{
+    // Check for required zoneId header
+    if (!$request->hasHeader('zoneId')) {
+        return response()->json([
+            'errors' => [
+                ['code' => 'zoneId', 'message' => 'Zone id is required!']
+            ]
+        ], 403);
     }
+
+    $zone_id = $request->header('zoneId');
+    $longitude = $request->header('longitude');
+    $latitude = $request->header('latitude');
+    $zone_ids = json_decode($zone_id, true);
+
+    $module_id = config('module.current_module_data')['id'] ?? null;
+
+    $wishlists = Wishlist::where('user_id', $request->user()->id)
+
+        // Only include wishlists where item exists and satisfies conditions
+        ->whereHas('item', function ($q) use ($zone_ids, $module_id) {
+            $q->whereHas('store', function ($query) use ($zone_ids, $module_id) {
+                $query->when($module_id, function ($query) use ($module_id) {
+                    $query->where('module_id', $module_id)
+                          ->whereHas('zone.modules', function ($query) use ($module_id) {
+                              $query->where('modules.id', $module_id);
+                          });
+                })
+                ->whereHas('module', function ($query) {
+                    $query->where('status', 1);
+                })
+                ->whereIn('zone_id', $zone_ids);
+            });
+        })
+
+        ->with([
+            'item' => function ($q) use ($zone_ids, $module_id) {
+                $q->whereHas('store', function ($query) use ($zone_ids, $module_id) {
+                    $query->when($module_id, function ($query) use ($module_id) {
+                        $query->where('module_id', $module_id)
+                              ->whereHas('zone.modules', function ($query) use ($module_id) {
+                                  $query->where('modules.id', $module_id);
+                              });
+                    })
+                    ->whereHas('module', function ($query) {
+                        $query->where('status', 1);
+                    })
+                    ->whereIn('zone_id', $zone_ids);
+                });
+            },
+            'store' => function ($q) use ($zone_ids, $longitude, $latitude, $module_id) {
+                $q->when($module_id, function ($query) use ($module_id) {
+                    $query->whereHas('zone.modules', function ($query) use ($module_id) {
+                        $query->where('modules.id', $module_id);
+                    })->module($module_id);
+                })
+                ->withOpen($longitude ?? 0, $latitude ?? 0)
+                ->whereHas('module', function ($query) {
+                    $query->where('status', 1);
+                })
+                ->whereIn('zone_id', $zone_ids);
+            }
+        ])
+        ->get();
+
+    $wishlists = Helpers::wishlist_data_formatting($wishlists, true);
+
+    return response()->json($wishlists, 200);
+}
+
 }
