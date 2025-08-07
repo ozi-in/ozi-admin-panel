@@ -13,7 +13,7 @@ class OrderTestController extends Controller
         //   return     $response = $connector->call('cancelOrder', $payload);
  //return $response = $connector->cancelOrderByInvoiceId('429929185');
 
-      return  $response = $connector->getPidgeOrderStatus('17538756259150PTEZSN0');
+      return  $response = $connector->getRiderLocation('17544575425807VT1W9SX');
   
         $payload = [
             "orderType" => "retailorder",

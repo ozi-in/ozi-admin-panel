@@ -796,7 +796,7 @@ class BusinessSettingsController extends Controller
                 
             ]);
         }
-        
+        Helpers::clearBusinessConfigCache();
         Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
         return back();
     }

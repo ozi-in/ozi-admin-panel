@@ -69,6 +69,7 @@ use Aws\S3\S3Client;
 use App\Services\OrderConnector;
 use App\Models\SmsRecipient;
 use App\CentralLogics\SMS_module;
+use App\Models\DeliveryHistory;
 class Helpers
 {
     use PaymentGatewayTrait , NotificationDataSetUpTrait;
@@ -4762,7 +4763,61 @@ $duration = $newDuration;
     }
     return null;
 }
+public static function saveRiderLocation($delivery_man_id,$trackingId)
+{
+    try {
+           $connector = new OrderConnector(); 
+        $response = $connector->getRiderLocation($trackingId);
+Log::info('response', $response);
+        if (!$response['success']) {
+            Log::warning('Pidge: Failed to get location', ['tracking_id' => $trackingId]);
+            return;
+        }
 
+         $data = $response['data']['data'] ?? null;
+        $location = $data['location'] ?? null;
+
+        // ✅ Skip if no valid location or rider
+        if (
+            !$location ||
+            empty($location['latitude']) ||
+            empty($location['longitude']) ||
+            empty($data['rider'])
+        ) {
+            Log::info('No rider or location data yet', ['tracking_id' => $trackingId]);
+            return;
+        }
+
+    
+
+        // Save or update delivery history
+            DeliveryHistory::create([
+            'delivery_man_id' => $delivery_man_id,
+            'latitude' => $location['latitude'],
+            'longitude' => $location['longitude'],
+            'location' => 'Order Tracking',
+            'created_at' => now(),
+            'updated_at' => now(),
+               'time' => now()
+            ]);
+
+        Log::info('Rider location updated', ['order_id' => $delivery_man_id]);
+    } catch (\Exception $e) {
+        Log::error('Error saving rider location', [
+            'tracking_id' => $trackingId,
+            'error' => $e->getMessage(),
+        ]);
+    }
+}
+
+public static function clearBusinessConfigCache()
+{
+    Cache::forget('business_settings_config_keys');
+    Cache::forget('business_settings_currency_symbol');
+    Cache::forget("business_settings_config_logo_storage");
+    Cache::forget("business_settings_config_icon_storage");
+    // Add more as needed
+}
 public static function Ecommorder($order){
     $connector = new OrderConnector(); 
     $decode_Request=json_decode($order->delivery_address);

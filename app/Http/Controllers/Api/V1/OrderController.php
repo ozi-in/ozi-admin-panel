@@ -61,6 +61,13 @@ class OrderController extends Controller
         if ($request['contact_number'] && (substr($request['contact_number'], 0, 1) !== '+')) {
             $request['contact_number'] = '+' . $request['contact_number'];
         }
+if(!empty($request['order_id'])){
+  $order = Order::where('id', $request['order_id'])->first();
+  if(!empty( $order->awb_number) &&  $order->delivery_man_id){
+  Helpers::saveRiderLocation( $order->delivery_man_id,$order->awb_number);
+  }
+}
+            
 
         $order = Order::with(['store','store.store_sub' ,'delivery_man.rating', 'parcel_category', 'refund','payments'])->withCount('details')
         ->where('id', $request['order_id'])
