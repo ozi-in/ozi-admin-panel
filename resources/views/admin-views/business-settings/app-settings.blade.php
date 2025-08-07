@@ -84,8 +84,8 @@
                                             <i class="tio-info-outined"></i>
                                         </span>
                                     </label>
-                                    <input id="app_minimum_version_android" type="number" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control" step="0.001" name="app_minimum_version_android"
-                                        value="{{env('APP_MODE')!='demo'?$app_minimum_version_android??'':''}}">
+                                    <input id="app_minimum_version_android" type="text" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control" name="app_minimum_version_android"
+                                        value="{{env('APP_MODE')!='demo'?$app_minimum_version_android??'':''}}"     oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                                 </div>
                                 <div class="form-group mb-md-0">
                                     <label for="app_url_android" class="form-label">
@@ -116,7 +116,7 @@
                                         </span>
                                     </label>
                                     <input id="app_minimum_version_ios" type="number" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control" step="0.001" name="app_minimum_version_ios"
-                                        value="{{env('APP_MODE')!='demo'?$app_minimum_version_ios??'':''}}">
+                                        value="{{env('APP_MODE')!='demo'?$app_minimum_version_ios??'':''}}"  oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                                 </div>
                                 <div class="form-group mb-md-0">
                                     <label for="app_url_ios" class="form-label">
@@ -162,12 +162,12 @@
                                     <label  for="app_minimum_version_android_store" class="form-label text-capitalize">{{translate('Minimum_Store_App_Version_for_store')}} ({{translate('messages.android')}})
                                         <span class="input-label-secondary text--title" data-toggle="tooltip"
                                         data-placement="right"
-                                        data-original-title="{{ translate('The_minimum_store_app_version_required_for_the_app_functionality.') }}">
+                                        data-original-title="{{ translate('The_minimum_store_app_version_required_for_the_app_functionality.') }}"  >
                                         <i class="tio-info-outined"></i>
                                     </span>
                                     </label>
-                                    <input id="app_minimum_version_android_store" type="number" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_android_store"
-                                        step="0.001"   min="0" value="{{env('APP_MODE')!='demo'?$app_minimum_version_android_store??'':''}}">
+                                    <input id="app_minimum_version_android_store" type="text" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_android_store"
+                                        step="0.001"   min="0" value="{{env('APP_MODE')!='demo'?$app_minimum_version_android_store??'':''}}" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                                 </div>
                                 <div class="form-group mb-md-0">
                                     <label for="app_url_android_store" class="form-label text-capitalize">
@@ -197,8 +197,8 @@
                                         <i class="tio-info-outined"></i>
                                     </span>
                                     </label>
-                                    <input id="app_minimum_version_ios_store" type="number" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_ios_store"
-                                    step="0.001"  min="0" value="{{env('APP_MODE')!='demo'?$app_minimum_version_ios_store??'':''}}">
+                                    <input id="app_minimum_version_ios_store" type="text" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_ios_store"
+                                     value="{{env('APP_MODE')!='demo'?$app_minimum_version_ios_store??'':''}}"  oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                                 </div>
                                 <div class="form-group mb-md-0">
                                     <label for="app_url_ios_store" class="form-label text-capitalize">
@@ -248,8 +248,7 @@
                                         <i class="tio-info-outined"></i>
                                     </span>
                                     </label>
-                                    <input type="number" id="app_minimum_version_android_deliveryman" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_android_deliveryman"
-                                        step="0.001"   min="0" value="{{env('APP_MODE')!='demo'?$app_minimum_version_android_deliveryman??'':''}}">
+                                    <input type="text" id="app_minimum_version_android_deliveryman" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_android_deliveryman"  min="0" value="{{env('APP_MODE')!='demo'?$app_minimum_version_android_deliveryman??'':''}}" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                                 </div>
                                 <div class="form-group mb-md-0">
                                     <label for="app_url_android_deliveryman"  class="form-label text-capitalize">
@@ -279,8 +278,8 @@
                                         <i class="tio-info-outined"></i>
                                     </span>
                                     </label>
-                                    <input id="app_minimum_version_ios_deliveryman" type="number" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_ios_deliveryman"
-                                    step="0.001"  min="0" value="{{env('APP_MODE')!='demo'?$app_minimum_version_ios_deliveryman??'':''}}">
+                                    <input id="app_minimum_version_ios_deliveryman" type="text" placeholder="{{translate('messages.app_minimum_version')}}" class="form-control h--45px" name="app_minimum_version_ios_deliveryman"
+                                  value="{{env('APP_MODE')!='demo'?$app_minimum_version_ios_deliveryman??'':''}}"  oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                                 </div>
                                 <div class="form-group mb-md-0">
                                     <label for="app_url_ios_deliveryman" class="form-label text-capitalize">

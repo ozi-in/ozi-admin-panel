@@ -7680,4 +7680,5 @@ Smartly or Earn. ',
   'in_transit' => 'In transit',
   'Change status to in transit?' => 'Change status to in transit?',
   'The selected payment method is invalid.' => 'The selected payment method is invalid.',
+  'Store_app_settings_updated' => 'Store app settings updated',
 );
