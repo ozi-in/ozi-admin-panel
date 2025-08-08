@@ -30,12 +30,12 @@ class EasyEcomWebhookController extends Controller
         ->update(['awb_number' => $awbNumber]);
         
         // Optional: log the incoming payload
-        Log::info('EasyEcom Webhook: Shipping Assigned', $orderData);
+       // Log::info('EasyEcom Webhook: Shipping Assigned', $orderData);
         if (!$invoiceId || !$awbNumber) {
             return response()->json(['success' => false, 'message' => 'Missing invoice_id or awb_number'], 400);
         }
         
-        Log::info('EasyEcom Shipping Assigned Webhook', $data);
+      //  Log::info('EasyEcom Shipping Assigned Webhook', $data);
         
         // TODO: Add logic to trigger Pidge API here and save tracking number
         
@@ -59,7 +59,9 @@ class EasyEcomWebhookController extends Controller
         $data = $request->all();
        
         
-        Log::info('EasyEcom Shipping Assigned Webhook', $data);
+Log::info('Webhook Received', [
+    'payload' => $request->all()
+]);
         
         // TODO: Add logic to trigger Pidge API here and save tracking number
         
