@@ -4821,9 +4821,13 @@ public static function clearBusinessConfigCache()
 public static function Ecommorder($order){
     $connector = new OrderConnector(); 
     $decode_Request=json_decode($order->delivery_address);
-         $localTimezone = config('app.timezone');
-         $localDatetime=$order->created_at;
-            $utcDatetime = Carbon::parse($localDatetime, $localTimezone)->setTimezone('UTC');
+        $localTimezone = config('app.timezone');
+        $timezone = \App\Models\BusinessSetting::where(['key' => 'timezone'])->first();
+        if ($timezone) {             
+        $localTimezone= $timezone->value;
+        }
+        $localDatetime=$order->created_at;
+        $utcDatetime = Carbon::parse($localDatetime, $localTimezone)->setTimezone('UTC');
             $payment_mode=2;
             $shippingMethod=1;
             if($order->payment_method!="cash_on_delivery"){

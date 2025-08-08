@@ -197,7 +197,7 @@ class ConfigServiceProvider extends ServiceProvider
 
             $timezone = BusinessSetting::where(['key' => 'timezone'])->first();
             if ($timezone) {
-                Config::set('timezone', $timezone->value);
+             Config::set('app.timezone', $timezone->value);
                 date_default_timezone_set($timezone->value);
             }
 
