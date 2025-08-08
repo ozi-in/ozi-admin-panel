@@ -59,7 +59,9 @@ class EasyEcomWebhookController extends Controller
         $data = $request->all();
        
         
-        Log::info('Test', $data);
+Log::info('Webhook Received', [
+    'payload' => $request->all()
+]);
         
         // TODO: Add logic to trigger Pidge API here and save tracking number
         
