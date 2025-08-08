@@ -24,7 +24,6 @@
                 data-order_id="{{ $order_id }}"  <!-- Razorpay order ID -->
                 data-callback_url="{{ route('razor-pay.callback', ['payment_data' => base64_encode($data->id)]) }}"
                 data-theme.color="#ff7529"
-                data-theme.backdrop_color="#fff2f1">
                 data-methods="upi"> 
         </script>
         <button class="btn btn-block" id="pay-button" type="submit" style="display:none"></button>
