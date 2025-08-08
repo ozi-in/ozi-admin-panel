@@ -41,4 +41,28 @@ class EasyEcomWebhookController extends Controller
         
         return response()->json(['success' => true]);
     }
+
+
+     public function Getlogs(Request $request)
+    {
+        // $expectedToken = env('EASYECOM_WEBHOOK_TOKEN');
+        // $receivedToken = $request->header('Access-Token');
+        
+        // if ($receivedToken git!== $expectedToken) {
+        //     Log::warning('Unauthorized webhook attempt', [
+        //         'received_token' => $receivedToken,
+        //     ]);
+        //     return response()->json(['error' => 'Unauthorized'], 401);
+        // }
+        
+        // Log or process the webhook data
+        $data = $request->all();
+       
+        
+        Log::info('EasyEcom Shipping Assigned Webhook', $data);
+        
+        // TODO: Add logic to trigger Pidge API here and save tracking number
+        
+        return response()->json(['success' => true]);
+    }
 }

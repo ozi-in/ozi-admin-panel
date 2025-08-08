@@ -524,5 +524,6 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
 WebSocketsRouter::webSocket('/delivery-man/live-location', DMLocationSocketHandler::class);
 
 Route::post('/webhook/easyecom/shipping-assigned', [EasyEcomWebhookController::class, 'shippingAssigned']);
+Route::post('/webhook/easyecom/getlogs', [EasyEcomWebhookController::class, 'Getlogs']);
 Route::post('/webhook/pidge-tracking', [PidgeWebhookController::class, 'handle']);
 
