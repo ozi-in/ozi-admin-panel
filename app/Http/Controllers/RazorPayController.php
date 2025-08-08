@@ -87,15 +87,7 @@ class RazorPayController extends Controller
                 'is_paid' => 1,
                 'transaction_id' => $input['razorpay_payment_id'],
             ]);
-
-              
             $data = $this->payment::where(['id' => $request['payment_id']])->first();
-              // 🔁 Now update the order
-                $order = \App\Models\Order::where('id', $data->attribute_id)->first();
-                if ($order) {
-                $order->payment_method = 'razor_pay';
-                $order->save();
-                }
             if (isset($data) && function_exists($data->success_hook)) {
                 call_user_func($data->success_hook, $data);
             }
@@ -118,12 +110,6 @@ class RazorPayController extends Controller
                 $payment_data->is_paid=  1;
                 $payment_data->transaction_id= $input['razorpay_payment_id'] ;
                 $payment_data->save();
-                // 🔁 Now update the order
-                $order = \App\Models\Order::where('id', $payment_data->attribute_id)->first();
-                if ($order) {
-                $order->payment_method = 'razor_pay';
-                $order->save();
-                }
                 call_user_func($payment_data->success_hook, $payment_data);
                 return $this->payment_response($payment_data, 'success');
             }
