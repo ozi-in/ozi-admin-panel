@@ -10,13 +10,6 @@ class OrderTestController extends Controller
     public function testCreateOrder(OrderConnector $connector)
     {
        $payload=['invoice_id'=>'429645257'];
-         // $localTimezone = config('app.timezone');
-        // $timezone = \App\Models\BusinessSetting::where(['key' => 'timezone'])->first();
-        //     if ($timezone) {
-             
-        //        $localTimezone= $timezone->value;
-        //     }
-
         //   return     $response = $connector->call('cancelOrder', $payload);
  //return $response = $connector->cancelOrderByInvoiceId('429929185');
 
