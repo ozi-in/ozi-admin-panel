@@ -119,7 +119,7 @@ class RazorPayController extends Controller
                 $payment_data->transaction_id= $input['razorpay_payment_id'] ;
                 $payment_data->save();
                 // 🔁 Now update the order
-                $order = \App\Models\Order::where('id', $data->attribute_id)->first();
+                $order = \App\Models\Order::where('id', $payment_data->attribute_id)->first();
                 if ($order) {
                 $order->payment_method = 'razor_pay';
                 $order->save();
