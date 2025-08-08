@@ -4822,10 +4822,10 @@ public static function Ecommorder($order){
     $connector = new OrderConnector(); 
     $decode_Request=json_decode($order->delivery_address);
         $localTimezone = config('app.timezone');
-        $timezone = \App\Models\BusinessSetting::where(['key' => 'timezone'])->first();
-        if ($timezone) {             
-        $localTimezone= $timezone->value;
-        }
+        // $timezone = \App\Models\BusinessSetting::where(['key' => 'timezone'])->first();
+        // if ($timezone) {             
+        // $localTimezone= $timezone->value;
+        // }
         $localDatetime=$order->created_at;
         $utcDatetime = Carbon::parse($localDatetime, $localTimezone)->setTimezone('UTC');
             $payment_mode=2;
