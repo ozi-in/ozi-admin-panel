@@ -46,33 +46,58 @@ class RazorPayController extends Controller
         $this->user = $user;
     }
 
-    public function index(Request $request): View|Factory|JsonResponse|Application
-    {
-        $validator = Validator::make($request->all(), [
-            'payment_id' => 'required|uuid'
-        ]);
+public function index(Request $request): View|Factory|JsonResponse|Application
+{
+    $validator = Validator::make($request->all(), [
+        'payment_id' => 'required|uuid'
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json($this->response_formatter(GATEWAYS_DEFAULT_400, null, $this->error_processor($validator)), 400);
-        }
-
-        $data = $this->payment::where(['id' => $request['payment_id']])->where(['is_paid' => 0])->first();
-        if (!isset($data)) {
-            return response()->json($this->response_formatter(GATEWAYS_DEFAULT_204), 200);
-        }
-        $payer = json_decode($data['payer_information']);
-
-        if ($data['additional_data'] != null) {
-            $business = json_decode($data['additional_data']);
-            $business_name = $business->business_name ?? "my_business";
-            $business_logo = $business->business_logo ?? url('/');
-        } else {
-            $business_name = "my_business";
-            $business_logo = url('/');
-        }
-
-        return view('payment-views.razor-pay', compact('data', 'payer', 'business_logo', 'business_name'));
+    if ($validator->fails()) {
+        return response()->json($this->response_formatter(GATEWAYS_DEFAULT_400, null, $this->error_processor($validator)), 400);
     }
+
+    // Get the payment data
+    $data = $this->payment::where(['id' => $request['payment_id']])->where(['is_paid' => 0])->first();
+    if (!isset($data)) {
+        return response()->json($this->response_formatter(GATEWAYS_DEFAULT_204), 200);
+    }
+    
+    // Fetch payer information
+    $payer = json_decode($data['payer_information']);
+    
+    // Business information
+    if ($data['additional_data'] != null) {
+        $business = json_decode($data['additional_data']);
+        $business_name = $business->business_name ?? "my_business";
+        $business_logo = $business->business_logo ?? url('/');
+    } else {
+        $business_name = "my_business";
+        $business_logo = url('/');
+    }
+
+    // Create Razorpay order
+    $api = new Api(config('razor_config.api_key'), config('razor_config.api_secret'));
+
+    // Prepare order data
+    $orderData = [
+        'receipt'         => $data->id,
+        'amount'          => round($data->payment_amount, 2) * 100, // Amount in paise
+        'currency'        => $data->currency_code,
+        'payment_capture' => 1, // auto capture
+    ];
+
+    try {
+        // Create the order
+        $order = $api->order->create($orderData);
+        $order_id = $order->id;  // Get the Razorpay order ID
+
+        // Pass the Razorpay order ID to the frontend
+        return view('payment-views.razor-pay', compact('data', 'payer', 'business_logo', 'business_name', 'order_id'));
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error while creating Razorpay order: ' . $e->getMessage()], 500);
+    }
+}
+
 
     public function payment(Request $request): JsonResponse|Redirector|RedirectResponse|Application
     {
