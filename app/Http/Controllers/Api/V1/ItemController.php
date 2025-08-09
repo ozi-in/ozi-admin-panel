@@ -80,166 +80,128 @@ class ItemController extends Controller
         return response()->json($items, 200);
     }
 
-    public function get_searched_products(Request $request)
-    {
-        if (!$request->hasHeader('zoneId')) {
-            $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]);
-            return response()->json([
-                'errors' => $errors
-            ], 403);
-        }
-        $validator = Validator::make($request->all(), [
-            'name' => 'required'
-        ]);
+public function get_searched_products(Request $request)
+{
+    if (!$request->hasHeader('zoneId')) {
+        $errors = [['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]];
+        return response()->json(['errors' => $errors], 403);
+    }
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
-        }
+    $validator = Validator::make($request->all(), [
+        'name' => 'required'
+    ]);
+    if ($validator->fails()) {
+        return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+    }
 
+    $zone_id = $request->header('zoneId');
+    $search  = trim((string) $request['name']);
+    $key     = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $limit   = (int)($request['limit'] ?? 10);
+    $offset  = (int)($request['offset'] ?? 1);
 
-        $product_search_default_status =BusinessSetting::where('key', 'product_search_default_status')->first()?->value ?? 1;
-        $product_search_sort_by_general =PriorityList::where('name', 'product_search_sort_by_general')->where('type','general')->first()?->value ?? '';
-        $product_search_sort_by_unavailable =PriorityList::where('name', 'product_search_sort_by_unavailable')->where('type','unavailable')->first()?->value ?? '';
-        $product_search_sort_by_temp_closed =PriorityList::where('name', 'product_search_sort_by_temp_closed')->where('type','temp_closed')->first()?->value ?? '';
+    /**
+     * Relevance scoring
+     * Keep NAME highest priority; then DESCRIPTION.
+     * Also add token-based partials so we surface "related" items even if not exact.
+     */
+    $W_NAME_EXACT   = 1000; // exact name match
+    $W_NAME_PREFIX  = 500;  // name starts with full search
+    $W_NAME_SUBSTR  = 300;  // name contains full search
+    $W_DESC_SUBSTR  = 120;  // description contains full search
 
+    $W_NAME_TOKEN_PREFIX = 80;  // name starts with token
+    $W_NAME_TOKEN_SUBSTR = 60;  // name contains token
+    $W_DESC_TOKEN_SUBSTR = 25;  // description contains token
 
-        $zone_id = $request->header('zoneId');
+    $relevanceParts = [];
+    $bindings       = [];
 
-        $key = explode(' ', $request['name']);
+    // full-string signals
+    $relevanceParts[] = "IF(items.name = ?, {$W_NAME_EXACT}, 0)";
+    $bindings[]       = $search;
 
-        $limit = $request['limit']??10;
-        $offset = $request['offset']??1;
-        $category_ids = $request['category_ids']?(is_array($request['category_ids'])?$request['category_ids']:json_decode($request['category_ids'])):'';
-        $filter = $request['filter']?(is_array($request['filter'])?$request['filter']:str_getcsv(trim($request['filter'], "[]"), ',')):'';
-        $type = $request->query('type', 'all');
-        $min = $request->query('min_price');
-        $max = $request->query('max_price');
-        $rating_count = $request->query('rating_count');
+    $relevanceParts[] = "IF(items.name LIKE ?, {$W_NAME_PREFIX}, 0)";
+    $bindings[]       = $search.'%';
 
-        $query = Item::active()->type($type)
-        ->with('store', function($query){
-            $query->withCount(['campaigns'=> function($query){
-                $query->Running();
-            }]);
+    $relevanceParts[] = "IF(items.name LIKE ?, {$W_NAME_SUBSTR}, 0)";
+    $bindings[]       = '%'.$search.'%';
+
+    $relevanceParts[] = "IF(items.description LIKE ?, {$W_DESC_SUBSTR}, 0)";
+    $bindings[]       = '%'.$search.'%';
+
+    // token-based signals for "more related products"
+    foreach ($key as $t) {
+        $relevanceParts[] = "IF(items.name LIKE ?, {$W_NAME_TOKEN_PREFIX}, 0)";
+        $bindings[]       = $t.'%';
+
+        $relevanceParts[] = "IF(items.name LIKE ?, {$W_NAME_TOKEN_SUBSTR}, 0)";
+        $bindings[]       = '%'.$t.'%';
+
+        $relevanceParts[] = "IF(items.description LIKE ?, {$W_DESC_TOKEN_SUBSTR}, 0)";
+        $bindings[]       = '%'.$t.'%';
+    }
+
+    $relevanceSql = implode(' + ', $relevanceParts) . ' AS relevance';
+
+    $itemsQuery = Item::query()
+        ->select('items.*')
+        ->selectRaw($relevanceSql, $bindings)
+        ->active()
+        // keep relationships lean
+        ->with(['store:id,zone_id,module_id'])
+        // zone + module constraints (lightweight)
+        ->whereHas('module.zones', function($q) use ($zone_id) {
+            $q->whereIn('zones.id', json_decode($zone_id, true));
         })
-        ->select(['items.*'])
-        ->selectSub(function ($subQuery) {
-            $subQuery->selectRaw('active as temp_available')
-                ->from('stores')
-                ->whereColumn('stores.id', 'items.store_id');
-        }, 'temp_available');
-
-
-        if ($product_search_default_status != '1'){
-            if(config('module.current_module_data')['module_type']  !== 'food'){
-                if($product_search_sort_by_unavailable == 'remove'){
-                    $query = $query->where('stock', '>', 0);
-                }elseif($product_search_sort_by_unavailable == 'last'){
-                    $query = $query->orderByRaw('CASE WHEN stock = 0 THEN 1 ELSE 0 END');
-                }
-
-            }
-
-            if($product_search_sort_by_temp_closed == 'remove'){
-                $query = $query->having('temp_available', '>', 0);
-            }elseif($product_search_sort_by_temp_closed == 'last'){
-                $query = $query->orderByDesc('temp_available');
-            }
-        }
-
-
-        $query= $query->when($request->category_id, function($query)use($request){
-            $query->whereHas('category',function($q)use($request){
-                return $q->whereId($request->category_id)->orWhere('parent_id', $request->category_id);
-            });
-        })
-        ->when($category_ids, function($query)use($category_ids){
-            $query->whereHas('category',function($q)use($category_ids){
-                return $q->whereIn('id',$category_ids)->orWhereIn('parent_id', $category_ids);
-            });
-        })
-        ->when($request->store_id, function($query) use($request){
-            return $query->where('store_id', $request->store_id);
-        })
-        ->whereHas('module.zones', function($query)use($zone_id){
-            $query->whereIn('zones.id', json_decode($zone_id, true));
-        })
-        ->whereHas('store', function($query)use($zone_id){
-            $query->when(config('module.current_module_data'), function($query){
-                $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
-                    $query->where('modules.id', config('module.current_module_data')['id']);
-                });
+        ->whereHas('store', function($q) use ($zone_id) {
+            $q->when(config('module.current_module_data'), function($q) {
+                $q->where('module_id', config('module.current_module_data')['id'])
+                  ->whereHas('zone.modules', function($q){
+                      $q->where('modules.id', config('module.current_module_data')['id']);
+                  });
             })->whereIn('zone_id', json_decode($zone_id, true));
         })
+        // search ONLY name/description
         ->where(function ($q) use ($key) {
             foreach ($key as $value) {
-                $q->orWhere('name', 'like', "%{$value}%");
+                $like = '%'.$value.'%';
+                $q->orWhere('items.name', 'like', $like)
+                  ->orWhere('items.description', 'like', $like);
             }
+        })
+        // final ordering: relevance first, then a tiny bias by shorter name (nicer UX)
+        ->orderByDesc('relevance')
+        ->orderByRaw('LENGTH(items.name) ASC');
 
-            $relationships = [
-                'translations' => 'value',
-                'tags' => 'tag',
-                'nutritions' => 'nutrition',
-                'allergies' => 'allergy',
-                'category.parent' => 'name',
-                'category' => 'name',
-                'generic' => 'generic_name',
-                'ecommerce_item_details.brand' => 'name',
-                'pharmacy_item_details.common_condition' => 'name',
-            ];
-            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:$key);
-        })
-        ->when($rating_count, function($query) use ($rating_count){
-            $query->where('avg_rating', '>=' , $rating_count);
-        })
-        ->when($min && $max, function($query)use($min,$max){
-            $query->whereBetween('price',[$min,$max]);
-        })
-        ->orderByRaw("FIELD(name, ?) DESC", [$request['name']])
+    // Fetch page
+    $items = $itemsQuery->paginate($limit, ['*'], 'page', $offset);
 
-        ->when($filter&&in_array('top_rated',$filter),function ($qurey){
-            $qurey->withCount('reviews')->orderBy('reviews_count','desc');
-        })
-        ->when($filter&&in_array('popular',$filter),function ($qurey){
-            $qurey->popular();
-        })
-        ->when($filter&&in_array('discounted',$filter),function ($qurey){
-            $qurey->Discounted()->orderBy('discount','desc');
-        })
-        ->when($filter&&in_array('high',$filter),function ($qurey){
-            $qurey->orderBy('price', 'desc');
-        })
-        ->when($filter&&in_array('low',$filter),function ($qurey){
-            $qurey->orderBy('price', 'asc');
-        });
+    // Build categories from the current page only (cheaper, still useful)
+    $pageCategoryIds = collect($items->items())->pluck('category_id')->filter()->unique()->values()->all();
 
+    $categories = empty($pageCategoryIds)
+        ? collect([])
+        : Category::select('id','name','parent_id','priority','status','module_id','position')
+            ->where(['position'=>0,'status'=>1])
+            ->when(config('module.current_module_data'), function($q){
+                $q->module(config('module.current_module_data')['id']);
+            })
+            ->whereIn('id', $pageCategoryIds)
+            ->orderBy('priority','desc')
+            ->get();
 
-        $item_categories=  $query->pluck('category_id')->toArray();
-        $items = $query->paginate($limit, ['*'], 'page', $offset);
-        $item_categories = array_unique($item_categories);
+    $data = [
+        'total_size' => $items->total(),
+        'limit'      => $limit,
+        'offset'     => $offset,
+        'products'   => Helpers::product_data_formatting($items->items(), true, false, app()->getLocale()),
+        'categories' => $categories,
+    ];
 
-        $categories = Category::withCount(['products','childes'])->with(['childes' => function($query)  {
-            $query->withCount(['products','childes']);
-        }])
-        ->where(['position'=>0,'status'=>1])
-        ->when(config('module.current_module_data'), function($query){
-            $query->module(config('module.current_module_data')['id']);
-        })
-        ->whereIn('id',$item_categories)
-        ->orderBy('priority','desc')->get();
+    return response()->json($data, 200);
+}
 
-        $data =  [
-            'total_size' => $items->total(),
-            'limit' => $limit,
-            'offset' => $offset,
-            'products' => $items->items(),
-            'categories'=>$categories
-        ];
-
-        $data['products'] = Helpers::product_data_formatting($data['products'], true, false, app()->getLocale());
-        return response()->json($data, 200);
-    }
 
     public function get_searched_products_suggestion(Request $request)
     {
@@ -685,10 +647,7 @@ class ItemController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-$search = $this->normalizeSearchString($request->name);
-
-
- $key = $this->removeStopWords($request->name);
+        $key = explode(' ', $request->name);
 
         $items = Item::active()->whereHas('store', function($query)use($zone_id){
             $query->when(config('module.current_module_data'), function($query){
@@ -697,45 +656,24 @@ $search = $this->normalizeSearchString($request->name);
                 });
             })->whereIn('zone_id', json_decode($zone_id, true));
         })
-->where(function ($q) use ($key, $request) {
-    $name = $request->name;
+        ->where(function ($q) use ($key) {
+            foreach ($key as $value) {
+                $q->orwhere('name', 'like', "%{$value}%")->orWhere('description', 'like', "%{$value}%");
+            }
 
-    $q->where('name', 'like', "%{$name}%")
-   // ->where('description', 'like', "%{$name}%")
-      ->orWhere(function ($q2) use ($key) {
-          foreach ($key as $word) {
-              $q2->orWhere('name', 'like', "{$word}%");
-          }
-      });
-    $relationships = [
-       'translations' => 'value',
-        'tags' => 'tag',
-        'nutritions' => 'nutrition',
-        'allergies' => 'allergy',
-        'category.parent' => 'name',
-        'category' => 'name',
-        'generic' => 'generic_name',
-        'ecommerce_item_details.brand' => 'name',
-        'pharmacy_item_details.common_condition' => 'name',
-    ];
-
-    $q->applyRelationShipSearch(
-        relationships: $relationships,
-        searchParameter:$key // ✅ this should not be $key
-    );
-})
-->orderByRaw("
-    CASE
-        WHEN LOWER(REPLACE(REPLACE(name, ' ', ''), '+', '')) = ? THEN 1
-        WHEN LOWER(REPLACE(REPLACE(name, ' ', ''), '+', '')) LIKE ? THEN 2
-        WHEN LOWER(REPLACE(REPLACE(name, ' ', ''), '+', '')) LIKE ? THEN 3
-        ELSE 4
-    END
-", [
-    $search,
-    "$search%",
-    "%$search%"
-])
+            $relationships = [
+                'translations' => 'value',
+                'tags' => 'tag',
+                'nutritions' => 'nutrition',
+                'allergies' => 'allergy',
+                'category.parent' => 'name',
+                'category' => 'name',
+                'generic' => 'generic_name',
+                'ecommerce_item_details.brand' => 'name',
+                'pharmacy_item_details.common_condition' => 'name',
+            ];
+            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:$key);
+        })
         ->limit(50)
         ->get(['id','name','image']);
 
@@ -748,27 +686,20 @@ $search = $this->normalizeSearchString($request->name);
             return $q->validate();
         }])->weekday()
 
-           ->where(function ($q) use ($key, $request) {
-    $name = $request->name;
-
-    $q->where(function ($q1) use ($name) {
-        $q1->where('name', 'like', "%{$name}%");
-    })
-    ->orWhere(function ($q2) use ($key) {
-        foreach ($key as $word) {
-            $q2->where('name', 'like', "%{$word}%");
-        }
-    });
+        ->where(function ($q) use ($key) {
+            foreach ($key as $value) {
+                $q->orWhere('name', 'like', "%{$value}%");
+            }
 
             $relationships = [
-              //  'translations' => 'value',
+                'translations' => 'value',
                 'items.nutritions' => 'nutrition',
                 'items.allergies' => 'allergy',
                 'items.generic' => 'generic_name',
                 'items.ecommerce_item_details.brand' => 'name',
                 'items.pharmacy_item_details.common_condition' => 'name'
             ];
-            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:  $key);
+            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:$key);
         })
         ->when(config('module.current_module_data'), function($query)use($zone_id){
             $query->module(config('module.current_module_data')['id']);
@@ -779,7 +710,6 @@ $search = $this->normalizeSearchString($request->name);
         ->active()
         ->limit(50)
         ->select(['id','name','logo'])
-        
         ->get();
 
         return [
@@ -788,26 +718,7 @@ $search = $this->normalizeSearchString($request->name);
         ];
 
     }
-function removeStopWords($text) {
-    $stopWords = [
-        'for', 'and', 'the', 'of', 'a', 'in', 'to', 'with', 'kg', 'count', 'fluid', 'ounce', 'ml', 'gm', '&', '-', '–', 'on', 'by', 'from','(', ')', '+' , 'if', 'in', 'into', 'is', 'it', 'no', 'not',
-    'of', 'on', 'or', 'such', 'that', 'the', 'their',
-    'then', 'there', 'these', 'they', 'this', 'to',
-    'was', 'will', 'with', 'from', 'have', 'has', 'had',
-    'more', 'some', 'can', 'you', 'we', 'your', 'i',
-    'all', 'any', 'our', 'out', 'so', 'do', 'up', 'down'
-    ];
 
-    $words = preg_split('/\s+/', strtolower($text)); // split by space
-    $filtered = array_filter($words, function ($word) use ($stopWords) {
-        return !in_array($word, $stopWords) && strlen($word) > 1;
-    });
-
-    return array_values($filtered);
-}
-function normalizeSearchString($string) {
-    return strtolower(str_replace([' ', '+'], '', trim($string)));
-}
     public function get_store_condition_products(Request $request)
     {
         if (!$request->hasHeader('zoneId')) {
