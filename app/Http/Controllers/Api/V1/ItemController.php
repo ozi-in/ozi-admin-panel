@@ -71,7 +71,7 @@ class ItemController extends Controller
         $product_id = $request->query('product_id')??null;
         $min = $request->query('min_price');
         $max = $request->query('max_price');
-        $limit = isset($request['limit'])?$request['limit']:50;
+        $limit = isset($request['limit'])?$request['limit']:30;
         $offset = isset($request['offset'])?$request['offset']:1;
 
         $items = ProductLogic::get_new_products($zone_id, $type,$min,$max,$product_id,$limit,$offset);
@@ -674,7 +674,7 @@ public function get_searched_products(Request $request)
             ];
             $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:$key);
         })
-        ->limit(50)
+        ->limit(30)
         ->get(['id','name','image']);
 
         $stores = Store::
@@ -708,7 +708,7 @@ public function get_searched_products(Request $request)
             }
         })
         ->active()
-        ->limit(50)
+        ->limit(30)
         ->select(['id','name','logo'])
         ->get();
 
