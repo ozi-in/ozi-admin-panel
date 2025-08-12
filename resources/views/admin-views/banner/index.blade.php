@@ -128,7 +128,7 @@ class="input-label-secondary"></span></label>
 <label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}({{ translate('messages.comma_seperated_values') }})</label>
 <input type="text" name="banner_keywords" class="form-control" placeholder="{{translate('messages.foreg._diapers,bag')}}" id="keyword-input">
  <div id="keywords-container"></div>
- <button type="button" id="add-keyword" class="btn btn-primary ml-2 mt-2" data-url="{{url('/')}}">Add</button>
+ <button type="button" id="add-keyword" class="btn btn-primary ml-2 mt-2 mb-2" data-url="{{url('/')}}">Add Keywords</button>
 </div>
  <script type="text/template" id="keyword-template">
     <div class="keyword-block mb-3 border p-2">
