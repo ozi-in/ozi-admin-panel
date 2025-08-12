@@ -1055,6 +1055,20 @@ if(!empty($request['order_id'])){
             if($request->user){
                 $customer = $request->user;
                 $customer->zone_id = $order->zone_id;
+                      if (!empty($request->contact_person_name) && empty($customer->f_name)) {
+                // Split name into first and last
+                $nameParts = explode(' ', trim($request->contact_person_name), 2);
+                $firstName = $nameParts[0];
+                $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+
+                // Update only if null or empty
+                if (empty($customer->f_name)) {
+                $customer->f_name = $firstName;
+                }
+                if (empty($customer->l_name) && !empty($lastName)) {
+                $customer->l_name = $lastName;
+                };
+                }
                 $customer->save();
                 if ($request->payment_method == 'wallet') CustomerLogic::create_wallet_transaction($order->user_id, $order->order_amount, 'order_place', $order->id);
 
@@ -1081,17 +1095,17 @@ if(!empty($request['order_id'])){
   
  
                      DB::commit();
-                    try{
-                    if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
-                    if( $order->order_status != 'failed'  && $order->order_status != 'canceled'){
-                    Helpers::Ecommorder($order);
-                    Helpers::sendOrderPlacedSMS();
-                    }
-                    }
-                    }
-                    catch(Exception $exception){
-                   return $exception->getMessage;
-                    }
+                //     try{
+                //     if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
+                //     if( $order->order_status != 'failed'  && $order->order_status != 'canceled'){
+                //     Helpers::Ecommorder($order);
+                //     Helpers::sendOrderPlacedSMS();
+                //     }
+                //     }
+                //     }
+                //     catch(Exception $exception){
+                //    return $exception->getMessage;
+                //     }
 
 
             $payments = $order->payments()->where('payment_method','cash_on_delivery')->exists();
@@ -1567,7 +1581,21 @@ if(!empty($request['order_id'])){
             $store->increment('total_order');
             $customer = $request->user;
             if($customer){
-                $customer->zone_id = $order->zone_id;
+                $customer->zone_id = $order->zone_id; 
+                 if (!empty($request->contact_person_name) && empty($customer->f_name)) {
+                // Split name into first and last
+                $nameParts = explode(' ', trim($request->contact_person_name), 2);
+                $firstName = $nameParts[0];
+                $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+
+                // Update only if null or empty
+                if (empty($customer->f_name)) {
+                $customer->f_name = $firstName;
+                }
+                if (empty($customer->l_name) && !empty($lastName)) {
+                $customer->l_name = $lastName;
+                }
+                }
                 $customer->save();
             }
 
