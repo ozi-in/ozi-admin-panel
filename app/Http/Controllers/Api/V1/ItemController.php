@@ -696,7 +696,31 @@ $productIds = \App\Models\BannerKeywordProduct::whereRaw('LOWER(keyword) = ?', [
         }
         $key = explode(' ', $request->name);
 
-       $items = Item::active()
+     $W_NAME_EXACT        = 1000;
+$W_NAME_PREFIX       = 500;
+$W_NAME_SUBSTR       = 300;
+$W_DESC_SUBSTR       = 120;
+$W_NAME_TOKEN_PREFIX = 80;
+$W_NAME_TOKEN_SUBSTR = 60;
+$W_DESC_TOKEN_SUBSTR = 25;
+
+$bindings = [];
+
+// For full search string
+$bindings[] = $request->name;              // exact
+$bindings[] = $request->name.'%';          // prefix
+$bindings[] = '%'.$request->name.'%';      // substr
+$bindings[] = '%'.$request->name.'%';      // desc substr
+
+// For tokenized words
+$keyTokens = $key; // assuming $key is already tokenized array
+foreach ($keyTokens as $token) {
+    $bindings[] = $token.'%';    // token prefix in name
+    $bindings[] = '%'.$token.'%';// token substr in name
+    $bindings[] = '%'.$token.'%';// token substr in desc
+}
+
+$items = Item::active()
     ->whereHas('store', function($query) use ($zone_id) {
         $query->when(config('module.current_module_data'), function($query) {
             $query->where('module_id', config('module.current_module_data')['id'])
@@ -707,15 +731,25 @@ $productIds = \App\Models\BannerKeywordProduct::whereRaw('LOWER(keyword) = ?', [
     })
     ->select('id','name','image')
     ->selectRaw("
-        CASE 
-            WHEN name LIKE ? THEN 3
-            WHEN description LIKE ? THEN 2
-            ELSE 1
-        END AS relevance
-    ", [
-        '%' . $request->name . '%',
-        '%' . $request->name . '%'
-    ])
+        (
+            IF(name = ?, {$W_NAME_EXACT}, 0) +
+            IF(name LIKE ?, {$W_NAME_PREFIX}, 0) +
+            IF(name LIKE ?, {$W_NAME_SUBSTR}, 0) +
+            IF(description LIKE ?, {$W_DESC_SUBSTR}, 0) +
+
+            " . collect($keyTokens)->map(function() use ($W_NAME_TOKEN_PREFIX) {
+                return "IF(name LIKE ?, {$W_NAME_TOKEN_PREFIX}, 0)";
+            })->implode(' + ') . " +
+
+            " . collect($keyTokens)->map(function() use ($W_NAME_TOKEN_SUBSTR) {
+                return "IF(name LIKE ?, {$W_NAME_TOKEN_SUBSTR}, 0)";
+            })->implode(' + ') . " +
+
+            " . collect($keyTokens)->map(function() use ($W_DESC_TOKEN_SUBSTR) {
+                return "IF(description LIKE ?, {$W_DESC_TOKEN_SUBSTR}, 0)";
+            })->implode(' + ') . "
+        ) AS relevance
+    ", $bindings)
     ->where(function ($q) use ($key) {
         foreach ($key as $value) {
             $q->orWhere('name', 'like', "%{$value}%")
