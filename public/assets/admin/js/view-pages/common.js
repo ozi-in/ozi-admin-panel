@@ -979,6 +979,7 @@ $(document).ready(function () {
     });
 });
     function createKeywordBlock(keyword, preselectedProducts = []) {
+        let runtimeSelected = [...preselectedProducts.map(p => p.id)];
     let template = $('#keyword-template').html();
     let route = $('#add-keyword').data("url");
 
@@ -1012,19 +1013,16 @@ $(document).ready(function () {
             
             cache: true
         },
-           templateResult: function (data) {
-                console.log("harpeet")
-        // Skip rendering for loading text
-//         if (data.loading) return data.text;
-// console.log(preselectedProducts);
-        // Check if in preselectedProducts
-       let isPreselected = preselectedProducts.some(p => p.id == data.id);
+            templateResult: function (data) {
+        if (!data.id) return data.text; // skip placeholder
 
-        // Create option display
-       
-            const $result = isPreselected
-        ? `<span>${data.text} <span class="badge bg-success ms-2">Added</span></span>`
-        : `<span>${data.text}</span>`;
+        // Check if in preselected OR runtime selected list
+        let isAdded = preselectedProducts.some(p => p.id == data.id) ||
+                      runtimeSelected.includes(parseInt(data.id));
+
+        let $result = $(
+            `<span>${data.text} ${isAdded ? '<span class="badge bg-success ms-2">Added</span>' : ''}</span>`
+        );
         return $result;
     },
     escapeMarkup: function (markup) {
@@ -1056,7 +1054,10 @@ $(document).ready(function () {
             productSelect.val(values).trigger('change.select2');
             return;
         }
-
+ let id = data.id;
+    if (!runtimeSelected.includes(id)) {
+        runtimeSelected.push(id);
+    }
         selectedProductsList.find('small.text-muted').remove();
         selectedProductsList.append(`
             <div class="selected-product-item d-flex justify-content-between align-items-center mb-1" data-id="${data.id}">
@@ -1092,7 +1093,7 @@ $(document).ready(function () {
         productSelect.select2('close');
         productSelect.select2('open');
     }
-
+ runtimeSelected = runtimeSelected.filter(pid => pid !== productId);
     // Show "No products selected" message if empty
     if (selectedProductsList.children().length === 0) {
         selectedProductsList.html('<small class="text-muted">No products selected</small>');
