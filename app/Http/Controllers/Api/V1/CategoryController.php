@@ -301,7 +301,7 @@ class CategoryController extends Controller
             })
             
             ->when($featured, function($query){
-                $query->featured();
+               //$query->featured();
             })
             ->when($best_selling_categories_ids, function($query) use ($best_selling_categories_ids){
           
@@ -311,7 +311,7 @@ class CategoryController extends Controller
             ->get();
             
     
-$categories = $categories->shuffle();
+//$categories = $categories->shuffle();
 
             return response()->json($categories, 200);
         } catch (\Exception $e) {
