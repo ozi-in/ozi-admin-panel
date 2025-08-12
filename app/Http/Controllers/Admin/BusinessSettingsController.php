@@ -121,7 +121,10 @@ class BusinessSettingsController extends Controller
             $selectedProducts = \App\Models\Item::whereIn('id', $trending_product_ids)->get();
             $suggestedProducts = \App\Models\Item::whereIn('id', $suggested_products_ids)->get();
             $bestsellingProducts = \App\Models\Item::whereIn('id', $best_product_ids)->get();
-            $bestsellingCategories= \App\Models\Category::whereIn('id', $best_selling_categories_ids)->where('parent_id',0)->get();
+          $bestsellingCategories = \App\Models\Category::whereIn('id', $best_selling_categories_ids)
+    ->where('parent_id', 0)
+    ->orderByRaw("FIELD(id, " . implode(',', $best_selling_categories_ids) . ")")
+    ->get();
             return view('admin-views.business-settings.priority-index',compact('categories','selectedProducts','suggestedProducts','bestsellingProducts','bestsellingCategories'));
         } else if ($tab == 'automated-message') {
             $key = explode(' ', $request['search']);

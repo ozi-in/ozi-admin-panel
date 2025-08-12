@@ -286,7 +286,7 @@ class CategoryController extends Controller
             $best_selling_categories_ids = BusinessSetting::where('key', 'best_selling_categories_ids')->value('value'); 
             $best_selling_categories_ids = $best_selling_categories_ids ? json_decode($best_selling_categories_ids, true) : [];
 
-           // print_R(  $best_selling_categories_ids);die;
+          // print_R(  $best_selling_categories_ids);die;
             $categories = Category::withCount(['products','childes'=> function($query){
                 $query->where('status',1);
             } ])->with(['childes' => function($query)  {
@@ -307,7 +307,7 @@ class CategoryController extends Controller
           
                 $query->whereIn('id',$best_selling_categories_ids);
             })           
-        
+            ->orderByRaw("FIELD(id, " . implode(',', $best_selling_categories_ids) . ")")
             ->get();
             
     
