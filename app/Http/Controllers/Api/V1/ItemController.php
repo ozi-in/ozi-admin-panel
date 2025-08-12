@@ -97,7 +97,8 @@ public function get_searched_products(Request $request)
     $zone_id = $request->header('zoneId');
     $search  = trim((string) $request['name']);
     $key     = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
-    $limit   = (int)($request['limit'] ?? 30);
+   // $limit   = (int)($request['limit'] ?? 30);
+   $limit=30;
     $offset  = (int)($request['offset'] ?? 1);
     /**
      * Step 1: Check if search contains any banner keyword
