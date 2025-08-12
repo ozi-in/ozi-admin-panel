@@ -696,33 +696,49 @@ $productIds = \App\Models\BannerKeywordProduct::whereRaw('LOWER(keyword) = ?', [
         }
         $key = explode(' ', $request->name);
 
-        $items = Item::active()->whereHas('store', function($query)use($zone_id){
-            $query->when(config('module.current_module_data'), function($query){
-                $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
-                    $query->where('modules.id', config('module.current_module_data')['id']);
-                });
-            })->whereIn('zone_id', json_decode($zone_id, true));
-        })
-        ->where(function ($q) use ($key) {
-            foreach ($key as $value) {
-                $q->orwhere('name', 'like', "%{$value}%")->orWhere('description', 'like', "%{$value}%");
-            }
+       $items = Item::active()
+    ->whereHas('store', function($query) use ($zone_id) {
+        $query->when(config('module.current_module_data'), function($query) {
+            $query->where('module_id', config('module.current_module_data')['id'])
+                  ->whereHas('zone.modules', function($query) {
+                      $query->where('modules.id', config('module.current_module_data')['id']);
+                  });
+        })->whereIn('zone_id', json_decode($zone_id, true));
+    })
+    ->select('id','name','image')
+    ->selectRaw("
+        CASE 
+            WHEN name LIKE ? THEN 3
+            WHEN description LIKE ? THEN 2
+            ELSE 1
+        END AS relevance
+    ", [
+        '%' . $request->name . '%',
+        '%' . $request->name . '%'
+    ])
+    ->where(function ($q) use ($key) {
+        foreach ($key as $value) {
+            $q->orWhere('name', 'like', "%{$value}%")
+              ->orWhere('description', 'like', "%{$value}%");
+        }
 
-            $relationships = [
-                'translations' => 'value',
-                'tags' => 'tag',
-                'nutritions' => 'nutrition',
-                'allergies' => 'allergy',
-                'category.parent' => 'name',
-                'category' => 'name',
-                'generic' => 'generic_name',
-                'ecommerce_item_details.brand' => 'name',
-                'pharmacy_item_details.common_condition' => 'name',
-            ];
-            $q->applyRelationShipSearch(relationships:$relationships ,searchParameter:$key);
-        })
-        ->limit(30)
-        ->get(['id','name','image']);
+        $relationships = [
+            'translations' => 'value',
+            'tags' => 'tag',
+            'nutritions' => 'nutrition',
+            'allergies' => 'allergy',
+            'category.parent' => 'name',
+            'category' => 'name',
+            'generic' => 'generic_name',
+            'ecommerce_item_details.brand' => 'name',
+            'pharmacy_item_details.common_condition' => 'name',
+        ];
+        $q->applyRelationShipSearch(relationships: $relationships, searchParameter: $key);
+    })
+    ->orderByDesc('relevance')
+    ->limit(30)
+    ->get();
+
 
         $stores = Store::
         whereHas('zone.modules', function($query){
