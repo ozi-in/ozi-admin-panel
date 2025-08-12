@@ -7,6 +7,8 @@
 @endpush
 
 @section('content')
+
+ 
     <div class="content container-fluid">
         @php($parcel_order = Request::is('admin/parcel/orders*'))
         <!-- Page Header -->

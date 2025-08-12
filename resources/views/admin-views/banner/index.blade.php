@@ -126,9 +126,28 @@ class="input-label-secondary"></span></label>
 </div>
 <div class="form-group mb-0 d-none" id="keyword">
 <label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}({{ translate('messages.comma_seperated_values') }})</label>
-<input type="text" name="banner_keywords" class="form-control" placeholder="{{translate('messages.foreg._diapers,bag')}}">
+<input type="text" name="banner_keywords" class="form-control" placeholder="{{translate('messages.foreg._diapers,bag')}}" id="keyword-input">
+ <div id="keywords-container"></div>
+ <button type="button" id="add-keyword" class="btn btn-primary ml-2 mt-2" data-url="{{url('/')}}">Add</button>
 </div>
+ <script type="text/template" id="keyword-template">
+    <div class="keyword-block mb-3 border p-2">
+        <h6>Keyword: <span class="keyword-name"></span></h6>
+        <div class="row">
+            <!-- Left: product search -->
+            <div class="col-md-6">
+                <select class="form-control product-select " multiple></select>
+            </div>
 
+            <!-- Right: selected products -->
+            <div class="col-md-6">
+                <div class="selected-products-list border p-2" style="min-height: 100px;max-height:200px;overflow-y: auto;">
+                    <small class="text-muted">No products selected</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
 <div class="form-group mb-0 mainparentBanner d-none" id="category_wise_wrapper">
     <label class="input-label">{{ translate('messages.category') }}</label>
     <select name="category_id" id="category_banner" class="form-control js-category-select" data-placeholder="Select Category" data-url="{{ url('/') }}"></select>
@@ -140,7 +159,7 @@ class="input-label-secondary"></span></label>
 </div>
 </div>
 <div class="col-lg-6">
-<div class="h-100 d-flex flex-column">
+<div class=" d-flex flex-column">
 <label class="mt-auto mb-0 d-block text-center">{{translate('messages.banner_image')}} <small class="text-danger">* ( {{translate('messages.ratio')}} 3:1 )</small></label>
 <div class="text-center py-3 my-auto">
 <img class="img--vertical" id="viewer"
@@ -441,5 +460,10 @@ $('#reset_btn').click(function(){
     $('#choice_item').val(null).trigger('change');
     $('#viewer').attr('src','{{asset('public/assets/admin/img/900x400/img1.jpg')}}');
 })
+</script>
+<script>
+
+const existingKeywordData={};
+
 </script>
 @endpush

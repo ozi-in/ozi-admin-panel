@@ -1007,6 +1007,19 @@ if(!empty($request['order_id'])){
 
         try {
             DB::beginTransaction();
+        $response_of_map=Helpers::GetMapData('28.39645600','77.07078000',$request->latitude,$request->longitude);
+
+
+            if (
+            isset($response_of_map['status']) &&
+            $response_of_map['status'] === 'OK' &&
+            isset($response_of_map['rows'][0]['elements'][0]['status']) &&
+            $response_of_map['rows'][0]['elements'][0]['status'] === 'OK'
+            ) {
+            $element = $response_of_map['rows'][0]['elements'][0];
+            $durationText = $element['duration_in_traffic']['text'] ?? $element['duration']['text'];
+            $order->promised_duration= $durationText;
+            }
             $order->save();
             if ($request->order_type !== 'parcel') {
                 if (count($order_details) == 0) {
