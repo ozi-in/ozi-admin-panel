@@ -177,6 +177,7 @@ class ConversationController extends Controller
 
                 }
             }
+            Helpers::sendOrderPlacedSMS();
 
         } catch (\Exception $e) {
             info($e->getMessage());
@@ -588,6 +589,8 @@ class ConversationController extends Controller
             $conversation->last_message_id=$message->id;
             $conversation->last_message_time = Carbon::now()->toDateTimeString();
             $conversation->save();
+
+
             {
                 $data = [
                     'title' =>translate('messages.message_from')." ".$sender->f_name,
@@ -604,6 +607,7 @@ class ConversationController extends Controller
                     Helpers::send_push_notif_to_topic($data, $fcm_token_web, 'message');
                 }
             }
+            Helpers::sendOrderPlacedSMS();
 
         } catch (\Exception $e) {
             info($e->getMessage());

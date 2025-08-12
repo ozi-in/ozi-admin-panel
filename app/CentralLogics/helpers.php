@@ -4914,6 +4914,7 @@ public static function Ecommorder($order){
 public static function sendOrderPlacedSMS()
 {
     $recipients = SmsRecipient::pluck('phone_number')->toArray(); // All numbers
+    
    // $message = "New order placed: Order ID {$order->id}, Total: ₹{$order->order_amount}";
 if(!empty( $recipients)){
     foreach ($recipients as $number) {
