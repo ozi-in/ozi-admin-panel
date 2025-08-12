@@ -159,7 +159,7 @@
                                      <div class="form-group mb-0 d-none" id="keyword">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}</label>
                                         <input type="text" name="banner_keywords" class="form-control" value="{{ $banner->banner_keywords }}" placeholder="{{translate('messages.foreg._diapers,bag')}}" id="keyword-input">
-                                               <button type="button" id="add-keyword" class="btn btn-primary ml-2" data-url="{{url('/')}}">Add</button>
+                                               <button type="button" id="add-keyword" class="btn btn-primary ml-2 mt-2 mb-2 " data-url="{{url('/')}}">Add Keywords</button>
                                           <div id="keywords-container"></div>
                                       
                                              <script type="text/template" id="keyword-template">
