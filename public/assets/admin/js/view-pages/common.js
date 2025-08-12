@@ -955,6 +955,157 @@ $('.producttag input[name="tags"]').on('itemAdded', function(event) {
 
 
 $(document).ready(function () {
+      let container = $('#keywords-container');
+
+    if (existingKeywordData && existingKeywordData.length) {
+        existingKeywordData.forEach(row => {
+            container.append(createKeywordBlock(row.keyword, row.products));
+        });
+    }
+
+    $('#add-keyword').on('click', function () {
+    //    alert("8")
+      //  console.log("hi")
+    let keywordsText = $('#keyword-input').val().trim();
+    if (!keywordsText) return;
+
+    let keywords = keywordsText.split(',').map(k => k.trim()).filter(k => k);
+
+    let container = $('#keywords-container');
+    container.empty();
+
+    keywords.forEach(keyword => {
+        container.append(createKeywordBlock(keyword, []));
+    });
+});
+    function createKeywordBlock(keyword, preselectedProducts = []) {
+    let template = $('#keyword-template').html();
+    let route = $('#add-keyword').data("url");
+
+    let block = $(template);
+    block.find('.keyword-name').text(keyword);
+
+    let productSelect = block.find('.product-select');
+    let selectedProductsList = block.find('.selected-products-list');
+
+    // Initialize Select2
+    productSelect.select2({
+        placeholder: 'Select products for ' + keyword,
+        ajax: {
+            url: route + "/admin/item/get-trending-items",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term,
+                    keyword: keyword,
+                     page: params.page || 1  
+                };
+            },
+            
+            processResults: function (data) {
+                return {
+                    results: data.results,
+                    pagination: { more: data.pagination?.more || false }
+                };
+            },
+            
+            cache: true
+        },
+           templateResult: function (data) {
+                console.log("harpeet")
+        // Skip rendering for loading text
+//         if (data.loading) return data.text;
+// console.log(preselectedProducts);
+        // Check if in preselectedProducts
+       let isPreselected = preselectedProducts.some(p => p.id == data.id);
+
+        // Create option display
+       
+            const $result = isPreselected
+        ? `<span>${data.text} <span class="badge bg-success ms-2">Added</span></span>`
+        : `<span>${data.text}</span>`;
+        return $result;
+    },
+    escapeMarkup: function (markup) {
+        return markup; // Allow HTML for the check icon
+    },
+    });
+
+    // Pre-fill products if in edit mode
+    if (preselectedProducts.length) {
+        selectedProductsList.find('small.text-muted').remove();
+        preselectedProducts.forEach(prod => {
+            selectedProductsList.append(`
+                <div class="selected-product-item d-flex justify-content-between align-items-center mb-1" data-id="${prod.id}">
+                    <span>${prod.name}</span>
+                    <input type="hidden" name="keyword_products[${keyword}][]" value="${prod.id}">
+                    <button type="button" class="btn btn-sm btn-danger remove-product">&times;</button>
+                </div>
+            `);
+        });
+    }
+
+    // Handle product selection
+    productSelect.on('select2:select', function (e) {
+        let data = e.params.data;
+
+        if (selectedProductsList.find(`.selected-product-item[data-id="${data.id}"]`).length) {
+            let values = productSelect.val() || [];
+            values = values.filter(id => id != data.id);
+            productSelect.val(values).trigger('change.select2');
+            return;
+        }
+
+        selectedProductsList.find('small.text-muted').remove();
+        selectedProductsList.append(`
+            <div class="selected-product-item d-flex justify-content-between align-items-center mb-1" data-id="${data.id}">
+                <span>${data.text}</span>
+                <input type="hidden" name="keyword_products[${keyword}][]" value="${data.id}">
+                <button type="button" class="btn btn-sm btn-danger remove-product">&times;</button>
+            </div>
+        `);
+
+        let values = productSelect.val() || [];
+        values = values.filter(id => id != data.id);
+        productSelect.val(values).trigger('change.select2');
+    });
+
+    // Handle removal
+ selectedProductsList.on('click', '.remove-product', function () {
+    let productItem = $(this).closest('.selected-product-item');
+    let productId = productItem.data('id');
+
+    // Remove from right side list
+    productItem.remove();
+
+    // Update select2 values
+    let selectedValues = productSelect.val() || [];
+    selectedValues = selectedValues.filter(id => id != productId);
+    productSelect.val(selectedValues).trigger('change');
+
+    // Remove from preselectedProducts array so ✅ disappears
+    preselectedProducts = preselectedProducts.filter(p => p.id != productId);
+
+    // Force Select2 dropdown refresh if it's open
+    if (productSelect.data('select2').isOpen()) {
+        productSelect.select2('close');
+        productSelect.select2('open');
+    }
+
+    // Show "No products selected" message if empty
+    if (selectedProductsList.children().length === 0) {
+        selectedProductsList.html('<small class="text-muted">No products selected</small>');
+    }
+});
+
+
+    return block;
+}
+
+});
+
+$(document).ready(function () {
    //let selectedMainCategories = new Map(); // id => name
     const $mainSelect = $('#mainCategorySelect');
     const $selectedList = $('#BestSellingCategoryList');
@@ -1029,3 +1180,5 @@ $(document).ready(function () {
         renderSelectedList();
     }
 });
+
+

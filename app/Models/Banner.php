@@ -193,4 +193,9 @@ class Banner extends Model
             }
         });
     }
+
+    public function keywordProducts()
+{
+    return $this->hasMany(BannerKeywordProduct::class);
+}
 }

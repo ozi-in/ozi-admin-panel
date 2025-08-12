@@ -158,11 +158,35 @@
                                     </div>
                                      <div class="form-group mb-0 d-none" id="keyword">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('messages.keywords')}}</label>
-                                        <input type="text" name="banner_keywords" class="form-control" value="{{ $banner->banner_keywords }}" placeholder="{{translate('messages.foreg._diapers,bag')}}">
+                                        <input type="text" name="banner_keywords" class="form-control" value="{{ $banner->banner_keywords }}" placeholder="{{translate('messages.foreg._diapers,bag')}}" id="keyword-input">
+                                               <button type="button" id="add-keyword" class="btn btn-primary ml-2" data-url="{{url('/')}}">Add</button>
+                                          <div id="keywords-container"></div>
+                                      
+                                             <script type="text/template" id="keyword-template">
+    <div class="keyword-block mb-3 border p-2">
+        <h6>Keyword: <span class="keyword-name"></span></h6>
+        <div class="row">
+            <!-- Left: product search -->
+            <div class="col-md-6">
+                <select class="form-control product-select js-select2-custom" multiple></select>
+            </div>
+
+            <!-- Right: selected products -->
+            <div class="col-md-6">
+                <div class="selected-products-list border p-2" style="min-height: 100px;">
+                    <small class="text-muted">No products selected</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
                                     </div>
+                           
                                 </div>
+
                                 <div class="col-lg-6">
-                                    <div class="h-100 d-flex flex-column">
+                                    <div class=" d-flex flex-column">
                                         <label class="mt-auto mb-0 d-block text-center">
                                             {{translate('messages.banner_image')}}
                                             <small class="text-danger">* ( {{translate('messages.ratio')}} 900x300 )</small>
@@ -327,4 +351,11 @@
             });
         });
     </script>
+<script>
+const existingKeywordData = @json($keywordsData);
+if(existingKeywordData==undefined){
+ existingKeywordData={};
+}
+</script>
+
 @endpush

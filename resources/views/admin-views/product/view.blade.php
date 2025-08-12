@@ -37,6 +37,7 @@
                     <!-- Body -->
                     <div class="card-body">
                         <div class="row align-items-md-center">
+                  
                             <div class="col-lg-5 col-md-6 mb-3 mb-md-0">
                                 <div class="d-flex flex-wrap align-items-center food--media">
                                     <img class="avatar avatar-xxl avatar-4by3 mr-4 onerror-image"

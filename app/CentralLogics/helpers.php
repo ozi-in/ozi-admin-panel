@@ -4688,11 +4688,9 @@ class Helpers
            $destLng = $deliveryMan->last_location ? $deliveryMan->last_location->longitude : null;
       
         if(!empty( $destLat) && !empty( $destLng) ){
-        $apiKey = \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value;
-        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&departure_time=now&traffic_model=best_guess&key=$apiKey";
-
-        $response = file_get_contents($url);
-        $data = json_decode($response, true);
+        
+        $data=Helpers::GetMapData($originLat,$originLng,$destLat,$destLng);
+     
        // echo "<pre>";print_R($data);die;
         if (!$data || $data['status'] !== 'OK') {
             return ['error' => 'Google API failed','status'=>0];
@@ -4762,6 +4760,15 @@ $duration = $newDuration;
     }
     }
     return null;
+}
+
+public static function GetMapData($originLat,$originLng,$destLat,$destLng){
+$apiKey = \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value;
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=$originLat,$originLng&destinations=$destLat,$destLng&departure_time=now&traffic_model=best_guess&key=$apiKey";
+
+        $response = file_get_contents($url);
+
+      return  $data = json_decode($response, true);
 }
 public static function saveRiderLocation($delivery_man_id,$trackingId)
 {
@@ -4893,11 +4900,11 @@ public static function Ecommorder($order){
                                 ]
                                 ]]
                             ];
-                                          Log::info(' Payload:', $payload);
+                                         // Log::info(' Payload:', $payload);
 
                              try {
                         $response = $connector->call('createOrder', $payload);
-                            Log::info('Error Response:', $response);
+                            Log::info('Easy Response:', $response);
                         return response()->json(['message' => 'Order created successfully', 'response' => $response]);
                     } catch (\Exception $e) {
                         return response()->json(['error' => $e->getMessage()], 500);

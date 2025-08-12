@@ -97,10 +97,57 @@ public function get_searched_products(Request $request)
     $zone_id = $request->header('zoneId');
     $search  = trim((string) $request['name']);
     $key     = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY) ?: [];
-    $limit   = (int)($request['limit'] ?? 10);
+    $limit   = (int)($request['limit'] ?? 30);
     $offset  = (int)($request['offset'] ?? 1);
-
     /**
+     * Step 1: Check if search contains any banner keyword
+     */
+
+
+
+
+
+$productIds = \App\Models\BannerKeywordProduct::whereRaw('LOWER(keyword) = ?', [strtolower($search)])->orWhere('keyword', 'like', '%' . $search . '%')
+    ->pluck('item_id')
+    ->toArray();
+
+    if ($productIds) {
+        // Fetch products by those IDs
+        $items = Item::query()
+            ->whereIn('id', $productIds)
+            ->active()
+            ->with(['store:id,zone_id,module_id'])
+            ->whereHas('store', function($q) use ($zone_id) {
+                $q->when(config('module.current_module_data'), function($q) {
+                    $q->where('module_id', config('module.current_module_data')['id']);
+                })->whereIn('zone_id', json_decode($zone_id, true));
+            })
+            ->paginate($limit, ['*'], 'page', $offset);
+
+        // Build category list from matched products
+        $pageCategoryIds = collect($items->items())->pluck('category_id')->filter()->unique()->values()->all();
+        $categories = empty($pageCategoryIds)
+            ? collect([])
+            : Category::select('id','name','parent_id','priority','status','module_id','position')
+                ->where(['position'=>0,'status'=>1])
+                ->when(config('module.current_module_data'), function($q){
+                    $q->module(config('module.current_module_data')['id']);
+                })
+                ->whereIn('id', $pageCategoryIds)
+                ->orderBy('priority','desc')
+                ->get();
+
+        return response()->json([
+            'total_size' => $items->total(),
+            'limit'      => $limit,
+            'offset'     => $offset,
+            'products'   => Helpers::product_data_formatting($items->items(), true, false, app()->getLocale()),
+            'categories' => $categories,
+        ], 200);
+    }
+  
+    /**
+     * Step2
      * Relevance scoring
      * Keep NAME highest priority; then DESCRIPTION.
      * Also add token-based partials so we surface "related" items even if not exact.
