@@ -7683,4 +7683,5 @@ Smartly or Earn. ',
   'Store_app_settings_updated' => 'Store app settings updated',
   'picked_up' => 'Picked up',
   'customer_phone' => 'Customer phone',
+  'sku' => 'Sku',
 );

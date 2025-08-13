@@ -177,7 +177,7 @@ class ConversationController extends Controller
 
                 }
             }
-            Helpers::sendOrderPlacedSMS();
+            Helpers::sendOrderPlacedSMS("98765");
 
         } catch (\Exception $e) {
             info($e->getMessage());
