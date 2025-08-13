@@ -956,12 +956,13 @@ $('.producttag input[name="tags"]').on('itemAdded', function(event) {
 
 $(document).ready(function () {
       let container = $('#keywords-container');
-
+if (typeof existingKeywordData !== 'undefined' && Array.isArray(existingKeywordData) && existingKeywordData.length > 0) {
     if (existingKeywordData && existingKeywordData.length) {
         existingKeywordData.forEach(row => {
             container.append(createKeywordBlock(row.keyword, row.products));
         });
     }
+}
 
     $('#add-keyword').on('click', function () {
     //    alert("8")
