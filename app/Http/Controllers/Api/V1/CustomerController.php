@@ -311,12 +311,7 @@ if(isset($request->best)){
     $moduleId = config('module.current_module_data')['id'] ?? null;
 
     // ✅ Base item query
-    $query = Item::active()
-        ->select([
-            'id', 'name', 'image', 'rating', 'avg_rating', 'discount',
-            'price', 'variations', 'category_ids','rating_count'
-        ])
-        ->with('store:id,zone_id,module_id,delivery_time,schedule_order')
+    $query = Item::active()->with('store:id,zone_id,module_id,delivery_time,schedule_order')
         ->whereHas('store', function ($query) use ($zoneIds, $moduleId) {
             $query->whereIn('zone_id', $zoneIds);
 

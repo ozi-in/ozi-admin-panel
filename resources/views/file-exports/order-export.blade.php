@@ -40,6 +40,7 @@
                 <th></th>
                 <th></th>
                   <th></th>
+                        <th></th>
             </tr>
             <tr>
                 <th>{{ translate('messages.sl') }}</th>
@@ -52,6 +53,7 @@
                 <th>{{ translate('messages.customer_name') }}</th>
                    <th>{{ translate('messages.customer_phone') }}</th>
                 <th>{{ translate('messages.store_name') }}</th>
+                   <th>{{ translate('messages.sku') }}</th>
                 <th>{{ translate('messages.item_price') }}</th>
                 <th>{{ translate('messages.item_discount') }}</th>
                 <th>{{ translate('messages.coupon_discount') }}</th>
@@ -87,6 +89,7 @@
                         {{ translate('not_found') }}
                     @endif
                 </td>
+            
                 <td>
                     @if($order->store)
                         {{$order->store->name}}
@@ -94,6 +97,15 @@
                         {{ translate('messages.not_found') }}
                     @endif
                 </td>
+                @php $skus = $order->details
+    ->map(function ($detail) {
+        $itemDetails = json_decode($detail->item_details, true);
+        return $itemDetails['sku'] ?? null;
+    })
+    ->filter() // remove nulls
+    ->values(); // reindex
+    @endphp
+                     <td>{{$skus ?? 'NA'}}</td>
                 <td>{{ \App\CentralLogics\Helpers::number_format_short($order['order_amount']-$order['dm_tips']-$order['total_tax_amount']-$order['delivery_charge']+$order['coupon_discount_amount'] + $order['store_discount_amount']) }}</td>
                 <td>{{ \App\CentralLogics\Helpers::number_format_short($order->details->sum('discount_on_item')) }}</td>
                 <td>{{ \App\CentralLogics\Helpers::number_format_short($order['coupon_discount_amount']) }}</td>

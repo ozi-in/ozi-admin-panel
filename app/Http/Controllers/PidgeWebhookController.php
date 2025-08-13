@@ -82,6 +82,10 @@ class PidgeWebhookController extends Controller
                     $status = 'canceled';
                     $order->canceled = now();
                     break;
+                 case 'REACHED_DELIVERY':
+                    $status = 'reached_delivery';
+                    $order->reached_delivery_timestamp = now();
+                    break;
                 default:
                     $status = strtolower($fulfillmentStatus);
                     break;

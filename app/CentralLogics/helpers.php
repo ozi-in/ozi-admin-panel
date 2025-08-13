@@ -4903,7 +4903,7 @@ public static function Ecommorder($order){
                                   
                             "gst_number" => "",
                             "billing" => [
-                                "name" => 'OziCustomer',
+                                "name" => 'OziCustomer-'.$decode_Request->contact_person_number,
                               "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
@@ -4916,7 +4916,7 @@ public static function Ecommorder($order){
                                     "longitude"=> $decode_Request->longitude,
                             ],
                             "shipping" => [
-                                "name" =>'OziCustomer',
+                                "name" =>'OziCustomer-'.$decode_Request->contact_person_number,
                                 "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
@@ -4941,14 +4941,14 @@ public static function Ecommorder($order){
                     }
 }
 
-public static function sendOrderPlacedSMS()
+public static function sendOrderPlacedSMS($otp="12345")
 {
     $recipients = SmsRecipient::pluck('phone_number')->toArray(); // All numbers
     
    // $message = "New order placed: Order ID {$order->id}, Total: ₹{$order->order_amount}";
 if(!empty( $recipients)){
     foreach ($recipients as $number) {
-       $response_sms = SMS_module::send($number,'12345');
+       $response_sms = SMS_module::send($number,$otp);
     }
 }
 }
