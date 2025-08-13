@@ -39,6 +39,7 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                  <th></th>
             </tr>
             <tr>
                 <th>{{ translate('messages.sl') }}</th>
@@ -49,6 +50,7 @@
                 <th>{{ translate('messages.Date') }}</th>
                 @endif
                 <th>{{ translate('messages.customer_name') }}</th>
+                   <th>{{ translate('messages.customer_phone') }}</th>
                 <th>{{ translate('messages.store_name') }}</th>
                 <th>{{ translate('messages.item_price') }}</th>
                 <th>{{ translate('messages.item_discount') }}</th>
@@ -74,6 +76,13 @@
                 <td>
                     @if ($order->customer)
                         {{ $order->customer['f_name'] . ' ' . $order->customer['l_name'] }}
+                    @else
+                        {{ translate('not_found') }}
+                    @endif
+                </td>
+                 <td>
+                    @if ($order->customer)
+                        {{ $order->customer['phone']}}
                     @else
                         {{ translate('not_found') }}
                     @endif
