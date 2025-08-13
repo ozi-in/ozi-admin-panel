@@ -1017,7 +1017,8 @@ if(!empty($request['order_id'])){
             $response_of_map['rows'][0]['elements'][0]['status'] === 'OK'
             ) {
             $element = $response_of_map['rows'][0]['elements'][0];
-            $durationText = $element['duration_in_traffic']['text'] ?? $element['duration']['text'];
+            //$durationText = $element['duration_in_traffic']['text'] ?? $element['duration']['text'];
+           $durationText = Helpers::addDelta($element);
             $order->promised_duration= $durationText;
             }
             $order->save();

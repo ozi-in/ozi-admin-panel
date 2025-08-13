@@ -4770,6 +4770,36 @@ $apiKey = \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->val
 
       return  $data = json_decode($response, true);
 }
+public static function addDelta($element){
+ $delivery_Tat = \App\Models\BusinessSetting::where('key', 'delivery_tat')->first()->value;
+$distance = $element['distance']['text'];
+ $distanceKm = $element['distance']['value'] / 1000; // meters to km
+$durationText = $element['duration_in_traffic']['text'] ?? $element['duration']['text'];
+// Parse hours and minutes from Google duration
+$hours = 0;
+$minutes = 0;
+$durationSeconds = $element['duration_in_traffic']['value'] ?? $element['duration']['value'];
+$totalMinutes = round($durationSeconds / 60) + ($delivery_Tat ?? 0);
+// Rebuild duration string
+$newHours = floor($totalMinutes / 60);
+$newMinutes = $totalMinutes % 60;
+$newDuration = '';
+if ($newHours > 0) {
+    $newDuration .= $newHours . ' hour' . ($newHours > 1 ? 's' : '');
+}
+if ($newMinutes > 0) {
+    if ($newDuration !== '') {
+        $newDuration .= ' ';
+    }
+    $newDuration .= $newMinutes . ' min' . ($newMinutes > 1 ? 's' : '');
+}
+if ($newDuration === '') {
+    $newDuration = '0 mins';
+}
+
+$duration = $newDuration;
+return $duration;
+}
 public static function saveRiderLocation($delivery_man_id,$trackingId)
 {
     try {
