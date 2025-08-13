@@ -4885,6 +4885,12 @@ public static function Ecommorder($order){
                    // "itemDiscount"=>$item['discount_on_item']
                 ];
             }
+           $Customer_name = isset($decode_Request->contact_person_name) && trim($decode_Request->contact_person_name) !== ''
+    ? trim($decode_Request->contact_person_name)
+    : 'OziCustomer';
+
+
+
                 $payload = [
                     "orderType" => "retailorder",
                     "marketplaceId" => 10,
@@ -4903,7 +4909,7 @@ public static function Ecommorder($order){
                                   
                             "gst_number" => "",
                             "billing" => [
-                                "name" => 'OziCustomer-'.$decode_Request->contact_person_number,
+                                "name" => $Customer_name.'-'.$decode_Request->contact_person_number,
                               "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
@@ -4916,7 +4922,7 @@ public static function Ecommorder($order){
                                     "longitude"=> $decode_Request->longitude,
                             ],
                             "shipping" => [
-                                "name" =>'OziCustomer-'.$decode_Request->contact_person_number,
+                                "name" =>$Customer_name.'-'.$decode_Request->contact_person_number,
                                 "addressLine1" => $decode_Request->house.','.$decode_Request->road.', ',
                                 "addressLine2" => $decode_Request?->address ?? '',
                                 "postalCode" => "122001",
