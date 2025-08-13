@@ -1095,17 +1095,17 @@ if(!empty($request['order_id'])){
   
  
                      DB::commit();
-                //     try{
-                //     if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
-                //     if( $order->order_status != 'failed'  && $order->order_status != 'canceled'){
-                //     Helpers::Ecommorder($order);
-                //     Helpers::sendOrderPlacedSMS();
-                //     }
-                //     }
-                //     }
-                //     catch(Exception $exception){
-                //    return $exception->getMessage;
-                //     }
+                    try{
+                    if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
+                    if( $order->order_status != 'failed'  && $order->order_status != 'canceled'){
+                    Helpers::Ecommorder($order);
+                    Helpers::sendOrderPlacedSMS();
+                    }
+                    }
+                    }
+                    catch(Exception $exception){
+                   return $exception->getMessage;
+                    }
 
 
             $payments = $order->payments()->where('payment_method','cash_on_delivery')->exists();
