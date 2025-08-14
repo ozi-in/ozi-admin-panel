@@ -1095,7 +1095,7 @@ class Helpers
             if ($item['item_id']){
                 $product = \App\Models\Item::where(['id' => $item['item_details']['id']])->first();
                 $item['image_full_url'] = $product?->image_full_url;
-                $item['images_full_url'] = $product->images_full_url;
+                $item['images_full_url'] = $product?->images_full_url;
             }else{
                 $product = \App\Models\ItemCampaign::where(['id' => $item['item_details']['id']])->first();
                 $item['image_full_url'] = $product?->image_full_url;
