@@ -4959,15 +4959,42 @@ public static function Ecommorder($order){
                     }
 }
 
-public static function sendOrderPlacedSMS($otp="12345")
+public static function sendOrderPlacedSMS($type="message",$order_id="",$items=[])
 {
     $recipients = SmsRecipient::pluck('phone_number')->toArray(); // All numbers
-    
+
    // $message = "New order placed: Order ID {$order->id}, Total: ₹{$order->order_amount}";
 if(!empty( $recipients)){
-    foreach ($recipients as $number) {
-       $response_sms = SMS_module::send($number,$otp);
+     $CommaSeparatedContacts=implode(",",  $recipients );
+    if($type=="message"){
+  
+    return    SMS_module::send_trasaction_sms(
+    $CommaSeparatedContacts, 
+    "New Message arrived !!!\n\n-OZI TECHNOLOGIES PRIVATE LIMITED"
+);
+    }else{
+        if ($items->count() > 2) {
+        $productNamesCsv = $items->take(2)->implode(', ') . '...';
+        } else {
+        $productNamesCsv = $items->implode(', ');
+        }
+       // echo  $productNamesCsv;die;
+     $respinse= SMS_module::send_trasaction_sms(
+   $CommaSeparatedContacts, 
+"Order ##Var1# has been placed.
+
+Items: #Var2#.
+
+-OZI TECHNOLOGIES PRIVATE LIMITED",
+    [$order_id, $productNamesCsv] // variables in order
+);
+Log::info("2factor",[$respinse]);
     }
+     
+    // foreach ($recipients as $number) {
+    //     if()
+    //    $response_sms = SMS_module::send($number,$otp);
+    // }
 }
 }
 }

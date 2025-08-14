@@ -118,6 +118,8 @@ if(!empty($request['order_id'])){
 
     public function place_order(Request $request)
     {
+
+      
         $validator = Validator::make($request->all(), [
             'order_amount' => 'required',
             'payment_method' => 'required|in:cash_on_delivery,digital_payment,wallet,offline_payment',
@@ -1100,7 +1102,9 @@ if(!empty($request['order_id'])){
                     if($order->order_status=="paid" || $order->payment_method=="cash_on_delivery"){
                     if( $order->order_status != 'failed'  && $order->order_status != 'canceled'){
                     Helpers::Ecommorder($order);
-                    Helpers::sendOrderPlacedSMS();
+                    $names = $order->details->pluck('item.name');                   
+                    
+                   Helpers::sendOrderPlacedSMS("order_placed",$order->id,$names);
                     }
                     }
                     }
@@ -1965,7 +1969,8 @@ if(!empty($request['order_id'])){
 
  if(empty($order->EcommOrderID) && $order->order_status != 'failed'  && $order->order_status != 'canceled' ){
                 Helpers::Ecommorder($order);
-                Helpers::sendOrderPlacedSMS();
+         $names = $order->details->pluck('item.name'); 
+         Helpers::sendOrderPlacedSMS("order_placed",$order->id,$names);
                 }
             $order_mail_status = Helpers::get_mail_status('place_order_mail_status_user');
             $order_verification_mail_status = Helpers::get_mail_status('order_verification_mail_status_user');
