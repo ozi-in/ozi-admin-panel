@@ -4988,6 +4988,7 @@ Items: #Var2#.
 -OZI TECHNOLOGIES PRIVATE LIMITED",
     [$order_id, $productNamesCsv] // variables in order
 );
+Log::info("2factor",[$order_id,$productNamesCsv]);
 Log::info("2factor",[$respinse]);
     }
      
