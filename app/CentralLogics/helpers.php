@@ -4978,6 +4978,8 @@ if(!empty( $recipients)){
         } else {
         $productNamesCsv = $items->implode(', ');
         }
+        $productNamesCsv="Pampers Premium Care Pant Style Baby Diapers with Aloe Vera & Cottony Softness, Medium (M), 38 Count, 7-12kg";
+      //  $productNamesCsv = urlencode($productNamesCsv);
        // echo  $productNamesCsv;die;
      $respinse= SMS_module::send_trasaction_sms(
    $CommaSeparatedContacts, 
