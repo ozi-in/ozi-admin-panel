@@ -4856,6 +4856,18 @@ public static function clearBusinessConfigCache()
     // Add more as needed
 }
 public static function Ecommorder($order){
+
+      // Detect if current domain matches vestiqq.com
+    $currentDomain = request()->getHost();
+   if (
+    str_contains($currentDomain, 'vestiqq.com') || 
+    $currentDomain === 'localhost'
+) {
+        // Just log and return without placing the order
+        Log::info("Ecommorder skipped for domain: {$currentDomain}", ['order_id' => $order->id]);
+
+       return;
+    }
     $connector = new OrderConnector(); 
     $decode_Request=json_decode($order->delivery_address);
         $localTimezone = config('app.timezone');
