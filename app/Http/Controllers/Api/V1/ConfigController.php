@@ -878,12 +878,12 @@ class ConfigController extends Controller
     $imageName = BusinessSetting::where('key', $key)
         ->value('value');
    
-    if (!$imageName) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Image not found for the given key'
-        ], 404);
-    }
+    // if (!$imageName) {
+    //     return response()->json([
+    //         'status' => 'error',
+    //         'message' => 'Image not found for the given key'
+    //     ], 404);
+    // }
 
 
 
