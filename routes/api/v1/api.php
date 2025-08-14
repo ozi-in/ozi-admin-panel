@@ -519,6 +519,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
     });
     Route::get('vehicle/extra_charge', 'ConfigController@extra_charge');
     Route::get('get-vehicles', 'ConfigController@get_vehicles');
+      Route::get('config/image-url', 'ConfigController@imageUrl');
 });
 
 WebSocketsRouter::webSocket('/delivery-man/live-location', DMLocationSocketHandler::class);
@@ -526,4 +527,5 @@ WebSocketsRouter::webSocket('/delivery-man/live-location', DMLocationSocketHandl
 Route::post('/webhook/easyecom/shipping-assigned', [EasyEcomWebhookController::class, 'shippingAssigned']);
 Route::post('/webhook/easyecom/getlogs', [EasyEcomWebhookController::class, 'Getlogs']);
 Route::post('/webhook/pidge-tracking', [PidgeWebhookController::class, 'handle']);
+
 
