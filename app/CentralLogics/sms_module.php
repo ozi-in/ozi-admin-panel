@@ -141,31 +141,21 @@ class SMS_module
             
             $order_id=$variables[0];
             $items_list=$variables[1];
-                $message=str_replace("#Var1#",$order_id,$message);
-                   $message=str_replace("#Var2#",$items_list,$message);
-            $senderId = "ozi"; // your sender ID
-            
-            $ch = curl_init();
-            
+            $items_list = mb_substr($items_list, 0, 40) . '...';
+            $items_list = preg_replace('/[^A-Za-z0-9\s\.,\-]/u', '', $items_list);
+                 $ch = curl_init();
             curl_setopt_array($ch, array(
-                CURLOPT_URL => 'https://2factor.in/API/R1/',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => http_build_query([
-                    'module' => 'TRANS_SMS',
-                    'apikey' => $api_key,
-                    'to'     => $receiver,       // comma-separated for bulk
-                    'from'   => $senderId,
-                    'msg'    => $message
-                ]),
-                CURLOPT_HTTPHEADER => array(
-                    'Content-Type: application/x-www-form-urlencoded'
-                ),
+            CURLOPT_URL => "https://2factor.in/API/V1/{$api_key}/ADDON_SERVICES/SEND/TSMS",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query([
+            'From'         => "ozi",
+            'To'           => $receiver, // comma-separated for bulk
+            'TemplateName' => 'Message (Order Only)', // exact template name from 2Factor
+            'VAR1'         => $order_id,
+            'VAR2'         => $items_list
+            ]),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded']
             ));
             $response = curl_exec($ch);
             curl_close($ch);
