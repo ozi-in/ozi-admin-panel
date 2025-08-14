@@ -199,9 +199,18 @@ class CartController extends Controller
 
         $carts = Cart::where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->get()
         ->map(function ($data) {
-            $data->add_on_ids = json_decode($data->add_on_ids,true);
-            $data->add_on_qtys = json_decode($data->add_on_qtys,true);
-            $data->variation = json_decode($data->variation,true);
+                if (is_string($data->add_on_ids)) {
+                $data->add_on_ids = json_decode($data->add_on_ids, true);
+                }
+
+                if (is_string($data->add_on_qtys)) {
+                $data->add_on_qtys = json_decode($data->add_on_qtys, true);
+                }
+
+                if (is_string($data->variation)) {
+                $data->variation = json_decode($data->variation, true);
+                }
+
 			$data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
             $data->add_on_qtys, false, app()->getLocale());
             return $data;
