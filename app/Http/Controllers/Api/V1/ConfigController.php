@@ -869,4 +869,28 @@ class ConfigController extends Controller
         }
         return json_decode($response, true);
     }
+
+    public function imageUrl(Request $request)
+{
+    // Optional: allow passing `key` as a query parameter
+    $key = $request->get('key', 'promo_banner'); // default if not given
+
+    $imageName = BusinessSetting::where('key', $key)
+        ->value('value');
+   
+    if (!$imageName) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Image not found for the given key'
+        ], 404);
+    }
+
+
+
+    return response()->json([
+        'status' => 'success',
+        'image_url' => url('/public').'/'.$imageName ??  url('/').'/public/assets/promo_banner/promo-banner.jpeg'
+    ]);
+}
+
 }
